@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>GenTac — Tactics Board</title>
+  <link rel="stylesheet" href="src/render/style.css?v=11" />
+</head>
+<body>
+  <header>
+    <h1>Tactics Board</h1>
+    <div id="status">Loading…</div>
+  </header>
+  <section id="controls">
+    <button id="play-btn" type="button" disabled>▶︎ Play</button>
+    <input id="scrubber" type="range" min="0" max="0" value="0" step="1" disabled />
+    <span id="time-label">0.0s</span>
+    <label>
+      Speed
+      <select id="speed-select">
+        <option value="0.25">0.25×</option>
+        <option value="0.5">0.5×</option>
+        <option value="1" selected>1×</option>
+        <option value="2">2×</option>
+        <option value="4">4×</option>
+      </select>
+    </label>
+    <label class="toggle">
+      <input id="trails-toggle" type="checkbox" checked />
+      Trails
+    </label>
+    <label class="toggle">
+      <input id="compare-toggle" type="checkbox" />
+      Compare
+    </label>
+    <label class="toggle">
+      <input id="draw-toggle" type="checkbox" />
+      Draw
+    </label>
+    <button id="clear-arrows" type="button" disabled>Clear arrows</button>
+    <button id="generate-btn" type="button" disabled>Generate ▶</button>
+    <div id="sample-picker" hidden>
+      <button id="sample-prev" type="button">◀</button>
+      <span id="sample-label">Sample 1 / 20</span>
+      <button id="sample-next" type="button">▶</button>
+    </div>
+  </section>
+  <main id="panels">
+    <section class="panel" data-panel="A">
+      <header class="panel-header">
+        <span class="panel-label">Actual</span>
+        <span class="panel-meta" data-bind="meta">—</span>
+      </header>
+      <canvas class="pitch" width="1050" height="680"></canvas>
+    </section>
+    <section class="panel" data-panel="B" hidden>
+      <header class="panel-header">
+        <span class="panel-label">Alternative</span>
+        <span class="panel-meta" data-bind="meta">—</span>
+      </header>
+      <canvas class="pitch" width="1050" height="680"></canvas>
+    </section>
+  </main>
+  <script>
+    // Bright-red error overlay so JS crashes don't hide in the console.
+    window.addEventListener("error", (e) => {
+      const d = document.createElement("div");
+      d.style.cssText = "position:fixed;top:0;left:0;right:0;background:#c00;color:#fff;padding:12px;font-family:monospace;font-size:13px;z-index:9999;white-space:pre-wrap;";
+      d.textContent = "JS ERROR: " + (e.error?.stack || e.message || String(e));
+      document.body.appendChild(d);
+    });
+    window.addEventListener("unhandledrejection", (e) => {
+      const d = document.createElement("div");
+      d.style.cssText = "position:fixed;top:0;left:0;right:0;background:#c00;color:#fff;padding:12px;font-family:monospace;font-size:13px;z-index:9999;white-space:pre-wrap;";
+      d.textContent = "PROMISE REJECTED: " + (e.reason?.stack || e.reason?.message || String(e.reason));
+      document.body.appendChild(d);
+    });
+  </script>
+  <script src="src/render/pitch.js?v=11"></script>
+</body>
+</html>

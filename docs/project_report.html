@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>B START UP — Full project report</title>
+<style>
+  @page { size: Letter; margin: 0.55in 0.55in; }
+  @media print {
+    .pagebreak { page-break-before: always; }
+    a { color: inherit; text-decoration: none; }
+    section { page-break-inside: avoid; }
+    table { page-break-inside: avoid; }
+  }
+  :root {
+    --ink: #111418;
+    --muted: #555c66;
+    --faint: #8a929c;
+    --rule: #d8dde3;
+    --accent: #d24317;
+    --tint: #fbe6dd;
+    --us: #1f6b3a;
+    --paper: #2c4cad;
+    --code-bg: #f4f6f8;
+  }
+  html, body { margin: 0; padding: 0; background: #fff; color: var(--ink); }
+  body {
+    font-family: "Charter", "Iowan Old Style", "Source Serif Pro", "Georgia", serif;
+    font-size: 9.5pt;
+    line-height: 1.42;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* COVER PAGE */
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 9.5in;
+    padding: 0.5in 0;
+  }
+  .cover-header { border-bottom: 3px solid var(--ink); padding-bottom: 16px; }
+  .cover-mark {
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 9pt; font-weight: 700; letter-spacing: 0.2em; color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .cover-title {
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 36pt; line-height: 1.02; letter-spacing: -0.03em; font-weight: 800;
+    margin: 0 0 12px 0;
+  }
+  .cover-sub {
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 14pt; color: var(--muted); font-weight: 500; letter-spacing: -0.01em;
+  }
+  .cover-tldr {
+    margin: 60px 0;
+    padding: 24px 28px;
+    border-left: 3pt solid var(--accent);
+    background: var(--tint);
+  }
+  .cover-tldr h3 {
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 9pt; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
+    margin: 0 0 10px 0;
+  }
+  .cover-tldr p { font-size: 11pt; line-height: 1.55; margin: 0 0 10px 0; }
+  .cover-tldr p:last-child { margin: 0; }
+  .cover-tldr strong { color: var(--ink); }
+
+  .stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1px;
+    background: var(--rule); border: 1px solid var(--rule);
+    margin: 30px 0;
+  }
+  .stat {
+    background: #fff; padding: 14px 16px;
+  }
+  .stat .k {
+    font-family: "JetBrains Mono", monospace; font-size: 7pt;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint);
+    margin-bottom: 4px;
+  }
+  .stat .v {
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 14pt; font-weight: 700; letter-spacing: -0.02em; color: var(--ink);
+  }
+  .stat .v small { font-size: 9pt; color: var(--muted); font-weight: 500; }
+
+  .cover-footer {
+    border-top: 0.5pt solid var(--rule); padding-top: 12px;
+    display: flex; justify-content: space-between;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 7pt; color: var(--faint); letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  /* BODY PAGES */
+  h1 {
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 22pt; line-height: 1.05; letter-spacing: -0.025em; font-weight: 800;
+    margin: 0 0 4px 0;
+  }
+  h2 {
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 14pt; font-weight: 700; letter-spacing: -0.015em;
+    margin: 28px 0 8px 0;
+    padding-bottom: 4px;
+    border-bottom: 1.5pt solid var(--ink);
+  }
+  h3 {
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 10pt; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase;
+    margin: 18px 0 6px 0; color: var(--muted);
+  }
+  p { margin: 0 0 8px 0; }
+  ul, ol { margin: 4px 0 8px 0; padding-left: 18px; }
+  ul li, ol li { margin-bottom: 3px; }
+
+  .section-eyebrow {
+    font-family: "JetBrains Mono", monospace; font-size: 7.5pt;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
+    font-weight: 600; display: block; margin-bottom: 4px;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin: 6px 0 12px 0; }
+  th, td {
+    text-align: left; vertical-align: top;
+    padding: 5px 7px; border-bottom: 0.5pt solid var(--rule);
+  }
+  th {
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-weight: 700; font-size: 7.5pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1pt solid var(--ink); background: #fafbfc;
+  }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.win-us { color: var(--us); font-weight: 600; }
+  td.win-paper { color: var(--paper); font-weight: 600; }
+  td.win-tie { color: var(--muted); font-style: italic; }
+  td .cite { font-family: "JetBrains Mono", monospace; font-size: 7pt; color: var(--faint); display: block; margin-top: 1px; }
+  td.shipped::before { content: "✓ "; color: var(--us); font-weight: 700; }
+
+  .row-num { font-family: "JetBrains Mono", monospace; color: var(--faint); width: 1.6em; text-align: right; }
+
+  code, .file {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8.2pt; color: var(--accent); background: var(--code-bg); padding: 0.5px 4px; border-radius: 2px;
+  }
+
+  .note {
+    background: var(--tint); border-left: 2pt solid var(--accent);
+    padding: 8px 12px; margin: 8px 0; font-size: 8.8pt;
+  }
+  .note strong { color: var(--accent); }
+
+  .callout {
+    background: #fafbfc; border: 1pt solid var(--rule); border-radius: 4px;
+    padding: 10px 12px; margin: 8px 0; font-size: 8.8pt;
+  }
+
+  footer.page-foot {
+    margin-top: 18px; padding-top: 8px; border-top: 0.5pt solid var(--rule);
+    font-family: "JetBrains Mono", monospace; font-size: 6.5pt; color: var(--faint);
+    display: flex; justify-content: space-between; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+
+  .inventory-summary {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--rule); border: 1px solid var(--rule);
+    margin: 10px 0;
+  }
+  .inv-cell {
+    background: #fff; padding: 10px 12px;
+  }
+  .inv-cell .name {
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 7.5pt; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 2px;
+  }
+  .inv-cell .count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12pt; color: var(--ink); font-weight: 700;
+  }
+  .inv-cell .count small { color: var(--faint); font-weight: 400; font-size: 8pt; }
+</style>
+</head>
+<body>
+
+<!-- ─────────────────────── COVER PAGE ─────────────────────── -->
+<section class="cover">
+  <header class="cover-header">
+    <div class="cover-mark">B START UP — TACTICAL WHAT-IF ENGINE</div>
+    <h1 class="cover-title">Project report</h1>
+    <p class="cover-sub">What we have built, how we compare to the paper, and what to do next.</p>
+  </header>
+
+  <div class="cover-tldr">
+    <h3>Executive summary</h3>
+    <p><strong>Built:</strong> a production-shape product (server + UX + physics + eval + CI + docs)
+       on top of a paper-faithful research model. Four genuinely above-the-paper additions shipped this session.</p>
+    <p><strong>Vs paper:</strong> they win 8 dimensions (research substance), we win 11 (product + ops + extensions + hygiene), 2 different surfaces.
+       Their trained-model quality is real; ours is smoke until M7 runs.</p>
+    <p><strong>Next step:</strong> ONE cold email this week to an MLS analyst. Then $30 for M7. Everything else is downstream of those two.</p>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="k">Tests passing</div><div class="v">30 <small>/ 30</small></div></div>
+    <div class="stat"><div class="k">Lines of code</div><div class="v">~8,200</div></div>
+    <div class="stat"><div class="k">Files written</div><div class="v">36</div></div>
+    <div class="stat"><div class="k">Customers</div><div class="v">0</div></div>
+  </div>
+
+  <div class="cover-footer">
+    <span>REPORT 2026&#x2011;05&#x2011;28</span>
+    <span>PAPER: ARXIV 2604.11786 V1</span>
+    <span>CHECKPOINT SCHEMA V3</span>
+  </div>
+</section>
+
+<!-- ─────────────────────── SECTION 1 ─────────────────────── -->
+<section class="pagebreak">
+  <span class="section-eyebrow">Section 1</span>
+  <h1>What we have built</h1>
+  <p style="font-style: italic; color: var(--muted);">
+    Concrete inventory of every component, what it does, and its line count. Excludes auto-installed
+    skills, generated data, and the .venv. All paths relative to repo root.
+  </p>
+
+  <div class="inventory-summary">
+    <div class="inv-cell"><div class="name">Model core</div><div class="count">1,452 <small>LOC</small></div></div>
+    <div class="inv-cell"><div class="name">Inference server</div><div class="count">548 <small>LOC</small></div></div>
+    <div class="inv-cell"><div class="name">Renderer</div><div class="count">1,294 <small>LOC</small></div></div>
+    <div class="inv-cell"><div class="name">Scripts</div><div class="count">1,137 <small>LOC</small></div></div>
+    <div class="inv-cell"><div class="name">Tests</div><div class="count">316 <small>LOC</small></div></div>
+    <div class="inv-cell"><div class="name">Data pipeline</div><div class="count">269 <small>LOC</small></div></div>
+    <div class="inv-cell"><div class="name">Landing site</div><div class="count">1,977 <small>LOC</small></div></div>
+    <div class="inv-cell"><div class="name">Docs</div><div class="count">1,080 <small>lines</small></div></div>
+  </div>
+
+  <h2>Model &amp; inference (<span style="font-family:'JetBrains Mono',monospace;font-size:9pt;color:var(--accent)">src/model/</span>)</h2>
+  <table>
+    <thead><tr><th>File</th><th>LOC</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td class="file">config.py</td><td class="num">86</td><td>Single source of truth for all hyperparams. Schema-versioned. Smoke + paper defaults.</td></tr>
+      <tr><td class="file">tokenizer.py</td><td class="num">116</td><td>Multi-agent trajectory tokenizer + <em>learned waypoint embedding</em> (above the paper).</td></tr>
+      <tr><td class="file">backbone.py</td><td class="num">108</td><td>TimeSformer-style factorized spatiotemporal attention (paper-faithful).</td></tr>
+      <tr><td class="file">diffusion.py</td><td class="num">259</td><td>DDPM noise schedule + ε-prediction network + synthetic-arrow CFG dropout training.</td></tr>
+      <tr><td class="file">samplers.py</td><td class="num">258</td><td>Reverse-diffusion + causal sliding-window rollout + classifier-free guidance + waypoint pinning.</td></tr>
+      <tr><td class="file">physics.py</td><td class="num">171</td><td>7-stage post-processor (seam, speed-clip, smooth, clamp, repulse, re-clip, re-clamp).</td></tr>
+      <tr><td class="file">event_head.py</td><td class="num">125</td><td>Hierarchical event classifier (paper-faithful; parked, labels not aligned).</td></tr>
+      <tr><td class="file">dataset.py</td><td class="num">157</td><td>Trajectory window Dataset reading converted GenTac JSON.</td></tr>
+      <tr><td class="file">lightning_module.py</td><td class="num">172</td><td>LightningModule + DataModule + EMA shadow weights + cfg roundtrip + schema-version refuse-on-load.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Inference server (<span class="file">src/server/main.py</span>, 548 LOC)</h2>
+  <table>
+    <thead><tr><th>Capability</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td class="shipped">HTTP API</td><td><code>POST /api/generate</code> + <code>GET /api/health</code></td></tr>
+      <tr><td class="shipped">Streaming endpoint</td><td><code>POST /api/generate/stream</code> — Server-Sent Events: 1 metadata + N window + 1 done <em>(this session)</em></td></tr>
+      <tr><td class="shipped">Multi-arrow joint plausibility</td><td>Rejects v_max-impossible / r_min-violating pin sets with explicit reasons <em>(this session)</em></td></tr>
+      <tr><td class="shipped">Concurrency control</td><td>Async semaphore (1 active gen) + queue cap (8) + 503 past that</td></tr>
+      <tr><td class="shipped">API-key auth</td><td><code>X-API-Key</code> header, constant-time compare via <code>secrets.compare_digest</code></td></tr>
+      <tr><td class="shipped">JSON-structured logs</td><td>Per-request <code>X-Request-Id</code> propagated request → response</td></tr>
+      <tr><td class="shipped">Path-traversal-safe match resolution</td><td>Anchored under <code>data/processed/</code>, <code>.resolve()</code> + <code>.relative_to()</code></td></tr>
+      <tr><td class="shipped">Pydantic-bounded schema</td><td>k ≤ 32, horizon ≤ 250 frames, ≤ 23 arrows, guidance_scale ∈ [0, 5]</td></tr>
+      <tr><td class="shipped">Discriminated Arrow union</td><td><code>{kind:"player"}</code> + <code>{kind:"ball_pass", recipient}</code></td></tr>
+      <tr><td class="shipped">Ball-pass receiving-stance offset</td><td>Recipient lands 1.50m perpendicular to approach, not on the ball</td></tr>
+      <tr><td class="shipped">CORS allowlist</td><td>Configurable via <code>GENTAC_CORS_ORIGINS</code> env var</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Renderer / coach UX (<span class="file">src/render/</span>, <span class="file">index.html</span>)</h2>
+  <table>
+    <thead><tr><th>Feature</th><th>LOC</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td class="shipped">Tactics board canvas</td><td class="num" rowspan="6">pitch.js: 919<br/>style.css: 291<br/>index.html: 84</td><td>FIFA-spec markings, 1050×680, trails, scrubber, play/pause, speed control</td></tr>
+      <tr><td class="shipped">Click-drag player arrows (killer mechanic)</td><td>Hover ring, in-progress preview, right-click clear</td></tr>
+      <tr><td class="shipped">Ball arrows + recipient designation</td><td>Drag ball, click recipient — pulsing yellow rings</td></tr>
+      <tr><td class="shipped">Touch event normalization</td><td>iPad/tablet works without separate code path</td></tr>
+      <tr><td class="shipped">Compare mode + overlay-diff</td><td>Ghosts actual onto alternative panel</td></tr>
+      <tr><td class="shipped">First-run onboarding overlay</td><td>3-step instructions, dismissible, localStorage-persisted</td></tr>
+    </tbody>
+  </table>
+
+  <footer class="page-foot">
+    <span>B START UP — PROJECT REPORT</span>
+    <span>PAGE 1 OF 4 — WHAT WE HAVE BUILT</span>
+  </footer>
+</section>
+
+<!-- ─────────────────────── SECTION 1 (continued) ─────────────────────── -->
+<section class="pagebreak">
+  <h2>Eval harness (<span class="file">scripts/eval.py</span>, 474 LOC)</h2>
+  <table>
+    <thead><tr><th>Metric</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td class="shipped">ADE / FDE / diversity / off-pitch / max-speed</td><td>All with 95% percentile bootstrap CIs (1,000 resamples default)</td></tr>
+      <tr><td class="shipped"><code>--compare A B</code></td><td>Paired bootstrap p-values, significance markers (*** &lt; 0.01)</td></tr>
+      <tr><td class="shipped">Per-role ADE</td><td>GK / defender / midfielder / forward / ball — <em>above the paper (this session)</em></td></tr>
+      <tr><td class="shipped">Realism discriminator</td><td>Small MLP, real vs generated; test acc 0.5 = indistinguishable — <em>above the paper (this session)</em></td></tr>
+      <tr><td class="shipped">CFG-scale sweep</td><td>Arrow-honoring err + hit-rate across guidance scales</td></tr>
+      <tr><td class="shipped">Reproducible</td><td><code>--seed</code> for full determinism</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Training, data, &amp; cloud pipeline</h2>
+  <table>
+    <thead><tr><th>File</th><th>LOC</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td class="file">scripts/smoke_train.py</td><td class="num">62</td><td>3-epoch MPS smoke; <code>pl.seed_everything</code> for determinism. ~80 s.</td></tr>
+      <tr><td class="file">scripts/train_full.py</td><td class="num">141</td><td>Paper config + <code>--dry-run</code> mode (1 batch on CPU, validates entire cloud code path) + <code>--seed</code> + <code>--ema-decay</code>.</td></tr>
+      <tr><td class="file">scripts/modal_train.py</td><td class="num">253</td><td>Modal entrypoints + lazy import + <code>--validate-local</code> (works without modal installed).</td></tr>
+      <tr><td class="file">scripts/sample.py</td><td class="num">207</td><td>K-sample inference + physics + JSON dump.</td></tr>
+      <tr><td class="file">src/data/metrica_to_gentac.py</td><td class="num">218</td><td>Metrica CSV → GenTac JSON + strict <code>validate_payload()</code>.</td></tr>
+      <tr><td class="file">src/data/extract_clip.py</td><td class="num">51</td><td>Slice 30 s dev clips + warning-mode validator.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Tests &amp; CI</h2>
+  <table>
+    <thead><tr><th>File</th><th>LOC</th><th>Coverage</th></tr></thead>
+    <tbody>
+      <tr><td class="file">tests/test_physics.py</td><td class="num">70</td><td>Speed-clip invariant, on-pitch clamp under adversarial input, seam anchor, no-NaN</td></tr>
+      <tr><td class="file">tests/test_config_schema.py</td><td class="num">68</td><td>cfg dict roundtrip, schema-version refuse-on-load, smoke vs paper config</td></tr>
+      <tr><td class="file">tests/test_server_validation.py</td><td class="num">129</td><td>12 Pydantic cases (arrow union, bounds) + 4 path-traversal cases</td></tr>
+      <tr><td class="file">tests/test_eval_helpers.py</td><td class="num">43</td><td>Bootstrap CI brackets the mean, paired p-value sanity, identical-lists handling</td></tr>
+      <tr><td class="file">.github/workflows/tests.yml</td><td class="num">40</td><td>CPU torch + lightning install, fetch Metrica, run pytest on every push/PR</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Verified end-to-end this session:</strong> <code>30 passed in 3.16s</code>.
+  </div>
+
+  <h2>Landing site (<span class="file">site/</span>, 1,977 LOC)</h2>
+  <table>
+    <thead><tr><th>File</th><th>LOC</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td class="file">index.html</td><td class="num">433</td><td>Dark editorial, premium typography, full league-pitch structure</td></tr>
+      <tr><td class="file">style.css</td><td class="num">1005</td><td>Design system, scroll-driven animations, responsive, prefers-reduced-motion respected</td></tr>
+      <tr><td class="file">app.js</td><td class="num">511</td><td>Animated canvas (22 reactive players + ball-pass scenarios), scroll progress, reveal animations, contact form</td></tr>
+      <tr><td class="file">vercel.json</td><td class="num">28</td><td>Security headers + cache control + clean URLs</td></tr>
+      <tr><td class="file">public/og.svg</td><td>—</td><td>1200×630 social-share image, branded</td></tr>
+      <tr><td class="file">public/favicon.svg</td><td>—</td><td>Inline SVG "B" mark in brand orange</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Documentation (<span class="file">docs/</span> + <span class="file">README.md</span>, 1,080 lines)</h2>
+  <table>
+    <thead><tr><th>Doc</th><th>Lines</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="file">README.md</td><td class="num">319</td><td>Buyer-facing 60-second preamble + developer onboarding + roadmap</td></tr>
+      <tr><td class="file">docs/handoff_api.md</td><td class="num">330</td><td>v0.2 spec: discriminated arrow union + Python SDK + vendor compatibility matrix</td></tr>
+      <tr><td class="file">docs/cloud_training.md</td><td class="num">172</td><td>Pre-flight + 5-section troubleshooting matrix</td></tr>
+      <tr><td class="file">docs/operations.md</td><td class="num">162</td><td>Production topology + cost envelope + observability gaps + security checklist</td></tr>
+      <tr><td class="file">docs/mvp.md</td><td class="num">97</td><td>One persona, one moment, IN/OUT scope, four validation questions</td></tr>
+    </tbody>
+  </table>
+
+  <footer class="page-foot">
+    <span>B START UP — PROJECT REPORT</span>
+    <span>PAGE 2 OF 4 — WHAT WE HAVE BUILT</span>
+  </footer>
+</section>
+
+<!-- ─────────────────────── SECTION 2 ─────────────────────── -->
+<section class="pagebreak">
+  <span class="section-eyebrow">Section 2</span>
+  <h1>Comparison to the paper</h1>
+  <p style="font-style: italic; color: var(--muted);">
+    Paper: Rao, Gui, Wu, Wang, Xie — <em>GenTac: Generative Modeling and Forecasting of Soccer Tactics</em>,
+    arXiv:2604.11786, 13 Apr 2026 (SJTU + Nanjing). Verified against the extracted text of <code>gentac.pdf</code>.
+    Our figures from this session's eval against the smoke checkpoint.
+  </p>
+
+  <h2>Where the paper wins (substance gaps)</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Aspect</th><th>Paper</th><th>Us</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="row-num">1</td><td>Original architecture</td><td>Novel publication</td><td>Faithful reimpl (parity at best)</td></tr>
+      <tr><td class="row-num">2</td><td>Training scale</td><td>60 epochs × A100, batch 200<span class="cite">§6.3.3</span></td><td>3 epochs × MPS, batch 4 (smoke); cloud script dry-run-validated</td></tr>
+      <tr><td class="row-num">3</td><td>Training data</td><td>TacBench: 2,838 × 15s segments, multi-league<span class="cite">§l.250</span></td><td>~7,200 windows from 2 Metrica open-sample matches</td></tr>
+      <tr><td class="row-num">4</td><td>Min ADE @ 1s (best of K=20)</td><td class="num">0.62 m<span class="cite">§3.1 l.310</span></td><td>n/a (we report mean, not min)</td></tr>
+      <tr><td class="row-num">5</td><td>Mean ADE @ 1s</td><td class="num">≈1.0–1.2 m (inferred from §l.311)</td><td class="num">3.50 m [95% CI 2.63–4.13] — ~3× worse</td></tr>
+      <tr><td class="row-num">6</td><td>Min FDE @ 5s (opp-conditioned)</td><td class="num">2.89 m<span class="cite">§3.1 l.326</span></td><td>n/a — we only evaluate @ 1 s</td></tr>
+      <tr><td class="row-num">7</td><td>Style conditioning (team/league/objective)</td><td>A-League cond. cuts ADE 38% at 1s<span class="cite">§3.1 l.355</span></td><td>None</td></tr>
+      <tr><td class="row-num">8</td><td>Event recognition (15 classes)</td><td class="num">F1 = 73.4%<span class="cite">§3.2 l.468</span></td><td>Code complete, parked (labels not aligned)</td></tr>
+      <tr><td class="row-num">9</td><td>Peer review / citability</td><td>Published arXiv, formal refs</td><td>Engineering prototype</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Where we win (product + ops + extensions)</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Aspect</th><th>Paper</th><th>Us</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="row-num">10</td><td>Physics post-processor</td><td>None (raw model output)</td><td class="win-us">7-stage; 0% off-pitch, vmax exactly 10.5 m/s</td></tr>
+      <tr><td class="row-num">11</td><td>Inference server</td><td>None published</td><td class="win-us">FastAPI + auth + queue + JSON logs + req IDs</td></tr>
+      <tr><td class="row-num">12</td><td><strong>Streaming inference (SSE)</strong></td><td>N/A</td><td class="win-us">Implemented this session</td></tr>
+      <tr><td class="row-num">13</td><td><strong>Multi-arrow joint plausibility</strong></td><td>Paper has no arrow input</td><td class="win-us">Server-side check with explicit reasons (this session)</td></tr>
+      <tr><td class="row-num">14</td><td>Coach UX (player + ball arrows, touch, overlay)</td><td>None — research code only</td><td class="win-us">Full implementation + first-run onboarding</td></tr>
+      <tr><td class="row-num">15</td><td>Eval methodology</td><td>Min/mean over K=20, multi-horizon ablations</td><td class="win-us">95% bootstrap CIs + paired bootstrap p-values + <code>--compare</code></td></tr>
+      <tr><td class="row-num">16</td><td><strong>Per-role ADE breakdown</strong></td><td>Aggregate only</td><td class="win-us">GK 3.60m / def 3.54m / mid 3.53m / fwd 3.34m / ball 0.69m (this session)</td></tr>
+      <tr><td class="row-num">17</td><td><strong>Realism discriminator metric</strong></td><td>Not reported</td><td class="win-us">MLP test acc 0.667 — 0.50 indistinguishable, 1.00 trivially separable (this session)</td></tr>
+      <tr><td class="row-num">18</td><td>Cloud-training automation</td><td>N/A</td><td class="win-us"><code>--dry-run</code> + <code>--validate-local</code> + troubleshooting matrix</td></tr>
+      <tr><td class="row-num">19</td><td>Handoff to downstream video gen</td><td>Not in scope</td><td class="win-us">Schema v0.2 + Python SDK + vendor compat notes</td></tr>
+      <tr><td class="row-num">20</td><td>Tests / CI</td><td>N/A</td><td class="win-us">30 tests passing, GitHub Actions on every push/PR</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Different surfaces (neither strictly better)</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Aspect</th><th>Paper framing</th><th>Our framing</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="row-num">21</td><td>Counterfactual conditioning</td><td>Offensive/defensive objective conditioning alters threat metrics<span class="cite">§3.1</span></td><td>Arrow + CFG (coach gesture as the input modality)</td></tr>
+      <tr><td class="row-num">22</td><td>Architectural extensions</td><td>Style/team/league/objective + event head</td><td>Learned waypoint + CFG + EMA + ball-pass with receiving offset</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>Honest summary.</strong> The paper is a stronger <strong>trained model and benchmark</strong>.
+    We are a stronger <strong>product around that model</strong>. The composition would work cleanly:
+    take the paper's trained weights, drop them into our inference server + renderer + handoff spec,
+    and you have a deployable product backed by paper-grade model quality. The single missing piece in
+    our column is the trained model itself — a ~$30 cloud run we have scripted and validated locally
+    but have not executed because we lack the real league tracking data that would justify the GPU time.
+    That gap is commercial, not technical.
+  </div>
+
+  <footer class="page-foot">
+    <span>B START UP — PROJECT REPORT</span>
+    <span>PAGE 3 OF 4 — PAPER COMPARISON</span>
+  </footer>
+</section>
+
+<!-- ─────────────────────── SECTION 3 ─────────────────────── -->
+<section class="pagebreak">
+  <span class="section-eyebrow">Section 3</span>
+  <h1>Next steps</h1>
+  <p style="font-style: italic; color: var(--muted);">
+    Priority-ordered. Capital and time estimates assume current Mac-laptop development environment
+    and no co-founder. Adjust upward if scope or quality bar grows.
+  </p>
+
+  <h2>This week — zero capital required</h2>
+  <table>
+    <thead><tr><th>#</th><th>Action</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td class="row-num">1</td><td><strong>Send 5 cold emails to MLS analyst-level contacts.</strong> LinkedIn search "MLS data scientist" / "performance analyst." Subject line with the word "arrows." <strong>Ask, don't pitch.</strong></td><td>Closes the M0 gap that has not moved in 10+ sessions. Single highest-leverage action.</td></tr>
+      <tr><td class="row-num">2</td><td>Email SkillCorner + Stats Perform asking about startup data eval programs.</td><td>3–6 month sales cycle starts now or it doesn't start.</td></tr>
+      <tr><td class="row-num">3</td><td>Pick a real brand name that isn't "B." Update the landing page.</td><td>Single-letter brand without founder equity signals "I haven't thought about brand."</td></tr>
+      <tr><td class="row-num">4</td><td>Soften any remaining over-claims on the landing page.</td><td>Trust is burned in 30 seconds if a buyer clicks through and discovers fiction.</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Success metric for the week:</strong> 1 cold-email reply, 1 data-partner reply.</p>
+
+  <h2>This month — ~$50 capital</h2>
+  <table>
+    <thead><tr><th>#</th><th>Action</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td class="row-num">5</td><td><strong>Run M7 cloud training</strong> ($25–30 on Lambda Labs A100). Code is dry-run-validated; troubleshooting matrix exists.</td><td>Moves rows 1, 3, 5, 6, 16, 17 in our favor simultaneously. Realism disc should drop from 0.67 toward 0.50; mean ADE @ 1s should drop from 3.50 m toward 1.0–1.5 m.</td></tr>
+      <tr><td class="row-num">6</td><td>Land 1 evaluation agreement with an analyst from cold-email replies.</td><td>First data point on whether anyone actually wants this.</td></tr>
+      <tr><td class="row-num">7</td><td>Pick a 3D video vendor and ship a one-clip integration.</td><td>Without this, the demo is dots on a green pitch — not what the pitch sells.</td></tr>
+      <tr><td class="row-num">8</td><td>Re-record the landing-page demo video with the M7-trained model.</td><td>Current canvas demo is heuristic; real model output is the differentiator.</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Success metric for the month:</strong> signed evaluation agreement + working M7 model + 3D clip in the demo.</p>
+
+  <h2>This quarter — ~$10K capital + 1 co-founder</h2>
+  <table>
+    <thead><tr><th>#</th><th>Action</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td class="row-num">9</td><td><strong>Recruit a co-founder with sports-industry pedigree.</strong> 30–40% equity.</td><td>Without this, no institutional investor takes a meeting. Sports tech is the most relationship-driven enterprise market.</td></tr>
+      <tr><td class="row-num">10</td><td>Sign a real evaluation-tier data deal (SkillCorner most likely path; $0–$10K/year).</td><td>Real data is what makes M7 actually translate to product value.</td></tr>
+      <tr><td class="row-num">11</td><td>Deploy to production for first design partner. Topology in <code>docs/operations.md</code>.</td><td>Single A10G VM + Caddy + S3; ~$250–$450/month per single-tenant customer.</td></tr>
+      <tr><td class="row-num">12</td><td>Raise $250K friends-and-family round.</td><td>6 months of runway for the founder + travel for league demos. Pre-product seed rounds are realistic at this size; $500K+ requires the co-founder + LOI from step 9.</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Success metric for the quarter:</strong> co-founder onboarded + first paid pilot ($10K–$50K) signed.</p>
+
+  <div class="note">
+    <strong>The one thing that has not changed.</strong> Every code addition, every score improvement,
+    every paper-comparison win we have shipped in this session and prior — none of it moves M0.
+    <strong>M0 moves when an email is sent.</strong> No code has ever been sent in an email.
+    If the next session is also engineering work, the honest interpretation is either "this is a
+    portfolio project" (fine — ship open-source) or "you are avoiding the sales work" (which kills
+    the company). There is no third interpretation consistent with another quarter of pure tech work.
+  </div>
+
+  <h2 style="margin-top: 24px;">Summary table</h2>
+  <table>
+    <thead><tr><th>Horizon</th><th>Capital</th><th>People</th><th>Outcome target</th></tr></thead>
+    <tbody>
+      <tr><td>This week</td><td class="num">$0</td><td>Just you</td><td>1 cold-email reply</td></tr>
+      <tr><td>This month</td><td class="num">~$50</td><td>Just you</td><td>Signed evaluation + M7 model</td></tr>
+      <tr><td>This quarter</td><td class="num">~$10K + $250K F&amp;F</td><td>+1 co-founder</td><td>First paid pilot</td></tr>
+      <tr><td>Months 6–12</td><td class="num">$500K–$900K seed</td><td>+1 ML eng, +1 BD</td><td>2nd paying customer, SOC 2 Type I</td></tr>
+    </tbody>
+  </table>
+
+  <footer class="page-foot">
+    <span>B START UP — PROJECT REPORT</span>
+    <span>PAGE 4 OF 4 — NEXT STEPS</span>
+  </footer>
+</section>
+
+</body>
+</html>

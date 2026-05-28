@@ -1,0 +1,299 @@
+:root {
+  --bg: #0e1116;
+  --panel: #161b22;
+  --ink: #e6edf3;
+  --muted: #8b949e;
+  --team0: #3aa0ff;
+  --team1: #ff5c5c;
+  --ball: #ffd93d;
+  --accent: #2ea043;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  font-size: 14px;
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #21262d;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+#status {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+#controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  border-bottom: 1px solid #21262d;
+  background: var(--panel);
+}
+
+#controls button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+}
+#controls button:disabled { opacity: 0.4; cursor: not-allowed; }
+#controls button.paused { background: #6e7681; }
+
+#scrubber {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+#time-label {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 56px;
+  text-align: right;
+}
+
+#controls label {
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#controls label.toggle {
+  cursor: pointer;
+  user-select: none;
+}
+
+#sample-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+#sample-picker button {
+  background: #30363d;
+  color: var(--ink);
+  border: none;
+  padding: 4px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+#sample-picker button:hover { background: #3a414b; }
+#sample-picker button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+#sample-label {
+  min-width: 88px;
+  text-align: center;
+  color: var(--ink);
+}
+
+#clear-arrows,
+#generate-btn {
+  background: #30363d;
+  color: var(--ink);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 13px;
+}
+#clear-arrows:hover, #generate-btn:hover { background: #3a414b; }
+#clear-arrows:disabled, #generate-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+#generate-btn:not(:disabled) {
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+}
+
+/* Only the LEFT (drawable) panel gets the crosshair + draw outline. The right
+   panel is read-only; clicking on it does nothing on purpose. */
+body.draw .panel[data-panel="A"] .pitch { cursor: crosshair; }
+body.draw .panel[data-panel="A"] { box-shadow: 0 0 0 2px var(--accent), 0 4px 20px rgba(0, 0, 0, 0.4); }
+body.draw .panel[data-panel="A"] .panel-label { color: var(--accent); }
+
+#controls select {
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid #30363d;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+#panels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 16px 24px;
+  align-items: flex-start;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--panel);
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.panel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 4px;
+}
+
+.panel-label {
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.panel-meta {
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pitch {
+  display: block;
+  background: #1b3a1f;
+  border-radius: 4px;
+  width: 1050px;
+  height: 680px;
+}
+
+/* In compare mode the two pitches sit side-by-side at half-scale */
+body.compare .pitch {
+  width: 525px;
+  height: 340px;
+}
+
+/* ── First-run onboarding overlay ──────────────────────────────────────────
+   Shown only on first load (no `gentac.onboarded` in localStorage). Dismisses
+   on Generate, Esc, or the explicit dismiss button. Coaches will not discover
+   the arrow mechanic unattended; this is what fixes that. */
+.onboarding-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 12, 18, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: onboard-fade 240ms ease-out;
+}
+/* The HTML5 `hidden` attribute's implicit `display: none` is OVERRIDDEN by the
+   class's explicit `display: flex` (class wins on specificity). We need to make
+   the hidden state win explicitly. */
+.onboarding-scrim[hidden] { display: none !important; }
+
+.onboarding-card {
+  background: var(--panel);
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 28px 32px;
+  max-width: 440px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.onboarding-card h2 {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.onboarding-card .ob-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.onboarding-card ol {
+  margin: 16px 0 20px 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.onboarding-card ol li {
+  margin-bottom: 8px;
+}
+
+.onboarding-card kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  background: #30363d;
+  color: var(--ink);
+  border-radius: 3px;
+  border: 1px solid #21262d;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+}
+
+.onboarding-card .ob-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.onboarding-card button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.onboarding-card button.ghost {
+  background: transparent;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.onboarding-card button:hover { filter: brightness(1.1); }
+
+@keyframes onboard-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

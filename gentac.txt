@@ -1,0 +1,2163 @@
+                                         GenTac: Generative Modeling and Forecasting of Soccer Tactics
+                                                     Jiayuan Rao1 , Tianlin Gui1,2 , Haoning Wu1 , Yanfeng Wang1 and Weidi Xie1†
+                                                                     1
+                                                                         Shanghai Jiao Tong University, Shanghai, China
+                                                                              2
+                                                                                Nanjing University, Nanjing, China
+                                                                                     †
+                                                                                       Corresponding author
+                                                                                  Weidi Xie: weidi@sjtu.edu.cn
+
+
+
+                                             Modeling open-play soccer tactics is a formidable challenge due to the stochastic, multi-agent nature of the
+                                             game. Existing computational approaches typically produce single, deterministic trajectory forecasts or
+
+
+
+
+arXiv:2604.11786v1 [cs.AI] 13 Apr 2026
+                                             focus on highly structured set-pieces, fundamentally failing to capture the inherent variance and branching
+                                             possibilities of real-world match evolution. Here, we introduce GenTac, a diffusion-based generative
+                                             framework that conceptualizes soccer tactics as a stochastic process over continuous multi-player
+                                             trajectories and discrete semantic events. By learning the underlying distribution of player movements
+                                             from historical tracking data, GenTac samples diverse, plausible, long-horizon future trajectories. The
+                                             framework supports rich contextual conditioning—including opponent behavior, specific team or league
+                                             playing styles, and strategic objectives—while grounding continuous spatial dynamics into a 15-class
+                                             tactical event space. Extensive evaluations on our proposed benchmark, TacBench, demonstrate four
+                                             key capabilities: (1) GenTac achieves high geometric accuracy while strictly preserving the collective
+                                             structural consistency of the team; (2) it accurately simulates stylistic nuances, distinguishing between
+                                             specific teams (e.g., Auckland FC) and leagues (e.g., A-League versus German leagues); (3) it enables
+                                             controllable counterfactual simulations, demonstrably altering spatial control and expected threat metrics
+                                             based on offensive or defensive guidance; and (4) it reliably anticipates future tactical outcomes directly
+                                             from generated rollouts. Finally, we demonstrate that GenTac can be successfully trained to generalize
+                                             to other dynamic team sports, including basketball, American football, and ice hockey. By unifying
+                                             trajectory forecasting, event anticipation, and counterfactual simulation, GenTac establishes a robust
+                                             generative foundation for decoding complex multi-agent dynamics in sports AI.
+
+                                         1 Introduction
+                                         Association football (soccer) is one of the most globally renowned and influential sports, carrying profound
+                                         cultural and economic significance. While the determinant of victory is straightforward, i.e., scoring more
+                                         goals than the opponent, the game itself constitutes a complex multi-player interaction among 22 players
+                                         on the pitch, making tactical coordination central to competitive outcomes. Soccer tactics are inherently
+                                         multifaceted, encompassing player formations, spatial positioning, and cooperative strategies formulated in
+                                         response to continuously evolving match dynamics. Rapid fluctuations in player decision-making, opponent
+                                         behavior, and match situations make systematic modeling and prediction of on-pitch tactics highly challenging.
+                                         Critically, however, the essence of these tactical dynamics can be abstracted through a series of multi-player
+                                         trajectories and key game events, providing a rich geometric canvas for rigorous computational analysis.
+                                         The recent explosion of high-fidelity tracking data, combined with advances in deep learning, has catalyzed a
+                                         wide array of sports analytics applications. These range from event classification [1, 2, 3, 4, 5], automated
+                                         commentary [6, 7] and visual question aswering [8] to pitch reconstruction [9, 10, 11, 12]. Nevertheless,
+                                         capturing the true tactical flow of open play remains elusive. Research specifically targeting soccer tactics
+                                         has predominantly focused on the statistical summarization and post-hoc qualitative interpretation of
+                                         historical matches [13, 14, 15, 16]. While a few recent AI frameworks have attempted to predict future
+                                         tactical developments, such as TacticAI [17], TacEleven [18], and JointDiff [19], these approaches are largely
+                                         constrained to static, highly structured set-pieces (e.g., corner kicks) or are designed to produce single,
+                                         deterministic trajectory forecasts. Crucially, this overlooks a fundamental reality of the sport: open play is
+                                         inherently non-deterministic. A single pass or off-the-ball run can cause the match to branch into a multitude
+                                         of plausible future scenarios.
+To bridge this gap, we conceptualize soccer tactics as a stochastic generative process over multi-player
+trajectories and their associated semantic events. We introduce GenTac, a diffusion-based generative
+framework designed for the comprehensive exploration and simulation of tactical dynamics. Given a segment
+of historical match data, GenTac learns the underlying distribution of player movements, enabling us to sample
+a diverse array of plausible, long-horizon future trajectories for all players during open play. By drawing
+multiple coherent samples rather than yielding a single deterministic prediction, this approach effectively
+captures the natural variance and the unpredictability of match evolution. Furthermore, GenTac can be
+conditioned on diverse contextual signals, such as opponent behavior, specific team or league playing styles,
+and strategic objectives. By linking continuous spatiotemporal trajectory forecasting with discrete semantic
+event types, GenTac unifies tactical evolution, event anticipation, and counterfactual match simulation within
+a single framework.
+Extensive experiments validate this generative approach on our proposed benchmark, TacBench, yielding
+four key findings: (i) GenTac produces robust, multi-agent trajectory predictions that maintain high geometric
+accuracy and preserve the collective structural consistency of the team. (ii) GenTac successfully captures
+stylistic nuances across different teams and leagues; for instance, conditioning the model on specific team
+identities (e.g., Auckland FC) significantly reduce geometrical error and improve collective structure consistency
+over a 5-second horizon, while league-specific conditioning accurately reflects the distinct playing tempos and
+spatial patterns of different competitions (e.g., the Australian A-League versus German leagues). (iii) GenTac
+supports controllable, counterfactual tactical simulation: conditioning the generative process on offensive
+objectives demonstrably increases attacking threat metrics, whereas conditioning on defensive objectives
+suppresses threat and strengthens spatial control. (iv) GenTac effectively grounds continuous trajectories
+into discrete tactical events, achieving highly accurate event recognition across 15 distinct categories and
+successfully anticipating upcoming match outcomes directly from generated futures.
+Collectively, these findings establish that soccer tactics can be rigorously characterized as a generative
+process over coordinated multi-player behavior and its associated event structure. GenTac provides a unified
+framework for forecasting match dynamics, simulating tactical responses, grounding event semantics, and
+steering collective behavior toward specified objectives. By successfully modeling the intricacies of open-play
+soccer, this approach not only advances the frontier of sports analytics but also demonstrates how generative
+AI can illuminate the strategic depths of the world’s most popular sport.
+
+2 Evaluation Settings
+We establish the evaluation framework for GenTac as follows. Section 2.1 provides a brief overview. Section 2.2
+defines the trajectory forecasting and tactical event understanding tasks. Section 2.3 describes the benchmarks
+and metrics used to assess predictive accuracy, tactical structure, and tactical event recognition.
+
+2.1 GenTac Overview
+We introduce GenTac, a trajectory-centric generative framework for forecasting and analyzing open-play
+soccer tactics. Built upon multi-player trajectories as its core representation, the framework models the
+evolution of collective movement patterns conditioned on game context and opponent dynamics. By operating
+directly on these spatiotemporal trajectories, GenTac synthesizes and analyzes multiple coherent and tactically
+plausible future scenarios. This facilitates probabilistic forecasting, tactical structure interpretation, and
+reasoning regarding alternative strategic developments in open play.
+
+2.2 Task Formulation
+Our proposed trajectory-centric generative framework, GenTac (Φ = {Φtraj , Φevent }), features a module (Φtraj )
+for the task of multi-player trajectory forecasting and a module (Φevent ) for the task of tactical event
+recognition. These tasks systematically benchmark the capability to anticipate future trajectories and
+interpret the semantic outcomes of tactics emerging from trajectories.
+
+Multi-player trajectory forecasting. This task involves predicting the future 2D coordinates (on a
+standard 105 m × 68 m pitch) of all players and the ball based on a fixed window of historical observations.
+
+
+                                                                                                                |2
+Formally, given historical trajectories (xh ) and game context (c), the trajectory prediction module (Φtraj ) of
+GenTac generates future trajectories (xf ) via:
+
+                                                 xf = Φtraj (xh , c)                                              (1)
+
+Here, the game context c ∈ C denotes an optional conditioning variable that specifies the tactical context of
+forecasting, with C = {∅, copp , cteam , cleague , cobj }. We first consider two base forecasting settings, depending
+on whether the model predicts the future trajectories of both teams jointly or those of a single team:
+
+   • Unconditioned (c = ∅): Jointly predicts the future trajectories of both teams from historical
+     observations, serving as the default formulation for two-team forecasting.
+   • Opponent-conditioned (c = copp ): Predicts the future trajectory of a single target team conditioned
+     on historical observations and the full trajectory (both past and future) of the opposing team. This
+     serves as the primary formulation for simulating targeted tactical responses.
+
+Beyond opponent conditioning, we introduce higher-level contextual conditions to enrich the forecasting
+process, capturing specific stylistic identities and strategic goals:
+
+   • Team-conditioned (c = cteam ): Conditions the generation on a specific team identity. This enables
+     the simulation of how a particular team reacts to opponents by leveraging learned, team-specific tactical
+     priors and stylistic tendencies.
+   • League-conditioned (c = cleague ): Conditions the generation on a specific league identity. This
+     facilitates the joint prediction of both teams’ trajectories, governed by the broader tactical patterns and
+     stylistic regularities characteristic of that league.
+   • Objective-conditioned (c = cobj ): Conditions the generation on a specific tactical objective, such as
+     maximizing attacking threat. This guides the trajectory generation toward desired strategic outcomes,
+     providing a powerful mechanism for counterfactual analysis and tactical optimization.
+
+As illustrated in Figure 1a, these conditioning mechanisms unify diverse analytical applications, ranging from
+style simulation to tactical guidance, under a single, systematic trajectory forecasting paradigm.
+
+Tactical event recognition. Beyond geometric accuracy, a comprehensive understanding of soccer tactics
+necessitates semantic interpretation. We evaluate GenTac’s capacity for event recognition across two distinct
+settings: (i) In event grounding, a tactical event (e) is inferred directly from observed trajectories (xh ) via:
+
+                                                  e = Φevent (xh ),                                               (2)
+
+where Φevent maps multi-player trajectories to predefined tactical labels. (ii) In event forecasting, GenTac
+first generates future trajectories from historical trajectories (xh ) and context (c), then infers the event
+outcome from the generated scenarios:
+
+                                             e = Φevent Φtraj (xh , c)                                            (3)
+                                                                      
+
+
+Together, these settings establish a unified protocol for tactical analysis, explicitly linking the continuous
+spatiotemporal evolution of play to its discrete semantic interpretation.
+
+2.3 Benchmark Description
+Benchmarks. We introduce TacBench, a unified benchmark for soccer tactical forecasting and analysis,
+constructed from publicly available full-match multi-player trajectory datasets with synchronized event
+annotations: SkillCorner [20] (Australian A-League), Sportec DFL [21] (German Bundesliga and 2. Bundesliga),
+and Metrica Sports [22]. All trajectory data are resampled to 25 frame per second (FPS), with each
+frame recording the on-pitch coordinates of all players and the ball. TacBench comprises two components
+corresponding to different tasks: a trajectory-only benchmark (TacBench-Trajectory) for trajectory
+forecasting and a tactical event benchmark (TacBench-Event) for tactical event recognition, as following
+
+
+                                                                                                                   |3
+ a
+                 Input                             Conditions                                                                    Grounding                                                Forecasting
+                                                                                                                                                                                             (%)
+                                                                                                                                               Ball Win 22%                                            Goal
+                                                         Future Trajectory                                                                                                                    60       Shot-Saved
+                                                                                                                                               Progression 46%                                         Clearance
+                                                                                                                                                                                                       …
+                                                         Team Identity                                                                                                                        40
+                                                                                                                                               Defended 17%
+                                                                                                                                                                                              20
+                                                         League Identity                                                                       …
+                                                                                                                                                                                               0
+
+                                                         Tactical Objective                                                                                                                               3s        5s
+                         History Trajectory
+                                                                                                                                                                                        Tactical Event Recognition
+
+
+
+
+                               Unconditioned                      League-conditioned                     Opponent-conditioned                      Team-conditioned                        Objective-conditioned
+
+
+
+
+                                                                 A-League             Bundesliga                                            Auckland FC                FC Bayern           Offence            Defense
+
+
+                            Forecast 2 teams jointly     Forecast 1 team only            History trajectory       Forecasted trajectory
+                                                                                                                                                                           Multi-player Trajectory Forecasting
+
+
+
+ b                                                                                              c
+
+
+
+  Unconditioned
+
+
+
+
+  Opponent-conditioned
+
+
+
+
+                                                   min              min                   min
+                            Window: 1s             avg   0.2s
+                                                                    avg
+                                                                              0.04s                    Unconditioned (avg)      Unconditioned (min)              Opponent-cond. (avg)       Opponent-cond. (min)
+                                                                                          avg
+
+
+
+
+Figure 1 | (a) Overview of GenTac. We illustrate the two primary capabilities of the framework: multi-player trajectory
+forecasting and tactical event recognition. Trajectory forecasting encompasses five distinct conditioning configurations based on
+the number and identity of the teams being predicted. Meanwhile, tactical event recognition is evaluated under two settings:
+event grounding (inferred from observed data) and event forecasting (anticipated from generated futures). (b) Geometric
+accuracy of trajectory prediction. The x-axis represents the future time horizon (up to 5 seconds), and the y-axis reports
+the prediction error measured by Average Displacement Error (ADE) and Final Displacement Error (FDE) in meters. The
+top and bottom rows display results for unconditioned and opponent-conditioned forecasting, respectively. Lower values
+indicate superior geometric accuracy. (c) Collective structural consistency of forecasted trajectories. We report
+the absolute differences between structural metrics computed from the predicted trajectories and the ground truth over a
+5-second future horizon. Circles and squares denote the mean and minimum errors, respectively. Red markers correspond to
+unconditioned forecasting, while blue markers indicate opponent-conditioned forecasting. The evaluated structural metrics
+include surface area (∆|Surface Area|), stretch index (∆|Stretch Idx.|), team length (∆|Team L.|), team width (∆|Team W.|),
+Frobenius norm of pairwise distances (∆|Frob. Norm|), synchronization order parameter (∆|Sync. Ord.|), and team centroid
+displacement (∆|Cent. Disp.|). Detailed definitions of these metrics are provided in Supplementary 12.2.
+
+
+
+
+                                                                                                                                                                                                                         |4
+shows. All evaluations are conducted on held-out test sets, and preprocessing and split details are provided in
+Supplementary 12.1.
+
+  • TacBench-Trajectory: 2,838 15-second segments spanning diverse matches and leagues, each containing
+    complete on-pitch coordinates for all players and the ball. This benchmark evaluates unconditioned
+    and opponent-conditioned trajectory forecasting. Subsets annotated with team identity or league
+    origin additionally support team- and league-conditioned forecasting.
+  • TacBench-Event: 423 trajectory segments with explicit tactical annotations, with durations defined by
+    event boundaries. Segments are categorized into 5 major event types (build-up, transition, interruption,
+    set piece, and threat) and 15 fine-grained subtypes (Figure 4 ab). This benchmark supports event
+    grounding and, for subsets associated with specific offensive or defensive objectives, objective-
+    conditioned trajectory forecasting using the preceding 4 s as historical context.
+
+In addition to soccer, we incorporate multi-player trajectory benchmarks from other team sports to demonstrate
+the generalization of our method by retraining models on corresponding sports. These benchmarks are derived
+exclusively from the test splits of their respective source datasets and retain their original configurations, such
+as temporal resolutions (as detailed in the Supplementary). Concretely, we include: (i) Basketball: 8,398
+clips of 6 seconds at 5 FPS sourced from NBA SportVU [23], collected from NBA games; (ii) American
+football: 301 clips of 8 seconds at 10 FPS from the NFL Big Data Bowl 2021 [24], comprising offensive plays
+of over 10 yards from regular-season matches; and (iii) Ice hockey: 307 clips of 10 seconds at 30 FPS from
+the Big Data Cup 2026 [25], spanning 4 matches.
+
+Metrics. We evaluate trajectory forecasting and tactical recognition using a comprehensive suite of metrics
+covering trajectory fidelity, collective spatial structure, and semantic outcomes: (i) Trajectory accuracy.
+To quantify the geometric precision of multi-player forecasting and tactical simulation using the average
+displacement error (ADE) and final displacement error (FDE); (ii) Collective structure consistency. To
+assess the team organization and tactical coherence of forecasted trajectories, we utilize a set of established
+collective motion indicators, including the stretch index, surface area, team width and length, Frobenius
+norm, team centroid displacement, and the Kuramoto order parameter [26, 27, 28]; (iii) Soccer event
+accuracy. We report top-k overall accuracy together with recall for trajectory-based tactical event grounding
+and forecasting. (iv) Offense/defense performance. For semantic-guided exploration, we evaluate the
+effectiveness of specific tactical guidance by 3 offensive metrics (off-ball expected threat, depth threat, width
+threat) describing the offensive threat inspired from previous works [29] and 2 defensive metrics (defensive
+shape disruption and defensive dominant region [30]) models how well the defensing team performs, for
+example, its valid control region of pitch. For all the evaluation settings involving trajectory forecasting, we
+sample K prediction instances and analyze the distribution (e.g., minimum, average) to further evaluate the
+performance of GenTac across these metrics. More detailed definitions and implementation are provided in
+the Supplementary 12.2.
+
+3 Results
+In this section, we systematically evaluate GenTac across the trajectory forecasting and tactical event
+recognition. Section 3.1 focuses on multi-player trajectory forecasting under various conditional settings,
+examining geometric accuracy and structural consistency. Section 3.2 investigates tactical event recognition,
+including both event grounding from given trajectories and event forecasting from generated futures.
+
+3.1 GenTac demonstrates superior performance on multi-player trajectory forecasting
+GenTac enables sampling multiple trajectory variants. Open-play soccer admits multiple tactically
+plausible continuations from the same history. GenTac therefore frames trajectory forecasting as sampling
+from a conditional future distribution rather than producing a single deterministic rollout. To generate
+long-horizon futures stably, GenTac uses a causal sliding window that decomposes the prediction horizon
+into short consecutive segments and samples them sequentially. For example, forecasting 1 s into the future
+with a causal window of 0.2 s requires five successive sampling steps, each conditioned on the previously
+
+
+                                                                                                                 |5
+generated segment. Repeating this process K = 20 times from the same history and conditions yields diverse
+yet realistic collective evolutions. In the unconditioned setting, both teams are jointly predicted from shared
+history. Conditional variants introduce additional context, such as opponent futures, tactical objectives, or
+style cues, to guide specific future patterns while preserving collective tactical structure.
+
+GenTac demonstrates stable long-horizon forecasting. We evaluate GenTac under unconditioned
+forecasting setting (c = ∅), where both teams are jointly predicted from shared 4-second historical trajectories
+through a causal window. Under a 0.2s window, the minimum Average Displacement Error (ADE) across
+20 samples ranges from 0.62 m to 4.55 m when forecasting from 1s to 5s, while the corresponding Final
+Displacement Error (FDE) grows from 1.22 m to 10.80 m, the mean errors exhibit a similar trend without
+diverging. An ablation on the window size further confirms that reducing the window improves geometric
+precision. For example, the minimum ADE and FDE at 5s decreases to 2.74 m and 6.68 m under a 0.04s
+window (see Figure 1b). However, because a shorter window increases computational cost, we adopt 0.2 s as
+a balanced trade-off in subsequent experiments. Beyond geometric accuracy, we assess collective structural
+consistency by reporting the absolute deviations of corresponding metrics on multiple future trajectories
+against those on the ground truth. Under a 0.2s causal window, for example, the deviation of stretch index
+ranges from 0.32 to 1.89, and the centroid displacement differentiates within 0.8–1.96 m across horizons (see
+Figure 1c). Together, these results indicate that unconditioned forecasting achieves stable performance in
+both geometric fidelity and collective structural coherence.
+
+GenTac improves forecasting accuracy under opponent conditioning. We next evaluate opponent-
+conditioned forecasting (c = copp ), where future trajectories of one team are predicted given the motion of
+the opponent, enabling more reactive tactical evolution. As shown in Figure 1b, conditioning on the opponent
+substantially improves geometric accuracy under the same 4s history and 0.2s causal window setting. At a
+5s horizon, the minimum ADE and FDE decrease over 70% to 1.30 m and 2.89 m, respectively, while mean
+errors follow the same trend across all horizons. Furthermore, collective structural deviations are significantly
+reduced. At 5s, the mean stretch index deviation decreases from 1.89 to 1.25, and centroid displacement
+deviation drops from 1.96 m to 0.71 m, with minimum deviations across sampled futures showing consistent
+improvements. These results demonstrate that incorporating opponent futures enhances both geometric
+precision and collective structural coherence, enabling more accurate and tactically grounded conditional
+forecasting.
+
+GenTac simulates team-specific tactical styles and responses. Building upon opponent-conditioned
+forecasting, we further examine whether GenTac can capture the tactical style of a specific team, denoted
+as team-conditioned forecasting (c = cteam ). Here, future trajectories are predicted given the opponent’s
+motion, while additionally conditioning on a specific team identity to capture how that particular team reacts
+to its opponent. We fine-tune the opponent-conditioned forecasting model on Auckland FC under the same
+configuration (4s history and 0.2s causal window), and forecast trajectories of Auckland FC as well. As shown
+in Figure 2a, though the geometric errors out of K(=20) future samples gets slightly increased after such
+style simulation (e.g., average ADE increases from 1.65 m to 2.04 m at the 5s horizon). The accuracy across
+all collective structural metrics are substantially better. At 5s, the average deviation over 20 future samples
+decreases on the stretch index from 4.16 to 2.81, surface area from 652 m2 to 335 m2 , and team width/length
+from 9.97/13.34 m to 8.26/8.29 m, with similar trends in the minimum deviation. Such consistent reductions
+indicate that team conditioning enables GenTac to better capture the movement patterns of a team responding
+to opponent actions.
+
+GenTac captures league-specific tactical patterns in short-horizon forecasting. Soccer game styles
+vary across leagues due to differences in tactical culture and playing tempo. To evaluate whether GenTac
+reflects such league-level characteristics, we perform league-conditioned forecasting (c = cleague ) by fine-
+tuning the model of unconditioned forecasting on matches from the Australian A-League and the German
+leagues respectively under the same configuration (4s history and a 0.2s causal window). For each history
+segment, GenTac generates 20 future trajectory samples, and we evaluate their prediction errors. As shown in
+Figure 2a, for both leagues, conditioning on league identity consistently improves short-horizon forecasting.
+For example, in the A-League, average ADE decreases 38.0% at future 1s of forecasting and 14.9% for 2s,
+while the trend remains the same in the German leagues, and the deviations of structural metrics exhibit
+
+
+                                                                                                              |6
+  a               Team Style Auckland FC                                                      League Style A-League                                                  League Style Bundesliga
+                                 ADE                                                                        ADE                                                                     ADE
+
+          Sync. Order                            FDE                                  Sync. Order                         FDE                                   Sync. Order                               FDE
+
+
+
+  Centroid Disp.                                                           Centroid Disp.                                                           Centroid Disp.
+
+                                                        Stretch Idx.                                                           Stretch Idx.                                                                  Stretch Idx.
+
+
+
+
+      Fro. Norm                                  Surface Area                     Fro. Norm                               Surface Area                  Fro. Norm                                         Surface Area
+
+
+                   Team Length     Team Width                                                 Team Length       Team Width                                           Team Length           Team Width
+
+
+                       Before Simulation:          (avg)               (min)       Team-conditioned:           (avg)         (min)         League-conditioned:           (avg)             (min)
+
+
+
+
+  b
+                                 Offensive Guidance                                                                                                Defensive Guidance
+
+
+
+
+        Shot off Target                     Clearance                              Defended                              Shot off Target                    Clearance                               Defended
+
+
+
+
+                                        0.87              2.17                                                                                                                                     3.49
+                                                                           2.89            48.07                                                                                                                58.02
+         Shot Saved                                                                                                       Shot Saved                    -0.41                     -2.93
+                                                                                                                                                                     -7.23
+
+
+
+
+           Goal                                                  Overall                                                     Goal                                                Overall
+
+
+
+           𝚫 Off-ball Expected Threat (×𝟏𝟎!𝟐 )            𝚫 Width Threat (×𝟏𝟎!𝟐 )             𝚫 Length Threat (×𝟏𝟎!𝟐 )       𝚫 Defensive Shape Disruption (×𝟏𝟎!𝟐 )            𝚫 Defensive Dominant Region (𝒎𝟐 )
+
+
+
+
+Figure 2 | (a) Performance of team- and league-conditioned trajectory forecasting. We evaluate the geometric
+accuracy and structural consistency of GenTac when generating collective trajectories conditioned on specific team or league
+identities. The results demonstrate the model’s ability to simulate the distinct playing style of a specific team (Auckland FC)
+over a 5-second horizon, as well as the broader stylistic differences between competitions (the Australian A-League versus German
+leagues) over a 1-second horizon. (b) Performance of objective-conditioned trajectory forecasting. We illustrate the
+deviation in tactical metrics when guiding trajectory generation toward specific strategic objectives (offense versus defense). The
+evaluated metrics quantify both attacking threat and defensive solidity: off-ball expected threat, width threat, and depth threat
+measure attacking intent (where higher values indicate greater offensive threat), while defensive shape disruption and defensive
+dominant region characterize the structural integrity and spatial control of the defending team. Detailed definitions of these
+metrics are provided in Supplementary 12.2.
+
+
+
+
+                                                                                                                                                                                                                         |7
+comparable reductions at short futures as well. As the forecast extends towards 5s, however, the advantage
+gradually diminishes, and the errors approach those of the previous baseline. Overall, these results indicate
+that league conditioning helps GenTac produce league-level collective motion tendencies, particularly in
+short-term trajectory evolution.
+
+GenTac enables tactical guidance for a determined objective. Beyond team and leagues simulation, we
+further evaluate whether the generated trajectories can be guided by explicit tactical objectives, referred to as
+objective-conditioned forecasting (c = cobj ). We select segments of successful defense (clearance, defended)
+and threatening offense (goal, shot saved, shot off target) from TacBench-Event and fine-tune GenTac on them
+respectively. The resulting models are evaluated by generating trajectories for the defending or attacking side
+across all such segments in the test set. As shown in Figure 2b, under defensive guidance, the generated
+trajectories consistently suppress attacking threat. The off-ball expected threat decreases by about 0.41, while
+depth threat and width threat decrease by about 7.23 × 10−2 and 2.93 × 10−2 , respectively. Simultaneously,
+defensive disruption and dominant region control increase, particularly in clearance and defended scenarios,
+indicating more compact and coordinated defensive organization. Under offensive guidance, GenTac
+produces trajectories that expand attacking threat. Off-ball expected threat increases by about 0.87, with
+depth and width threat are stably risen as well. These improvements are most evident in high-threat outcomes
+such as goal and shot saved, although they are accompanied by moderate concessions in pitch region control.
+Overall, these results show that GenTac can steer collective motion toward specified tactical objectives,
+producing coordinated team behaviors consistent with either offensive or defensive strategies.
+
+GenTac demonstrates a strong capacity for trajectory forecasting in other team sports. Having
+validated diverse conditioning mechanisms in soccer, we also train GenTac on basketball, American football,
+and ice hockey to evaluate its performance across other team sports. We adopt two base forecasting settings:
+unconditioned (c = ∅) and opponent-conditioned (c = copp ). Across all three sports, opponent-conditioned
+forecasting consistently yields lower geometrical error than the unconditioned setting, highlighting opponent
+futures as a universally transferable source of tactical context. As shown in see Figure 3, at a 5 s horizon of
+future prediction, minimum ADE remains at 0.32 m in basketball, 1.06 m in American football, and 1.04 m in
+ice hockey under opponent conditioning. These results, together with qualitative examples in the same figure,
+suggest that GenTac successfully captures transferable principles of collective dynamics beyond soccer.
+
+3.2 GenTac excels in tactical event recognition from trajectory
+Multi-player trajectories capture the spatial relations among players, providing an abstraction of soccer tactics.
+Beyond this geometric structure, trajectories also encode discriminative tactical semantics, enabling both
+event grounding and forecasting. GenTac demonstrates this capability in two settings: (i) classifying tactical
+events from given trajectory segments, and (ii) inferring future event outcomes from generated trajectories.
+
+Tactical events are directly recoverable from given trajectories. Through trajectory evolution, GenTac
+reliably distinguishes tactical events at both type and subtype levels. For the five broad event types, event
+grounding achieves a top-1 accuracy of 71.2% and a top-3 accuracy of 97.4%. The macro-averaged Precision@1,
+Recall@1, and F1-score@1 are 71.3%, 76.3%, and 73.4%, respectively, indicating balanced and stable type-level
+classification (Figure 4c,d). Representative categories such as transition (Recall@1 = 72.7%, Recall@3 =
+99.6%) and threat (Recall@1 = 82.5%, Recall@3 = 90.0%) exhibit particularly robust separability. At the finer
+subtype level (15 subtypes), top-1 accuracy reaches 53.7%, rising to 87.5% at top-3 and 94.3% at top-5; the
+macro-averaged Recall@1, Recall@3, and Recall@5 are 44.4%, 72.2%, and 83.0%, respectively (Figure 4c,e).
+Collectively, these results demonstrate that GenTac’s trajectory representations preserve not only geometric
+structure but also coherent and interpretable semantic organization.
+
+Tactical events can be forecasted from generated future trajectories. Previous approaches to soccer
+event forecasting have largely relied on statistical modeling of historical event sequences, offering limited
+insight into the tactical evolution that precedes future outcomes. By contrast, we leverage GenTac’s ability to
+generate stable, tactically plausible multi-player trajectory futures. Specifically, we sample multiple future
+trajectory realizations from an observed history and classify the event associated with each generated trajectory,
+as illustrated in Figure 5. As established in the preceding trajectory forecasting experiments, these generated
+
+
+                                                                                                               |8
+                     Unconditioned Forecasting                                        Opponent-conditioned Forecasting
+
+
+
+
+            History trajectory   Forecasted trajectory   Window Size:   1s (min)   1s (avg)      0.2s (min)      0.2s (avg)
+
+
+
+
+Figure 3 | Geometric accuracy of multi-player trajectory forecasting in other team sports. Demonstrating GenTac’s
+ability to generalize across diverse multi-agent dynamics, we train and evaluate the framework on tracking data from basketball,
+American football, and ice hockey. We report the geometric accuracy of the forecasted trajectories under both unconditioned and
+opponent-conditioned settings, evaluated across varying historical observation windows (causal window sizes).
+
+
+
+trajectories faithfully represent realistic tactical developments, thereby providing a grounded basis for event
+prediction. Consequently, different trajectory realizations correspond to different tactical outcomes, naturally
+inducing a probability distribution over possible future events while simultaneously revealing the spatial
+evolution that leads to each of them.
+
+4 Discussion
+In this work, we introduced GenTac, a generative framework that shifts the paradigm of soccer analytics from
+post-hoc descriptive analysis to dynamic tactical simulation. By jointly modeling multi-player trajectories and
+semantic events, this approach opens new avenues for understanding, anticipating, and evaluating complex
+team behaviors.
+
+Reframing soccer tactics as a generative process. Traditional tactical analyses have largely relied on
+event statistics, structural summaries, or expert interpretations of completed matches. While valuable for
+characterizing observed patterns, these approaches fundamentally fall short in modeling how tactics unfold
+dynamically over time. By jointly modeling multi-player trajectories and their associated tactical events,
+GenTac treats tactics as a dynamic, evolving process that can be generated, compared, and systematically
+explored. The primary contribution of this work, therefore, extends beyond achieving superior forecasting
+performance; it introduces a novel modeling paradigm in which tactical evolution becomes accessible to
+systematic, data-driven simulation.
+
+Embracing unpredictability through distributional modeling. In real-world matches, identical histori-
+cal contexts can give rise to multiple tactically plausible continuations, driven by opponent responses, spatial
+organization, and collective team coordination. Deterministic predictions, while capable of capturing an
+average tendency, inherently fail to encompass the full spectrum of possible tactical developments. Generative
+modeling offers a more natural and principled alternative by representing future play as a distribution over
+plausible trajectories. This allows tactical evolution to be studied not as a singular forecasted path, but as a
+structured, probabilistic space of potential futures.
+
+
+
+                                                                                                                              |9
+  a                                                                                                              Team in Ball Possession     Opponent Team
+
+
+
+
+                     Goal                                          Shot Saved       Shot off target        Clearance                       Progression
+
+
+
+
+                Corner                                             Free Kick           Penalty            Interruption                     Defended
+
+
+
+
+                Throw In                                           Goal Kick            Build               Ball Win                        Kick off
+
+
+
+  b                                                                             c                     d
+         Transition
+   Ball Win            Progression
+                                            Build
+                                          Build
+              1566
+                             898                         Interruption
+                                          472           Interruption
+
+
+              Goal                               191               Throw In
+                                                          408
+                        33
+        Shot Saved
+                            70                          173    Free Kick
+                             84                    85
+          Defended                                            Corner
+                             117
+                                119   6            38
+      Shot off target                       24           Goal Kick
+
+              Clearance           Penalty              Kick off
+
+      Threat                                            Set Piece
+
+  e
+
+
+
+
+Figure 4 | (a) Examples of tactical events with diverse semantics. The TacBench-Event dataset encompasses 15 distinct
+event subtypes, each capturing unique tactical behaviors on the pitch. (b) Distribution of event types and subtypes.
+Numerical values indicate the total count of each event subtype, while colors correspond to the broader event categories (types).
+(c) Overall accuracy. We report the top-1, top-3, and top-5 accuracy metrics for both event type and subtype classification.
+(d)-(e) Overall recall. We report the top-1, top-3, and top-5 recall metrics for both event type and subtype classification.
+
+
+                                                                                                                                                         |10
+Figure 5 | (a) Pipeline for tactical event forecasting. Given a historical multi-player trajectory, GenTac encodes the
+sequence and samples its future evolution K(=20) times. Each generated future trajectory is then classified to predict a
+distribution over tactical events. The box plot illustrates the variance of these predictions across the K independent rollouts,
+summarizing the top-5 predicted tactical events via their median probabilities, 10–90% percentile intervals (shaded boxes), and
+min/max ranges (whiskers). (b) Qualitative examples of trajectory and event forecasting. Given historical observations,
+GenTac accurately forecasts both the future spatial movements of the players and the corresponding tactical events across a
+15-class action space.
+
+
+
+
+                                                                                                                            |11
+Elevating forecasting to scenario-based tactical analysis. By conditioning on team and league styles,
+or on specific offensive and defensive objectives, GenTac simulates how tactical evolution adapts under varying
+constraints. Our guidance results demonstrate that generative models can effectively steer collective motion
+toward interpretable tactical goals while preserving coherent multi-player structures. This capability enables
+the systematic comparison of alternative tactical decisions and their potential consequences, positioning the
+generative framework not merely as a predictive tool, but as a powerful mechanism for probing how distinct
+objectives reshape the evolution of play.
+
+Grounding tactical predictions with semantic event forecasting. Tactical events do not arise in
+isolation; rather, they emerge from dynamic shifts in player spacing, collective structure, and local multi-player
+interactions. Mapping generated future trajectories to event probabilities establishes a crucial semantic layer
+for tactical recognition. Instead of predicting pure motion, the model infer the practical match-context
+meaning of a generated sequence—such as ball progression, clearances, or threat creation. Consequently, event
+forecasting is not merely an auxiliary task, but a core component that solidifies the interpretability of tactical
+predictions. It provides generative tactical analysis with a verifiable semantic foundation, advancing a more
+rigorous and scientific approach to sports analytics.
+
+5 Limitations
+The limitations of generative tactical modeling stem primarily from the open-ended and highly contextual
+nature of sports tactics. Real-world tactical decisions are influenced by latent factors not directly captured
+in standard tracking data, such as coaching intent, player cognition, on-pitch communication, and broader
+match context (e.g., scoreline pressure or fatigue). Consequently, the present framework should be understood
+as a generative model of observable tactical behavior patterns rather than a complete reconstruction of the
+underlying cognitive decision-making process. Its outputs represent plausible branches within a tactical
+possibility space, rather than definitive, deterministic predictions of future play.
+Furthermore, tactical structures vary substantially across teams, leagues, and different sporting environments.
+Although our cross-sport experiments suggest promising transferability, achieving universal generalization
+remains an open challenge. Additionally, the current study relies heavily on high-fidelity, structured trajectory
+data. Future work would benefit from incorporating richer, more accessible sources of information, such as
+trajectories reconstructed directly from broadcast video, pose estimation, and broader multimodal contexts.
+Such extensions will be vital for improving the robustness, accessibility, and explanatory power of generative
+tactical modeling in the wild.
+
+
+
+
+                                                                                                              |12
+6 Methods
+This section details the architecture and mathematical formulation of the GenTac framework.
+
+6.1 Problem Formulation
+Building upon the task definitions in Section 2.2, we formalize the dual objectives of GenTac, denoted as
+Φ = {Φtraj , Φevent }: multi-player trajectory forecasting and tactical event recognition. We detail how these
+tasks are unified within our trajectory-grounded generative framework.
+
+6.1.1 Trajectory Forecasting
+
+GenTac formulates multi-player trajectory forecasting as learning a conditional probability distribution over
+future spatial coordinates, from which we can sample multiple plausible match evolutions.
+
+Forecasting as conditional generation. Rather than predicting a single deterministic outcome, the
+trajectory generation module Φtraj models the stochastic evolution of the match. Given historical trajectory
+observations xh and contextual conditioning c (e.g., game state, team identity, strategic objectives), the
+predicted future trajectories xf are sampled from the learned conditional distribution:
+
+                                               x̂f ∼ Φtraj xf | xh , c ,                                        (4)
+                                                                      
+
+
+Two forecasting settings. We define trajectory forecasting under two distinct operational settings. Let
+ i
+x[t1 :t2 ]
+           denote the trajectory sequence of team i ∈ {1, 2} from time step t1 to t2 , where H is the length of the
+historical observation window and T is the prediction horizon.
+(i) Joint forecasting for both teams: The model predicts the future movements of all players on the pitch
+simultaneously. The historical context and future targets are defined as:
+                                        1        2                  1         2
+                                 xh = {x[0:H] , x[0:H] },    xf = {x[H:T ] , x[H:T ] }.                         (5)
+
+(ii) Single-team forecasting (opponent-conditioned): The model predicts the future trajectory of a
+target team i, explicitly conditioned on the known future trajectory of the opponent team j. This isolates a
+team’s reactive spatial dynamics:
+                                              j
+                              xh = {x[0:H]
+                                     i
+                                           , x[0:T ] },   xf = {x[H:T
+                                                                 i
+                                                                      ] },   s.t.   i ̸= j.                     (6)
+
+Autoregressive sliding-window rollout. To maintain structural consistency over long-horizon forecasts,
+we employ an autoregressive sliding-window rollout strategy with a window size w. For joint forecasting, the
+model iteratively samples future segments of length w. The k-th future segment is sampled by conditioning
+on the concatenated history and all previously generated segments:
+                     1                   2                              1           2
+                  (x̂[H+kw:H+(k+1)w]                     ) ∼ Φtraj · | x[0:H+kw]                                (7)
+                                                                                               
+                                     , x̂[H+kw:H+(k+1)w]                         , x[0:H+kw] ,c .
+
+For single-team forecasting, the opponent’s ground-truth trajectory over the prediction window acts as an
+additional conditioning constraint:
+                                                                      j
+                             i
+                                             ∼ Φtraj · | x[0:H+kw]
+                                                          i
+                                                                                                                (8)
+                                                                                     
+                           x̂[H+kw:H+(k+1)w]                       , x[0:H+(k+1)w] ,c .
+
+6.1.2 Tactical Event Recognition
+
+Beyond continuous spatial forecasting, GenTac grounds collective player movements into discrete semantic
+actions via the event recognition module Φevent . Each tactical event e is structured hierarchically, comprising
+a coarse event type y type ∈ Y type and a fine-grained subtype y sub ∈ Y sub . In the TacBench dataset, this label
+space spans 5 types and 15 nested subtypes.
+
+
+                                                                                                               |13
+Event grounding (historical). Given an observed historical trajectory segment xh , the module acts as a
+classifier to infer the corresponding tactical event:
+
+                                           (ŷ type , ŷ sub ) = Φevent (xh ).                                  (9)
+
+Event forecasting (future). Crucially, GenTac anticipates future tactical outcomes by leveraging its
+generative capabilities. Instead of predicting events directly from the history, GenTac first samples future
+trajectories xf via Φtraj , and subsequently classifies these generated rollouts:
+
+                                            (ŷ type , ŷ sub ) = Φevent (xf ).                               (10)
+
+This two-stage formulation ensures that tactical event forecasting is fundamentally trajectory-grounded; the
+model explicitly simulates the spatial evolution of the play before interpreting its semantic tactical outcome.
+
+6.2 GenTac Architecture
+To model and forecast complex soccer tactics, GenTac first encodes the historical collective movements of both
+teams and the ball into a unified sequence of tokens. These tokens are processed by a shared spatiotemporal
+attention backbone to capture complex multi-agent interactions. Finally, the enriched representations are
+routed to task-specific decoders: a denoising decoder for trajectory forecasting (Ψtraj ) and a semantic decoder
+for tactical event recognition (Ψevent ).
+
+6.2.1 Multi-Agent Trajectory Encoding
+
+We first tokenize the raw continuous trajectories to form a unified spatiotemporal representation of the match.
+The coordinate tokens are then projected into a latent space and augmented with structural embeddings to
+retain spatial, temporal, and entity-level priors.
+
+Trajectory tokenization. An observed trajectory segment of length l = b − a for team i ∈ {1, 2} is
+represented as ti[a:b] ∈ Rl×N ×2 , where N is the number of players per team and 2 represents the 2D pitch
+coordinate of bird eye view (BEV). The ball trajectory is similarly represented as B[a:b] ∈ Rl×1×2 . By
+concatenating the trajectories of both teams and the ball, we derive a dense multi-agent representation of
+shape l × (2N + 1) × 2. We adjust this base representation depending on the downstream task:
+For trajectory forecasting, the sequence is extended to a total length L = l + w, where w is the future
+prediction horizon, resulting in Ttraj ∈ RL×(2N +1)×2 . When forecasting both teams jointly, the first l steps
+contain the observed historical trajectories, while the remaining w steps are initialized with Gaussian noise,
+representing the corrupted future states to be refined by the diffusion process. When forecasting a single team
+conditioned on the opponent, noise is appended only to the target team’s future steps, while the opponent’s
+future steps are populated with their ground-truth coordinates.
+For tactical event recognition, the input is constructed directly from the historical segment, Tevent ∈
+Rl×(2N +1)×2 . To support batched processing, we enforce a fixed temporal length L = lmax by truncating
+longer sequences and zero-padding shorter ones. The resulting tensor is Tevent ∈ RL×(2N +1)×2 , with padded
+positions explicitly masked during attention computation.
+
+Token embedding. Let T ∈ {Ttraj , Tevent } denote the tokenized input. Each 2D coordinate token is mapped
+to a d-dimensional latent space via a learnable linear projection, producing H = proj(T) ∈ RL×(2N +1)×d .
+To inject crucial structural priors into this permutation-invariant representation, we add three distinct learnable
+embeddings: (i) temporal embedding (etime ∈ RL×d ): Shared across all entities at a given time step to
+encode the chronological sequence. (ii) group embedding (eteam1 , eteam2 , eball ∈ Rd ): Distinguishes the
+two opposing teams and the ball. (iii) entity embedding (eid ∈ R(2N +1)×d ): Assigns a unique identifier
+to each specific player slot and the ball, preserving individual agent continuity across time. The resulting
+representation H comprehensively encodes spatial coordinates, temporal order, group affiliation, and individual
+identity.
+
+
+
+                                                                                                               |14
+6.2.2 Spatiotemporal Attention Backbone
+
+Given the unified representation H, we model the complex interactions among players and their temporal
+evolution using a stack of M spatiotemporal attention layers. We adopt the factorized attention architecture
+from TimeSformer [31], adapting it from video pixel patches to continuous multi-agent coordinate tokens.
+Each layer consists of a spatial attention module (As ) that captures instantaneous interactions between all
+players at a single time step, followed by a temporal attention module (At ) that models the dynamic evolution
+of each individual player across time. To handle invisible entities (e.g., players missing due to red cards or
+tracking failures), we apply an attention mask by assigning a large negative value (−∞) to their pre-softmax
+attention scores, preventing them from influencing visible entities.
+Initializing H(0) = H, the representation is updated at each layer m ∈ {1, . . . , M } as follows:
+                                                                
+                                         H(m) = At As H(m−1) ,                                                   (11)
+
+where standard residual connections and layer normalization are applied within As and At . The final output
+H(M ) ∈ RL×(2N +1)×d serves as a rich, context-aware representation for the task-specific decoders.
+
+6.2.3 Task Decoders
+
+Trajectory forecasting decoder. For trajectory forecasting, GenTac employs a denoising decoder Ψtraj to
+iteratively recover clean future trajectories from the noise-corrupted representations. Given the contextualized
+output H(M ) , the decoder extracts the features corresponding to the future horizon w and projects them back
+into the 2D coordinate space. Formally, the predicted future trajectory x̂f is generated via:
+
+                                                 x̂f ∼ Ψtraj H(M ) .                                             (12)
+                                                                  
+
+
+In the joint forecasting setting, the decoder outputs x̂f = {t̂1[l:l+w] , t̂2[l:l+w] }. In the single-team setting, it
+outputs x̂f = {t̂i[l:l+w] }. By conditioning the denoising process on the historical context, the decoder effectively
+models the conditional distribution of future movements.
+
+Tactical semantic recognition decoder. For tactical event recognition, we decode high-level semantic labels
+directly from the spatiotemporal representation. An aggregation operator (Agg), typically mean-pooling across
+both the temporal and entity dimensions, compresses H(M ) into a single global feature vector hglobal ∈ Rd
+that summarizes the entire match segment.
+This global representation is then passed through a semantic decoder Ψevent , implemented as a Multi-Layer
+Perceptron (MLP) with two parallel classification heads, to predict the event type and subtype:
+
+                                       (ŷ type , ŷ sub ) = Ψevent Agg(H(M ) ) .                                (13)
+                                                                               
+
+
+6.3 Implementation Details
+In this section, we detail the implementation of the two primary tasks: trajectory forecasting (Section 6.3.1)
+and tactical event recognition (Section 6.3.2). The exact hyperparameter configurations and experimental
+settings are provided in Section 6.3.3.
+
+6.3.1 Trajectory Forecasting
+
+Causal-window formulation. As introduced in Section 3.1, GenTac performs continuous trajectory fore-
+casting using a sliding causal window of fixed length w. Given historical observations xh and a conditioning
+signal c, GenTac generates the target future segment xf for the current window. Long-horizon forecasts
+are obtained by recursively appending the predicted future to the history and advancing the window. This
+autoregressive rollout allows the model to operate locally within a computationally tractable window while
+producing temporally extended, physically consistent futures.
+
+
+
+                                                                                                                  |15
+Diffusion objective within a window. Within each causal window, we apply a diffusion model to the target
+future segment xf , while the historical observations xh remain uncorrupted to serve as a clean conditional
+prior. All 2D pitch coordinates are linearly normalized to [−1, 1]. The forward diffusion process is defined over
+S = 100 steps using a linear noise schedule. Specifically, for each diffusion step s ∈ {1, . . . , S}, we construct a
+noisy version of the future trajectory segment:
+                                    (s)       √              √
+                                  xf      =       ᾱs xf +       1 − ᾱs ϵ,    ϵ ∼ N (0, I),                    (14)
+            Qs                                                                        (s)
+where ᾱs = r=1 (1 − βr ), and {βr }Sr=1 follows the linear variance schedule. Here, xf denotes the corrupted
+future trajectory at step s.
+The core objective of our conditional denoising network, ϵθ (·), is to predict the injected noise ϵ given the
+corrupted future, the clean history, and the time step:
+                                                               (s)
+                                                   ϵ̂(s) = ϵθ xf , xh , c, s .                                  (15)
+                                                                            
+
+
+The model is optimized using the standard mean squared error (MSE) noise-prediction objective:
+                                                                 2
+                                                                  
+                                      Ltraj = Exf ,ϵ,s ϵ − ϵ̂(s)     .                                          (16)
+                                                                                2
+
+
+Through this objective, GenTac learns the conditional distribution of future trajectories given xh and c.
+
+Inference and causal rollout. During inference, GenTac forecasts trajectories via reverse diffusion. For the
+current causal window, the future segment is initialized with pure Gaussian noise:
+                                                         (S)
+                                                        xf       ∼ N (0, I).                                    (17)
+
+Conditioned on xh and c, the model iteratively denoises the sequence from step S down to 1:
+
+                       (s−1)             (s)      (s)
+                                                            
+                     xf      = Denoise xf , ϵθ xf , xh , c, s , s ,    s = S, . . . , 1,                        (18)
+
+where Denoise(·) represents a single reverse diffusion update step. The final predicted future for the window is
+       (0)
+x̂f = xf . This generated segment x̂f is appended to the history, the window shifts forward, and the process
+repeats. Running this stochastic rollout K times yields a diverse set of plausible multi-agent futures.
+
+Target masking under different forecasting settings. As defined in Section 6.1.1, we evaluate two
+primary forecasting settings. For joint forecasting, the future trajectories of both teams are masked and
+treated as the target xf . For single-team forecasting, only the target team’s future is masked, while the
+opponent’s ground-truth future trajectory within the window is retained as part of the conditional input. The
+diffusion objective remains identical; only the partition between the target xf and the condition xh changes.
+
+Pretraining on base forecasting tasks. The conditioning vector c dictates the specific generative task. We
+first pretrain GenTac on the entire trajectory dataset using two base tasks: (i) unconditioned forecasting
+(jointly predicting both teams without explicit stylistic conditions) and (ii) opponent-conditioned fore-
+casting (predicting one team given the other). This pretraining phase allows the model to learn fundamental
+multi-agent kinematics and causal rollout mechanics.
+
+Fine-tuning for conditioned variants. Starting from the pretrained weights, we fine-tune GenTac to
+respond to explicit tactical conditions c. The diffusion objective remains unchanged, but the dataset is
+partitioned or annotated to reflect specific tactical factors: (i) League-conditioned forecasting: The
+unconditioned model is fine-tuned on data from specific leagues to capture distinct regional play styles. (ii)
+Team-conditioned forecasting: The opponent-conditioned model is fine-tuned on specific teams to capture
+unique club-level tactics. (iii) Objective-conditioned forecasting: The model is fine-tuned on trajectory
+segments annotated with specific tactical outcomes. Offensive patterns are learned from segments resulting in
+
+
+                                                                                                                 |16
+threats (e.g., goal, shot on target), while defensive patterns are learned from successful stops (e.g., clearance,
+tackle). This novel conditioning scheme allows GenTac to generate futures that actively pursue specified
+tactical goals.
+
+6.3.2 Tactical Event Grounding and Forecasting
+
+Aggregation pooling. Following the spatiotemporal attention backbone, the semantic branch aggregates
+the tokenized representation Tevent into a single event-level feature vector. Let H(M ) = {ht,n } denote the
+output tokens from the final encoder layer, where t indexes time and n indexes entities. Because tactical
+events are often defined by a sparse subset of key players and moments, we introduce a lightweight attention
+pooling module, Agg(·), to compress the spatiotemporal grid into a global representation z. Each token is
+assigned a learned scalar importance score, normalized via softmax:
+
+                                           exp(MLP(ht,n ))                         X
+                             at,n = P                          ,             z=           at,n ht,n .        (19)
+                                        t ,n′ exp(MLP(ht ,n ))
+                                         ′               ′ ′
+                                                                                   t,n
+
+
+Event grounding. For event grounding, the semantic head maps the observed historical trajectories xh
+directly to tactical labels. The label space is hierarchical, comprising 5 broad event types and 15 specific
+subtypes. Given the pooled representation z, a primary classifier ftype predicts the event type ŷ type . This
+                                                                       (·)
+prediction routes the feature to the corresponding subtype classifier fsub :
+
+                                                                                         (ŷ type )
+                             ŷ type = arg max ftype (z),      ŷ sub = arg max fsub                  (z).   (20)
+
+This hierarchical design prevents incompatible subtypes from competing during optimization. During training,
+we compute the cross-entropy (CE) loss for both levels simultaneously:
+
+                                              Levent = Ltype + λLsub ,                                       (21)
+
+where Ltype = CE ŷ type , y type and Lsub = CE ŷ sub , y sub , with λ balancing the two terms.
+                                                             
+
+Event forecasting. For event forecasting, GenTac first generates the future trajectories using the diffusion
+decoder, and then applies the event recognition head to these generated futures:
+
+                                x̂f = Φtraj (xh , c),       (ŷ type , ŷ sub ) = Φevent (x̂f ).             (22)
+
+Unlike prior works that extrapolate labels directly from history, GenTac explicitly grounds future events in
+forecasted physical movements. Because the trajectory forecaster is probabilistic, sampling multiple futures
+from the same history naturally yields a distribution of potential tactical outcomes.
+
+6.3.3 Experiment Settings
+
+Shared configurations. All experiments in this work are conducted on a single NVIDIA A100 GPU for
+both training and inference. The trajectory forecasting and tactical event recognition tasks share the same
+spatiotemporal attention backbone. Specifically, the encoder consists of M = 4 attention layers, each utilizing
+8 attention heads, with a constant hidden dimension of d = 256. For all soccer-related experiments, the
+number of modeled players per team is set to N = 11, in accordance with standard soccer regulations. Detailed
+statistics of the trajectory datasets and their respective data splits are provided in Supplementary 12.1.
+
+Trajectory forecasting settings. For the trajectory forecasting task, the diffusion process is discretized
+into 100 steps. The model is optimized using the AdamW optimizer [32] with a peak learning rate of 1 × 10−3
+and a weight decay of 1 × 10−4 . The learning rate follows a cosine decay schedule with a linear warm-up
+ratio of 0.02. Unless otherwise specified, models are trained for 60 epochs with a batch size of 200, and the
+checkpoint achieving the lowest validation loss is selected for evaluation. As detailed in Section 3.1, most
+forecasting experiments operate with a causal window of 0.2 s and a historical observation horizon of 4 s. The
+denoising network (ϵθ ) employs a lightweight noise-prediction head that maps the 256-dimensional latent
+
+
+                                                                                                              |17
+representation to a 2-dimensional noise residual via a normalization layer followed by a linear projection. For
+generalization experiments on other team sports, the number of players per team is adjusted according to the
+respective sport’s rules: N = 5 for basketball, N = 11 for American football, and N = 6 for ice hockey.
+
+Tactical event grounding and forecasting settings. For both event grounding and event forecasting,
+each sample is represented as a trajectory sequence of fixed length lmax = 250 frames (10 s). Because event
+modeling is defined at the team level, each sample continuously tracks N = 11 players. During training, data
+augmentation is limited to random horizontal and vertical spatial flipping, applied with a probability of 0.5.
+The model is optimized using the standard Adam optimizer [33]. The initial learning rate is set to 5 × 10−4
+when training from scratch and 1 × 10−4 for fine-tuning, with a constant weight decay of 1 × 10−4 . We use a
+batch size of 32 per GPU and train for up to 200 epochs. Gradients are clipped to a maximum L2 norm of
+1.0, and early stopping is triggered if validation accuracy does not improve for 35 consecutive epochs. For the
+hierarchical classification objective, the balancing weight is set to λ = 1.0. In the event forecasting setting,
+the predicted trajectory spanning the future 100 frames (4 s) serves as the input to the classification head.
+
+7 Data Availability
+The trajectory dataset and the TacBench benchmark utilized in this study are deposited at https://github.com/
+jyrao/GenTac/tree/main/data under a CC BY-NC-SA license.
+
+
+8 Code Availability
+The complete source code for reproducing the experiments in this paper is publicly available at https:
+//github.com/jyrao/GenTac under a CC BY-SA license, and should be cited as [34].
+
+
+
+
+                                                                                                            |18
+ References
+ [1] Silvio Giancola, Mohieddine Amine, Tarek Dghaily, and Bernard Ghanem. Soccernet: A scalable dataset
+     for action spotting in soccer videos. In Proceedings of the IEEE Conference on Computer Vision and
+     Pattern Recognition Workshops, 2018.
+ [2] Adrien Deliege, Anthony Cioppa, Silvio Giancola, Meisam J Seikavandi, Jacob V Dueholm, Kamal
+     Nasrollahi, Bernard Ghanem, Thomas B Moeslund, and Marc Van Droogenbroeck. Soccernet-v2: A
+     dataset and benchmarks for holistic understanding of broadcast soccer videos. In Proceedings of the
+     IEEE Conference on Computer Vision and Pattern Recognition, 2021.
+ [3] Anthony Cioppa, Adrien Deliege, Silvio Giancola, Bernard Ghanem, and Marc Van Droogenbroeck.
+     Scaling up soccernet with multi-view spatial localization and re-identification. Scientific Data, 2022.
+ [4] Anthony Cioppa, Silvio Giancola, Adrien Deliege, Le Kang, Xin Zhou, Zhiyu Cheng, Bernard Ghanem,
+     and Marc Van Droogenbroeck. Soccernet-tracking: Multiple object tracking dataset and benchmark
+     in soccer videos. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition
+     Workshops, 2022.
+ [5] Jiayuan Rao, Haoning Wu, Hao Jiang, Ya Zhang, Yanfeng Wang, and Weidi Xie. Towards universal
+     soccer video understanding. In Proceedings of the IEEE Conference on Computer Vision and Pattern
+     Recognition, 2025.
+ [6] Jiayuan Rao, Haoning Wu, Chang Liu, Yanfeng Wang, and Weidi Xie. Matchtime: Towards automatic
+     soccer game commentary generation. In Proceedings of the Conference on Empirical Methods in Natural
+     Language Processing, 2024.
+ [7] Hassan Mkhallati, Anthony Cioppa, Silvio Giancola, Bernard Ghanem, and Marc Van Droogenbroeck.
+     Soccernet-caption: Dense video captioning for soccer broadcasts commentaries. In Proceedings of the
+     IEEE Conference on Computer Vision and Pattern Recognition Workshops, 2023.
+ [8] Jiayuan Rao, Zifeng Li, Haoning Wu, Ya Zhang, Yanfeng Wang, and Weidi Xie. Multi-agent system for
+     comprehensive soccer understanding. In ACM Multimedia, 2025.
+ [9] Vladimir Somers, Victor Joos, Anthony Cioppa, Silvio Giancola, Seyed Abolfazl Ghasemzadeh, Floriane
+     Magera, Baptiste Standaert, Amir M Mansourian, Xin Zhou, Shohreh Kasaei, et al. Soccernet game
+     state reconstruction: End-to-end athlete tracking and identification on a minimap. In Proceedings of the
+     IEEE Conference on Computer Vision and Pattern Recognition Workshops, 2024.
+[10] Anthony Cioppa, Adrien Deliege, Floriane Magera, Silvio Giancola, Olivier Barnich, Bernard Ghanem, and
+     Marc Van Droogenbroeck. Camera calibration and player localization in soccernet-v2 and investigation
+     of their representations for action spotting. In Proceedings of the IEEE Conference on Computer Vision
+     and Pattern Recognition Workshops, 2021.
+[11] Floriane Magera, Thomas Hoyoux, Olivier Barnich, and Marc Van Droogenbroeck. A universal protocol
+     to benchmark camera calibration for sports. In Proceedings of the IEEE Conference on Computer Vision
+     and Pattern Recognition Workshops, 2024.
+[12] Haolin Yang, Jiayuan Rao, Haoning Wu, and Weidi Xie. Soccermaster: A vision foundation model for
+     soccer understanding. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition,
+     2026.
+[13] Alina Bialkowski, Patrick Lucey, Peter Carr, Yisong Yue, Sridha Sridharan, and Iain Matthews. Identifying
+     team style in soccer using formations learned from spatiotemporal tracking data. In 2014 IEEE
+     International Conference on Data Mining Workshop, pages 9–14. IEEE, 2014.
+[14] David Garrido, Daniel R Antequera, Javier Busquets, Roberto López del Campo, Ricardo Resta Serra,
+     Silvestre Jos Vielcazat, and Javier M Buldú. Consistency and identifiability of football teams: a network
+     science perspective. Scientific reports, 10(1):19735, 2020.
+
+
+                                                                                                           |19
+[15] Javier M Buldú, Javier Busquets, Ignacio Echegoyen, and F Seirul. lo. Defining a historic football team:
+     Using network science to analyze guardiola’s fc barcelona. Scientific reports, 9(1):13602, 2019.
+
+[16] Kongyun Huang, Changjing Zhou, Bo Gong, Xudong Yang, Javier M Buldú, and Miguel Ángel Gómez
+     Ruano. The impact of team quality, match outcomes, and match location on pitch-passing networks.
+     Scientific Reports, 15(1):23199, 2025.
+
+[17] Zhe Wang, Petar Veličković, Daniel Hennes, Nenad Tomašev, Laurel Prince, Michael Kaisers, Yoram
+     Bachrach, Romuald Elie, Li Kevin Wenliang, Federico Piccinini, et al. Tacticai: an ai assistant for
+     football tactics. Nature Communications, 2024.
+
+[18] Siyao Zhao, Hao Ma, Zhiqiang Pu, Jingjing Huang, Yi Pan, Shijie Wang, and Zhi Ming. Taceleven:
+     generative tactic discovery for football open play. arXiv preprint arXiv:2511.13326, 2025.
+
+[19] Guillem Capellera, Luis Ferraz, Antonio Rubio, Alexandre Alahi, and Antonio Agudo. Jointdiff: Bridging
+     continuous and discrete in multi-agent trajectory generation. arXiv preprint arXiv:2509.22522, 2025.
+
+[20] SkillCorner. Skillcorner open data. https://github.com/SkillCorner/opendata. Accessed: 2025-12-01.
+
+[21] Manuel Bassek, Robert Rein, Hendrik Weber, and Daniel Memmert. An integrated dataset of spatiotem-
+     poral and event data in elite soccer. Scientific Data, 12(1):195, 2025.
+
+[22] Metrica Sports. Metrica sports sample data. https://github.com/metrica-sports/sample- data. Accessed:
+     2025-12-01.
+
+[23] linouk23 / Kostya Linou. Nba player movements: Public sportvu tracking logs. https://github.com/linouk23/
+     NBA-Player-Movements. Accessed: 2025-12-01.
+
+[24] National Football League. Big data bowl. https://operations.nfl.com/gameday/analytics/big-data-bowl/. Accessed:
+     2025-12-01.
+
+[25] Big Data Cup. Big data cup 2026: Data release. https://github.com/bigdatacup/Big-Data-Cup-2026/releases/
+     tag/Data. Accessed: 2025-12-01.
+
+[26] Roger Bartlett, Chris Button, Matthew Robins, Aviroop Dutt-Mazumder, and Gavin Kennedy. Analysing
+     team coordination patterns from player movement trajectories in soccer: Methodological considerations.
+     International Journal of Performance Analysis in Sport, 12(2):398–424, 2012.
+
+[27] Wouter Frencken, Koen Lemmink, Nico Delleman, and Chris Visscher. Oscillations of centroid position
+     and surface area of soccer teams in small-sided games. European journal of sport science, 11(4):215–223,
+     2011.
+
+[28] Ricardo Duarte, Duarte Araújo, Vanda Correia, Keith Davids, Pedro Marques, and Michael J Richardson.
+     Competing together: Assessing the dynamics of team–team and player–team synchrony in professional
+     association football. Human movement science, 32(4):555–566, 2013.
+
+[29] Karun Singh. Introducing expected threat (xt). https://karun.in/blog/expected-threat.html, 2018. Accessed:
+     2026-02-07.
+
+[30] Tsuyoshi Taki and JUNICHI Hasegawa. Visualization of dominant region in team games and its application
+     to teamwork analysis. In Proceedings computer graphics international 2000, pages 227–235. IEEE, 2000.
+
+[31] Gedas Bertasius, Heng Wang, and Lorenzo Torresani. Is space-time attention all you need for video
+     understanding? In Proceedings of the International Conference on Machine Learning, 2021.
+
+[32] Ilya Loshchilov and Frank Hutter. Decoupled weight decay regularization. In Proceedings of the
+     International Conference on Learning Representations, 2019.
+
+[33] Kingma Diederik. Adam: A method for stochastic optimization. (No Title), 2014.
+
+
+
+                                                                                                                |20
+[34] Jiayuan Rao, Tianlin Gui, Haoning Wu, and et al. Gentac: Generative modeling and forecasting of soccer
+     tactics1. https://github.com/jyrao/GenTac, 2026.
+
+[35] Silvio Giancola, Anthony Cioppa, et al. Soccernet 2025 challenges results. arXiv preprint arXiv:2508.19182,
+     2025.
+
+[36] Laurie Shaw and Friends of Tracking. Laurieontracking: Expected possession value (epv) grid. https:
+     //github.com/Friends-of-Tracking-Data-FoTD/LaurieOnTracking, 2020. Accessed: 2026-02-07.
+
+
+
+
+                                                                                                            |21
+9 Acknowledgments
+Weidi would like to acknowledge the funding from Scientific Research Innovation Capability Support Project
+for Young Faculty (ZY-GXQNJSKYCXNLZCXM-I22).
+
+10 Author Contributions
+In this work, W.X. is the corresponding author, J.R., T.G, H.W, Y.W., and W.X. all make contributions to
+the conception or design of the work, and J.R., T.G. further perform acquisition, analysis, or interpretation
+of data for the work. In writing, J.R. draft the work. T.G, H.W, Y.W., and W.X. review it critically for
+important intellectual content. All authors approve of the version to be published and agree to be accountable
+for all aspects of the work to ensure that questions related to the accuracy or integrity of any part of the work
+are appropriately investigated and resolved.
+
+11 Competing Interests
+The authors declare no competing interests.
+
+
+
+
+                                                                                                              |22
+12 Supplementary
+12.1 More Details about Datasets
+To support the training and evaluation of GenTac under various conditioning settings, we construct a
+unified dataset and benchmark for multi-player trajectory forecasting and tactical event analysis. This
+benchmark enables the rigorous evaluation of trajectory forecasting under different conditioning mechanisms
+(e.g., opponent, team, league, and objective), as well as tactical event grounding and forecasting.
+In Section 12.1.1, we describe the sources of all trajectory data used in this work, covering both soccer and
+other team sports. In Section 12.1.2, we detail the data curation pipeline that converts the raw trajectory
+data into the standardized benchmark format used in our experiments. Finally, in Section 12.1.3, we present
+the trajectory dataset split strategy and summarize the resulting statistics, while Section 12.1.4 details the
+tactical event definitions, data sources, and curation pipeline.
+
+12.1.1 Trajectory Data Source.
+
+Our dataset integrates both publicly available sports tracking datasets and trajectories reconstructed from
+broadcast videos using state-of-the-art game state reconstruction pipelines. For training and evaluating soccer
+tactics forecasting, we collected the following two types of data:
+
+   • Public soccer trajectory and event datasets: Full-match trajectories for all players and the ball,
+     with synchronized event labels from professional leagues. This includes Metrica Sports [22] (3 matches),
+     SkillCorner [20] from the Australian A-League (10 matches), and Sportec DFL [21] from the German
+     Bundesliga and 2. Bundesliga (7 matches).
+   • Broadcast-derived data: Multi-player trajectories reconstructed from broadcast videos. This com-
+     prises SoccerNet-GSR [9] with 164 annotated 30-second clips providing trajectories only, and a curated
+     subset generated using the SoccerFactory [12] pipeline on broadcast videos from SoccerReplay-1988 [5].
+     This yields 363 variable-length clips with both trajectories and aligned event labels.
+
+To evaluate the generalization capabilities of GenTac, we also incorporated publicly available multi-player
+trajectory datasets from other team sports:
+   • Basketball: NBA SportVU [23], comprising 66,498 clips of 6-second duration.
+   • American football: NFL Big Data Bowl 2021 [24], consisting of offensive plays exceeding 10 yards
+     from 256 games.
+   • Ice hockey: Big Data Cup 2026 [25], including 33 games segmented into three 20-minute periods.
+
+12.1.2 Trajectory Data Curation.
+
+A unified preprocessing pipeline is employed to harmonize heterogeneous raw trajectory data into a consistent
+structural paradigm.
+
+Public soccer trajectory data. Raw trajectory data from heterogeneous public sources (e.g., XML, JSON,
+CSV) are standardized through a unified preprocessing pipeline. To resolve inherent discrepancies in original
+sampling rates, temporal interpolation is applied to align all discrete time steps into a synchronized temporal
+sequence at a standardized frame rate of 25 frames per second (fps).
+For compatibility with the diffusion models, the continuous trajectory is discretized into a frame-by-frame
+dictionary sequence. Each temporal frame is indexed by a sequential integer key, capturing the instantaneous
+2D spatial coordinates of all tracked entities in meters. Players are partitioned into two opposing groups
+(team0 and team1), preserving their original alphanumeric identifiers to maintain identity consistency across
+frames, while the ball is tracked as an independent entity. Missing tracking data for any entity at a given
+frame is uniformly imputed as a null coordinate pair.
+Spatial coordinates are normalized to a standard 105 × 68 m pitch. The origin (0, 0) is anchored at the
+center spot, bounding the longitudinal (x) and lateral (y) axes to the intervals [−52.5, 52.5] and [−34, 34],
+
+
+                                                                                                            |23
+respectively. All positional values are rounded to two decimal places. A representative data structure is
+provided below:
+{
+    "13590": {" ball ": [6.50 , 4.20] , " team0 ": {" Player1 ": [ -0.74 , -30.28] , " Player10 ": [ -0.06 ,
+        9.86] , " Player11 ": [ -42.91 , 0.74] , " Player2 ": [ -12.45 , -8.44] , ...} , " team1 ": {"
+        Player15 ": [ -25.95 , 10.47] , " Player16 ": [18.10 , -0.48] , " Player17 ": [17.50 , -7.31] ,
+        ...}} ,
+    "13591": {" ball ": [ null , null ] , " team0 ": {" Player1 ": [ -0.73 , -30.41] , " Player10 ": [ -0.37 ,
+        11.14] , " Player11 ": [ -42.88 , 0.83] , " Player2 ": [ -12.54 , -8.62] , ...} , " team1 ": {"
+        Player15 ": [ -25.86 , 10.47] , " Player16 ": [18.11 , -0.70] , " Player17 ": [17.46 , -7.53] ,
+        ...}} ,
+    ...
+}
+
+
+Broadcast-derived soccer trajectory data. To acquire broadcast-derived player trajectories, we extract the
+main camera center-view frames from the SoccerNet-v2 dataset [2] and process them using the SoccerFactory
+pipeline [12]. The pipeline detects players, referees, and the ball from broadcast frames and projects their
+image locations onto pitch coordinates, producing frame-wise entity positions and track identities. To improve
+the temporal consistency of these projected trajectories, we apply the following post-refinement procedures.
+The quantitative performance of this pipeline is summarized in Supplementary Table ??.
+
+    • Duplicate identity resolution: Within each frame, if multiple detections from the same team share
+      an identical jersey number, only one instance is retained. Conflicting detections are suppressed to avoid
+      identity ambiguity.
+    • Gap interpolation: Short missing segments for tracked entities (players, goalkeepers, and referees) are
+      filled via linear interpolation between the nearest valid observations.
+    • Global anomaly detection: Pairs of adjacent frames are examined for abnormal motion kinemat-
+      ics. If multiple tracked entities exhibit physically implausible position changes between frames, the
+      corresponding frames are marked as potential anomaly segments.
+    • Segment reconstruction: Short abnormal segments are reconstructed by interpolating entity positions
+      between the nearest valid frames, utilizing track identities when available to maintain trajectory
+      continuity.
+    • Temporal smoothing: Finally, the reconstructed trajectories are smoothed using a bidirectional
+      exponential moving average to suppress residual high-frequency jitter while preserving overall motion
+      trends.
+
+                   Method                                   GS-HOTA       GS-DetA     GS-AssA
+                   Playbox & MIXI                              58.1         41.3         81.6
+                   Metrica-Sports                              58.2         44.4         76.2
+                   KIST-GSR                                    61.5         48.5         78.0
+                   SoccerFactory [12]                          64.1         51.5         79.9
+                   Ours (SoccerFactory + post-refinement)      64.2          51.3        80.5
+
+Supplementary Table 1 | Comparison on GSR Task according to SoccerNet 2025 Challenges Results [35].
+Compared to the previous sota model SoccerFactory [12], our refinement keeps promoting the performance of GSR task on
+SoccerNet-GSR [9] test set. The best and second-best results are bolded and underlined.
+
+
+
+Following the application of the SoccerFactory pipeline [12] and the aforementioned post-refinement strategies,
+we extracted multi-player trajectories intended for downstream tactical reasoning tasks. To guarantee the
+positional reliability of these broadcast-derived trajectories, we adopt a manual annotation and verification
+protocol. Expert annotators systematically reviewed the dataset to identify and discard trajectory clips
+exhibiting physically implausible positional jumps.
+
+
+
+                                                                                                                 |24
+As illustrated in Supplementary Fig. 1, annotators utilized a custom graphical interface to efficiently filter out
+these anomalies. These positional discontinuities predominantly arise from camera calibration failures during
+rapid broadcast camera panning or zooming. Specifically, when field markings and keypoints are heavily
+occluded, the frame-to-frame homography estimation (transformation matrix) from the broadcast view to
+the 2D pitch coordinates becomes ill-conditioned. This instability induces unnatural coordinate shifts on the
+pitch plane, even when the underlying image-space multi-object tracking remains robust.
+
+
+
+
+                                                                                          4. Segment Editing Panel
+                                                                                          (Annotation List & Buttons)
+             1.Video Playback & View
+             （Aerial Pitch View）
+
+
+
+
+                                                                                         5. Consistency Verfication
+                                                                                         (Check if logic is incorrect)
+
+
+
+                                                               2. Detailed Metadata
+                                                               （Time,Frame）
+
+                                                                    3.Task & Description
+
+
+
+Supplementary Figure 1 | Manual data annotation interface. The original Chinese layout is overlaid with red English
+labels to highlight core components. Volunteers execute the annotation process through the following steps: Step 1: Watch
+tactical plays in the video playback view “1"; Step 2: Identify target sequences based on the specific task and description
+“3" Step 3: Utilize detailed metadata “2" to pinpoint exact start and end frames within the segment editing panel “4". To
+ensure dataset quality, a consistency check feature “5" allows annotators to filter out anomalous or noisy data, such as abnormal
+positional jumps.
+
+
+
+Trajectory data of other team sports. To evaluate the cross-domain generalization of our generative
+modeling framework, we extended our data curation pipeline to three additional team sports: basketball,
+American football, and ice hockey. The raw tracking data from these domains were standardized into the
+identical frame-by-frame dictionary format utilized for the soccer dataset. This unified structure records the
+2D spatial coordinates of the primary game object (ball or puck) and all active players from both teams over
+time. Consistent with the soccer pipeline, missing tracking observations are imputed as null coordinates.
+To accommodate the domain-specific characteristics of each sport, we applied two primary structural adjust-
+ments. First, the expected number of tracked entities was adapted to reflect the respective official regulations
+(e.g., 5-vs-5 for basketball, 11-vs-11 for American football, and 6-vs-6 for ice hockey). Second, the spatial
+coordinates were normalized to the standard playing surface dimensions of each sport. We preserved the
+native sampling rates of the source datasets to evaluate the model’s robustness to varying temporal resolutions:
+5 frames per second (fps) for basketball, 10 fps for American football, and 30 fps for ice hockey. An example
+of the basketball data structure is shown below:
+{
+    "10420": {" ball ": [6.50 , 4.20] , " team0 ": {" GS_Curry ": [6.10 , 3.80] , " GS_Thompson ": [4.50 ,
+        -6.10] , " GS_Green ": [0.50 , 2.10] , " GS_Wiggins ": [ -3.20 , 5.50] , " GS_Looney ": [ -1.00 ,
+
+
+                                                                                                                             |25
+         -1.50]} , " team1 ": {" LAL_James ": [5.80 , 3.50] , " LAL_Davis ": [ -0.80 , -1.20] , " LAL_Reaves
+         ": [4.20 , -5.80] , " LAL_Russell ": [ -2.90 , 5.20] , " LAL_Hachimura ": [0.20 , 1.80]}} ,
+     "10421": {" ball ": [6.85 , 2.50] , " team0 ": {" GS_Curry ": [6.25 , 3.60] , " GS_Thompson ": [4.55 ,
+         -6.05] , " GS_Green ": [0.65 , 2.15] , " GS_Wiggins ": [ -3.10 , 5.45] , " GS_Looney ": [ -0.95 ,
+         -1.45]} , " team1 ": {" LAL_James ": [6.00 , 3.30] , " LAL_Davis ": [ -0.75 , -1.15] , " LAL_Reaves
+         ": [4.25 , -5.75] , " LAL_Russell ": [ -2.85 , 5.15] , " LAL_Hachimura ": [0.25 , 1.85]}} ,
+     ...
+}
+
+
+12.1.3 Trajectory Dataset Split and Statistics.
+
+The dataset is partitioned into training, validation, and test splits. For soccer, public data are distributed across
+all three splits, whereas broadcast-derived trajectories are restricted to training and validation. Consequently,
+the final test benchmark relies exclusively on public data. Table 2 summarizes the quantitative distribution
+across all curated sports datasets.
+
+Sport Category             Dataset                          Source                 Train    Valid     Test      Total     Unit
+
+                           Metrica Sports [22]              Public Dataset            1      0.5  *
+                                                                                                      0.5   *
+                                                                                                                  2      matches
+                           SkillCorner Open Data [20]       Public Dataset            8        1       1          10     matches
+Soccer                     DFL Bundesliga [21]              Public Dataset            5        1       1          7      matches
+                           SoccerNet-GSR [9]                Broadcast-derived        61       62       –         123      clips
+                           SoccerFactory+refinement [12]†   Broadcast-derived         –        –       –         353      clips
+
+Basketball                 NBA SportVU [23]                 Public Dataset         42,054   16,046    8,398     66,498    clips
+
+American Football          NFL Big Data Bowl [24]           Public Dataset         13,458   3,797     1,899     19,154    clips
+
+Ice Hockey                 Big-Data-Cup [25]                Public Dataset           23       6        4         33      periods
+    * The value 0.5 denotes one half of a soccer match.
+    † The dataset created by ourselves in this work.
+
+Supplementary Table 2 | Quantitative distribution of trajectory datasets. The table summarizes the allocation of data
+across training, validation, and test splits for all team sports. As for the "source" column, "Public Dataset" represents the data
+from website that has already collected in the form of pitch coordinates, while "Broadcast-derived" represents the trajectory data
+generated from soccer broadcast video. The temporal scope of each dataset is defined in the "Unit" column. "Matches" indicates
+complete games, "clips" denotes shorter tracking sequences such as specific events or fixed-length segments, and "periods" refers
+to the standard 20-minute intervals specific to ice hockey.
+
+
+
+12.1.4 Event Curation and Split.
+
+Data source and curation. The event dataset aggregates three sources: SkillCorner Open Data [20], DFL
+Bundesliga [21], and Metrica Sports [22]. To harmonize heterogeneous event data, a unified classification scheme
+consolidates 15 subtypes into five macro-categories: Build, Transition, Threat, Set Piece and Interruption.
+For most events, we rely on the original labels provided by each dataset. However, the original data can
+be unclear for complex tactical phases, especially within the Build, Transition, and Threat categories. To
+ensure accuracy in these cases, we add our own manual labels to the automated process. We use the following
+mapping scheme to align the different datasets:
+
+
+
+
+                                                                                                                                   |26
+  Event Mapping Scheme
+  1. Build
+  Definition: Phases focused on controlled possession and structural advancement originating from the defensive zones.
+  • Build: The team progresses from the defensive third via patient, structured passing sequences while maintaining secure possession.
+     Criteria: Filtered via PASS originating in the defensive third requiring forward progression < 0.05 and defensive centroid stability
+     σ < 0.1 (Metrica, Bundesliga); successful PASS originating in the defensive third with high spatial separation (≥ 3.0) during
+     build-up and create phases (Open Data).
+
+  2. Transition
+  Definition: Phases characterized by dynamic shifts in possession and rapid vertical advancements across the pitch.
+  • Ball Win: Midfield interceptions and recoveries aimed at regaining possession from the opponent. Criteria: Midfield CHALLENGE
+     (Metrica); start_type ∈ {pass_interception, recovery} with separation < 3.0 indicating high pressure (Open Data); midfield
+     BallClaiming (Bundesliga).
+  • Progression: Intentional forward advancements originating outside the defensive third (x > 0.33) to drive the attack. Criteria:
+    Satisfying crossing midfield (ζ > 0.1), deep progression (ζ > 0.2), or penalty box entry; spatial filtration of PASS/BALL LOST
+    (Metrica); spatial filtration of transition phases (Open Data); spatial filtration of Play/Run (Bundesliga).
+
+  3. Threat
+  Definition: Final-stage actions involving direct scoring attempts, critical box defenses, or high-danger area interventions.
+  • Goal: Successful scoring events where the ball legally crosses the goal line. Criteria: SHOT ON TARGET-GOAL or WOODWORK-GOAL
+     (Metrica); game_interruption_before ∈ {goal_for, goal_against} (Open Data); SuccessfulShot (Bundesliga).
+  • Shot Off Target: Unsuccessful scoring attempts that miss the goal frame and are not saved by the goalkeeper. Crite-
+    ria: OFF TARGET/WOODWORK (Metrica); end_type == shot excluding actual goals (Open Data); Shotwide/OtherShot/ShotWoodWork
+    (Bundesliga).
+  • Shot Saved: Scoring attempts directed on target but successfully intercepted by the goalkeeper. Criteria: SAVED (Metrica);
+    non-goal target shots (Open Data); SavedShot (Bundesliga).
+  • Clearance: Defensive actions aimed primarily at safely clearing the ball from critical danger zones (e.g., the defensive third).
+    Criteria: CLEARANCE or PASS/BALL LOST+ in the defensive third (Metrica); end_type == clearance (Open Data); verified via
+    manual annotation.
+  • Defense: Successful defensive interventions actively disrupting attacks within the penalty area. Criteria: Spatial filtration
+    of BALL LOST or CHALLENGE inside the penalty area (x ≥ 0.8) (Metrica); disruption phases or blocked shots verified via manual
+    annotation (Open Data, Bundesliga).
+
+  4. Set Piece
+  Definition: Restarts of play from dead-ball situations governed by specific game rules.
+  • Corner: A restart of play awarded to the attacking team when the ball completely crosses the goal line after last touching
+     a defending player. Criteria: SET PIECE+CORNER KICK (Metrica); start_type ∈ {corner_reception, corner_interception} (Open
+     Data); CornerKick (Bundesliga).
+  • Free Kick: A restart of play following a foul or infringement by the opposing team. Criteria: SET PIECE+FREE KICK (Metrica);
+    start_type ∈ {free_kick_reception, free_kick_interception} (Open Data); Freekick (Bundesliga).
+  • Penalty: A direct shot taken from the penalty mark, awarded for a foul committed inside the penalty area. Criteria: SET
+    PIECE+PENALTY (Metrica); game_interruption_before ∈ {penalty_for, penalty_against} (Open Data); Penalty (Bundesliga).
+  • Throw-in: A restart of play when the ball completely crosses the touchline. Criteria: THROW IN (Metrica); start_type ==
+    throw_in_reception (Open Data); ThrowIn (Bundesliga).
+  • Kick-off : The method of starting or restarting play at the beginning of a half or immediately after a goal is scored. Criteria:
+    KICK OFF (Metrica); game_interruption_before ∈ {goal_for, goal_against} (Open Data); Kickoff (Bundesliga).
+  • Goal Kick: A restart of play awarded to the defending team when the ball completely crosses the goal line after last touching
+    an attacking player. Criteria: GOAL KICK (Metrica); start_type ∈ {goal_kick_reception, goal_kick_interception} (Open Data);
+    GoalKick (Bundesliga).
+
+  5. Interruption
+  Definition: Non-active play periods caused by rule infractions, ball out of bounds, or administrative stoppages.
+  • Interruption: Temporary game stoppages primarily due to rule infractions, substitutions, or the ball going out of bounds.
+     Criteria: CARD/FAULT RECEIVED (Metrica); end_type ∈ {foul_suffered, foul_committed} (Open Data); Foul/Substitution (Bun-
+     desliga).
+
+
+Temporal extraction employs a Safety Center Window mechanism. Event boundaries are initially buffered by
+1 seconds preceding and succeeding the action. To mitigate visual contamination between adjacent events,
+dynamic collision avoidance truncates overlapping windows: left boundaries are constrained to follow the
+preceding event’s termination, and right boundaries precede the subsequent event’s initiation. Compressed
+segments falling below minimum length thresholds (20 frames, 0.8s) receive random temporal padding, whereas
+prolonged sequences are capped at 25-50 frames. High-value events, including free kicks, goals and shot off
+targets, receive forced boundary extensions by an additional 1.0 seconds preceding the action and 0.6 seconds
+succeeding its termination to preserve tactical context.
+
+
+
+
+                                                                                                                                       |27
+Data split and statistics. To mitigate the uneven distribution of rare events across individual matches,
+extracted instances are aggregated globally into a unified pool before partitioning. This composite dataset is
+then allocated into training, validation, and test splits adhering to an approximate 7:2:1 ratio. The finalized
+event dataset comprises 4,284 samples , totalling 3.66 hours of effective duration, which are distributed into
+3,010 (2.55 hours), 851 (0.73 hours), and 423 (0.37 hours) sequences for training, validation, and testing
+respectively. Supplementary Table 3 details the quantitative distribution and average temporal characteristics
+across all evaluated subtypes.
+
+Macro-category            Subtype                 Total          Train          Valid          Test          Avg. Duration (s)
+
+Build-up                  Build                    472            331             94            47                   3.04
+
+                          Ball Win                1,566          1,097           313            156                  2.09
+Transition
+                          Progression              898            630            179             89                  3.20
+
+                          Goal                      33             24             6              3                   6.32
+                          Shot Off Target          117             83             23            11                   5.94
+                          Shot Saved                70             49             14             7                   2.86
+Threat
+                          Clearance                119             85             23            11                   2.85
+                          Defended                  84             60             16             8                   1.95
+
+                          Corner                    85             60             17             8                   5.86
+                          Free Kick                173            122             34            17                   5.61
+                          Penalty                   6              2               2             2                   7.99
+Set Piece
+                          Throw-in                 408            287             81            40                   2.65
+                          Kick-off                  24             18              4             2                   3.90
+                          Goal Kick                 38             28              7             3                   3.05
+
+Interruption              Stoppage                 191            134             38            19                   6.17
+
+Total                                             4,284          3,010           851            423                  3.08
+
+Supplementary Table 3 | Quantitative distribution of event subtypes. The table summarizes the allocation of the 4,284
+extracted events across training, validation, and test splits (approximating a 7:2:1 ratio). To prevent severe class imbalance at
+the individual match level, partitioning is executed globally across the aggregated event pool.
+
+
+
+12.2 More Details about Metrics
+In this paper, we evaluate our proposed model using a comprehensive suite of metrics designed to capture multi-
+faceted tactical behaviors and spatial dynamics. Specifically, in Section 12.2.1, we detail the distance-based
+metrics used to measure the geometric and spatial precision of the forecasted trajectories. In Section 12.2.2,
+we introduce a variety of metrics to assess team organizational coherence and spatial coordination. In
+Section 12.2.3, we outline the classification metrics utilized for evaluating the accuracy of hierarchical semantic
+event predictions. Finally, in Section 12.2.4, we present advanced analytical metrics to quantify both dynamic
+offensive threats and defensive structural integrity.
+
+12.2.1 Geometrical Accuracy of Forecasted Trajectory.
+
+The average displacement error (ADE) and the final displacement error (FDE) are two metrics used to measure
+the spatial precision of the forecasted trajectories.
+
+   • Average displacement error (ADE): The ADE is calculated as the mean Euclidean distance between
+     the predicted trajectory and the ground truth across all forecasted time steps:
+                                                                   T
+                                                           1X
+                                                     ADE =       ∥p̂t − pt ∥2
+                                                           T t=1
+
+         where p̂t and pt denote the predicted and ground-truth positions at time step t, and T denotes the
+         number of steps. The metric ranges from 0 to 125.1 m.
+   • Final displacement error (FDE): The FDE is calculated as the spatial deviation at the final time
+
+
+                                                                                                                             |28
+      step T of the prediction window to assess the model’s ability to forecast trajectory endpoints:
+
+                                                 FDE = ∥p̂T − pT ∥2
+
+      where T denotes the final forecasted time step. The metric ranges from 0 to 125.1 m.
+
+12.2.2 Collective Structure Consistency
+
+The following metrics are utilized to assess team organizational coherence and tactical coordination.
+
+  • Stretch index: Given a team of N = 11 players, the team centroid c can be obtained as c = N1 i=1 pi ,
+                                                                                                          PN
+     where pi = (xi , yi ) denotes the position of player i. The stretch index is calculated as the mean Euclidean
+     distance from all players to the centroid:
+                                                                  N
+                                                            1 X
+                                          Stretch index =         ∥pi − c∥2
+                                                            N i=1
+
+      which quantifies the spatial dispersion of the formation. The metric ranges from 0 to 62.5 m.
+   • Surface area: The surface area captures the pitch region occupied by the team, calculated as the area
+     of the convex hull enclosing all teammates. The metric ranges from 0 to 7140 m2 .
+   • Team width: The team width characterizes the horizontal expansion of the team shape, calculated as
+     the maximal transverse separation:
+
+                                          Team width = max(yi ) − min(yi )
+                                                            i             i
+
+      The metric ranges from 0 to 68 m.
+   • Team length: The team length characterizes the vertical expansion of the team shape, calculated as
+     the maximal longitudinal separation:
+
+                                         Team length = max(xi ) − min(xi )
+                                                            i             i
+
+      The metric ranges from 0 to 105 m.
+   • Frobenius norm: The Frobenius norm provides a scalar measure of formation compactness, calculated
+     as the square root of the sum of squared pairwise distances:
+                                                       v
+                                                       uN N
+                                                                  ∥pi − pj ∥22
+                                                       uX X
+                                     Frobenius norm = t
+                                                                i=1 j=1
+
+
+   • Team centroid displacement: The team centroid displacement captures macro-level tactical shifts
+     by evaluating the centroid’s movement between consecutive frames t − 1 and t:
+
+                                     Team centroid displacement = ∥ct − ct−1 ∥2
+
+      where practical values are limited by ∆t × vmax (vmax ≈ 10 m/s).
+   • Kuramoto order parameter: The Kuramoto order parameter assesses directional synchronization in
+     collective motion:
+                                                N
+                                            1 X iθj
+                                       R=          e
+                                            N j=1
+
+      where θj denotes the movement direction of player j mapped onto the unit circle. It ranges from 0 to 1,
+      where 1 indicates perfectly coherent movement.
+
+
+                                                                                                              |29
+      (a) stretch index               (b) surface area             (c) length & width            (d) Kuramoto order
+
+Supplementary Figure 2 | Visualizations of Collective Structure Consistency. Example from a progression phase
+(Red: attacking team, Blue: defending team). (a) Stretch index maps player distances to the team centroid (yellow cross),
+contrasting the defensive block’s compactness with the attacking team’s expanded shape. (b) Surface area uses convex hulls
+to illustrate spatial occupation, showing the attacking team utilizing greater pitch width and depth. (c) Length & width
+quantifies these formations: the attacking team measures 49.53 m in width and 60.44 m in length, compared to the defending
+team’s 49.36 m by 40.69 m. (d) Kuramoto order uses velocity arrows to visualize the Kuramoto order parameter, indicating
+the directional cohesion of both teams’ movements.
+
+
+
+12.2.3 Semantic Event Recognition Accuracy
+
+We evaluate semantic event prediction using standard classification metrics, which are bounded between 0
+and 1.
+
+   • Top-k accuracy: This metric measures the overall proportion of samples in which the ground-truth
+     event label is present within the model’s top-k predicted classes. It provides a general assessment of the
+     model’s predictive capacity.
+   • Per-class recall@k: Because overall accuracy can be disproportionately skewed by majority classes in
+     highly imbalanced sports datasets (e.g., frequent passes versus rare goals), we utilize per-class recall
+     to ensure a rigorous and fair evaluation of both common and rare tactical events. To comprehensively
+     capture the hierarchical taxonomy of tactical actions, we conduct a fine-grained analysis at two levels of
+     granularity: (i) At the broader type level (e.g., Build, Threat), we report the individual recall for each
+     specific category alongside their unweighted macro-average. These are evaluated for the top-1 and top-3
+     predictions (recall@1 and recall@3); (ii) At the more granular subtype level (e.g., Goal, Shot-saved),
+     precise action prediction becomes significantly more challenging. Consequently, we report the individual
+     recall for each specific subtype and their macro-average across the top-1, top-3, and top-5 predictions
+     (recall@1, 3, and 5).
+
+12.2.4 Offense/Defense Performance
+
+To evaluate team-level tactical efficacy, we introduce a suite of advanced analytical metrics comprising three
+offensive indicators (off-ball expected threat, depth threat, and width threat) and two defensive indicators
+(defensive shape disruption and defensive dominant region).
+Central to several of these metrics is the concept of expected possession value (EPV), which quantifies the
+latent offensive threat associated with specific spatial regions on the pitch. We utilize a pre-calculated 2D
+EPV grid sourced from the Friends-of-Tracking-Data (FoTD) open-source repository [36]. This spatial grid
+maps the historical probability of a possession ultimately resulting in a goal based on the current coordinates
+of the ball or player.
+
+   • Off-ball expected threat (OBET): The OBET evaluates the attacking team’s spatial advantage. We
+     calculate it as the ratio of the EPV in areas controlled by the attacking team to the total pitch EPV:
+
+                                                               EPVk
+                                                        P
+                                            OBET = P k∈A
+                                                         k∈A∪D EPVk
+
+      where A and D denote grid points controlled by the attacking and defending teams, respectively. The
+      metric ranges from 0 to 1.
+
+
+                                                                                                                      |30
+   • Depth threat: The depth threat measures the offensive penetration along the vertical axis. The pitch
+     is divided into Z = 32 vertical zones, and the metric is calculated as the weighted sum of the attacking
+     control ratio in each zone, weighted by the zone’s EPV proportion:
+                                                               Z
+                                                               X     Nzatk         EPVz
+                                                                                            
+                                            Depth threat =
+                                                               z=1
+                                                                       Nz          EPVtotal
+
+       where Nz denotes the total number of grid points in zone z, and Nzatk denotes the points controlled by
+       the attacking team. The metric ranges from 0 to 1.
+   • Width threat: The width threat measures horizontal offensive dispersion along the transverse axis,
+     utilizing the identical weighted sum formulation as Depth Threat, but segmenting the pitch into
+     horizontal zones. The metric ranges from 0 to 1.
+   • Defensive shape disruption: The defensive shape disruption quantifies the structural instability
+     imposed on the opposing team, calculated as the normalized change in the defending team’s surface
+     area between consecutive tactical states t − 1 and t + 1:
+
+                                                Areat+1 − Areat−1
+                                                                                 
+                          Disruption = Clip                       × 100, −1.0, 1.0
+                                                    Pitch Area
+
+       The metric captures forced expansion or compression of the defensive block. We scale the normalized
+       change by a factor of 100 to map typical frame-to-frame area variations to a more interpretable and
+       symmetric boundary, yielding a final metric bounded between −1 and 1.
+   • Defensive dominant region: The defensive dominant region [30] evaluates the spatial dominance
+     of the defending team. It represents the total pitch area where defensive players arrive earlier than
+     attacking players, adjusting distance matrices using respective velocity vectors [30]. The metric ranges
+     from 0 to 7140m2 .
+
+
+
+
+ (a) Off-ball expected threat           (b) Depth threat                  (c) Width threat          (d) Defensive dominant region
+
+Supplementary Figure 3 | Visualizations of Offense and Defense Performance. Example from a deep attacking phase
+(Red: attacking team, Blue: defending team). (a) Off-ball expected threat maps dynamic spatial control, showing the
+attacking team dominating part of the penalty arc while the defending team is highly compressed. (b) Depth threat evaluates
+vertical penetration by segmenting the pitch into vertical strips; the intense red bands near the goal line indicate successful
+offensive progression into the final third, highlighting where possession yields the highest threat coming. (c) Width threat
+assesses lateral distribution via horizontal strips; the prominent red band along the central axis demonstrates that despite the
+presence of wide players, the core offensive threat is concentrated in the middle, forcing the defense to prioritize central passing
+lanes. (d) Defensive dominant region isolates the defending team’s spatial dominance, demonstrating their constrained
+control restricted primarily to the penalty box.
+
+
+
+
+                                                                                                                                |31
+12.3 Experiment Results
+This section provides detailed quantitative results supporting the analyses presented in the main text. We
+report experimental evaluations of trajectory forecasting under various conditioning settings, its generalization
+to other team sports, and the performance of tactical event grounding and forecasting.
+
+12.3.1 Performance of Unconditioned and Opponent-conditioned Trajectory Forecasting
+
+Geometrical Accuracy. We report the geometric accuracy of GenTac’s soccer trajectory forecasting under
+different causal window lengths and opponent-conditioning settings in Supplementary Tables 4 and 5. Across
+all experiments in these tables, the historical observation horizon is fixed at 4 s, while the prediction horizons
+range from 1 s to 5 s. To account for the stochastic nature of the generative model, metrics are computed
+over K = 20 generated trajectory samples per instance, reporting both the minimum (best-of-K) and average
+error values.
+As detailed in tables, for a given causal window size, incorporating the future trajectories of opposing players
+consistently improves the geometric accuracy of the forecasts across all prediction horizons (1 s to 5 s). This
+advantage is reflected in both the minimum and average error metrics. The improvement becomes particularly
+pronounced at longer horizons, where the performance gap between opponent-conditioned and unconditioned
+forecasting progressively widens.
+Regarding the effect of the causal window size, reducing the window from 1.0 s to 0.2 s yields a substantial
+improvement in geometric accuracy across all prediction horizons. This trend is consistent across both
+minimum and average errors, with the benefit becoming increasingly pronounced at longer horizons. This
+suggests that shorter local rollout steps effectively mitigate the compounding accumulation of forecasting errors
+over time. Conversely, further reducing the window from 0.2 s to 0.04 s provides only marginal additional gains.
+While this finer temporal granularity slightly enhances trajectory precision, the improvement is negligible
+compared to the notable gains achieved when transitioning from 1.0 s to 0.2 s. Furthermore, because covering
+an identical future horizon with a 0.04 s window requires five times as many autoregressive inference steps
+as a 0.2 s window, the computational inference cost increases substantially. This presents a clear trade-off
+between marginal accuracy gains and computational efficiency.
+
+   Setting                 1s                       2s                       3s                       4s                       5s
+Win.(s)   OC     minADEK        minFDEK   minADEK        minFDEK   minADEK        minFDEK   minADEK        minFDEK   minADEK        minFDEK
+  0.04       ✓     0.09           0.23      0.28           0.71      0.53           1.32      0.82           2.01      1.14           2.74
+  0.04       ✗     0.23           0.55      0.67           1.69      1.27           3.16      1.97           4.85      2.74           6.68
+  0.2        ✓     0.12           0.30      0.36           0.85      0.65           1.52      0.97           2.21      1.30           2.89
+  0.2        ✗     0.62           1.22      1.34           2.87      2.24           5.11      3.32           7.82      4.55          10.80
+   1         ✓     0.37           0.86      1.12           1.98      1.87           3.08      2.37           3.99      3.01           5.87
+   1         ✗     0.95           1.78      1.84           3.44      3.59           6.70      5.25           9.62      6.03          10.93
+
+Supplementary Table 4 | Geometrical accuracy of GenTac trajectory forecasting (minimum errors) under varying
+window lengths and opponent conditioning. minADEK and minFDEK denote the minimum ADE and FDE across K = 20
+generated trajectory samples per instance.
+
+
+
+   Setting                 1s                       2s                       3s                       4s                       5s
+Win.(s)   OC     avgADEK        avgFDEK   avgADEK        avgFDEK   avgADEK        avgFDEK   avgADEK        avgFDEK   avgADEK        avgFDEK
+  0.04       ✓     0.10           0.26      0.32           0.81      0.60           1.51      0.93           2.31      1.29           3.16
+  0.04       ✗     0.26           0.62      0.75           1.87      1.39           3.49      2.15           5.34      3.00           7.38
+  0.2        ✓     0.15           0.37      0.43           1.05      0.77           1.84      1.15           2.67      1.54           3.47
+  0.2        ✗     0.70           1.39      1.55           3.45      2.64           6.20      3.94           9.41      5.39          12.81
+   1         ✓     0.50           1.13      1.46           2.33      2.05           3.65      2.64           4.90      4.05           7.37
+   1         ✗     1.28           2.45      2.45           4.66      4.68           8.97      6.80          12.90      7.81          14.67
+
+Supplementary Table 5 | Geometrical accuracy of GenTac trajectory forecasting (average errors) under varying
+window lengths and opponent conditioning. avgADEK and avgFDEK denote the average ADE and FDE across K = 20
+generated trajectory samples per instance.
+
+
+
+
+                                                                                                                                         |32
+Collective Structural Consistency. We further evaluate the collective structural consistency of predicted
+trajectories by measuring the difference of high-level tactical metrics between forecasted trajectories and
+ground truth. For each prediction horizon (1–5 s), we compute the absolute value of errors among metrics,
+reported as ∆(| · |). Errors are summarized using two aggregation schemes out of K(=20) generated trajectory
+samples : (i) Average error, which averages errors compared with ground truth over all generated trajectory
+samples, and (ii) Minimum error, which selects the minimum errors.
+Supplementary Table 6 and Supplementary Table 7 report the results for unconditioned and opponent-
+conditioned trajectory forecasting, respectively. The evaluated metrics characterize the absolute value of the
+changes in collective team structure metrics on forecasted trajectories compared with ground truth, including
+stretch index (∆|SI|), surface area (∆|SA|), team width (∆|TW|), team length (∆|TL|), Frobenius norm
+of pairwise distances (∆|FN|), team centroid displacement (∆|CD|), and synchronization order parameter
+(∆|SO|). For these collective structural metrics, their abbreviated forms will be consistently used in all
+subsequent tables. All the results below are demonstrated under 0.2 second causal window and as shown
+in Supplementary Table 6 and Supplementary Table 7, similar trend could be found in collective structural
+consistency as in geometrical accuracy.
+
+ Metrics    ∆|SI|↓ (m)   ∆|SA|↓ (m2 )   ∆|TW|↓ (m)     ∆|TL|↓ (m)    ∆|FN|↓ (m)    ∆|CD|↓ (m)     ∆|SO|↓ (-)
+
+  Time                                              Average Error
+
+    1s         0.32          40.67          1.07           1.09          0.44          0.80          0.28
+    2s         0.64          82.81          2.15           2.18          0.89          1.41          0.35
+    3s         1.00         130.33          3.32           3.38          1.38          1.79          0.37
+    4s         1.42         186.64          4.56           4.88          1.97          1.94          0.37
+    5s         1.89         255.55          5.87           6.94          2.66          1.96          0.37
+
+  Time                                             Minimum Error
+
+    1s         0.19          21.24          0.60           0.52          0.26          0.29          0.07
+    2s         0.40          46.81          1.32           1.15          0.55          0.71          0.13
+    3s         0.62          74.92          2.08           1.81          0.86          1.01          0.15
+    4s         0.87         105.61          2.90           2.53          1.22          1.13          0.16
+    5s         1.17         142.05          3.75           3.52          1.65          1.14          0.16
+
+Supplementary Table 6 | Errors of collective structural consistency induced by trajectories from unconditioned
+forecasting.
+
+
+
+
+ Metrics    ∆|SI|↓ (m)   ∆|SA|↓ (m2 )   ∆|TW|↓ (m)     ∆|TL|↓ (m)    ∆|FN|↓ (m)    ∆|CD|↓ (m)     ∆|SO|↓ (-)
+
+  Time                                              Average Error
+
+    1s         0.12          16.82          0.43           0.48          0.17          0.30          0.16
+    2s         0.35          48.41          1.20           1.37          0.49          0.47          0.22
+    3s         0.64          86.90          2.18           2.39          0.89          0.58          0.26
+    4s         0.95         126.40          3.21           3.49          1.32          0.66          0.28
+    5s         1.25         164.75          4.21           4.53          1.74          0.71          0.29
+
+  Time                                             Minimum Error
+
+    1s         0.08          11.25          0.26           0.33          0.12          0.18          0.08
+    2s         0.25          33.37          0.75           0.95          0.35          0.28          0.11
+    3s         0.47          60.29          1.38           1.67          0.65          0.34          0.12
+    4s         0.70          87.55          2.03           2.43          0.96          0.37          0.13
+    5s         0.91         112.64          2.61           3.14          1.27          0.40          0.13
+
+Supplementary Table 7 | Errors of collective structural consistency induced by trajectories from opponent-
+conditioned forecasting.
+
+
+
+
+                                                                                                            |33
+12.3.2 Performance of Team-conditioned Trajectory Forecasting
+
+We further evaluate the impact of team-conditioned trajectory forecasting by measuring the induced errors
+in collective tactical metrics for Auckland FC. For each prediction horizon (1–5 s), we compare the original
+(opponent-conditioned) forecasting model with the team-conditioned setting (fine-tuned on matches of Auckland
+FC). Errors are summarized using average and minimum errors among K(= 20) generated trajectory samples
+as well. Results are reported in Supplementary Table 8 and Supplementary Table 9.
+
+Metrics ADE↓ (m) FDE↓ (m) ∆|SI|↓ (m) ∆|SA|↓ (m2 ) ∆|TW|↓ (m) ∆|TL|↓ (m) ∆|FN|↓ (m) ∆|CD|↓ (m) ∆|SO|↓ (-)
+  Time                                           Original (Average Error)
+   1s        0.15      0.38       0.26        34.73        0.83        0.73        0.36        0.48        0.22
+   2s        0.45      1.11       0.81       110.38        2.42        2.31        1.14        0.71        0.29
+   3s        0.82      1.98       1.63       231.16        4.65        4.83        2.32        0.85        0.32
+   4s        1.23      2.89       2.75       409.88        7.19        8.48        3.95        0.96        0.35
+   5s        1.65      3.76       4.16       652.25        9.97        13.34       6.03        1.08        0.38
+
+  Time                                    Conditioned on Team (Average Error)
+   1s        0.18      0.43       0.19        25.70        0.93        0.71        0.28        0.59        0.27
+   2s        0.52      1.31       0.57        73.44        2.32        2.12        0.82        0.86        0.37
+   3s        0.97      2.42       1.11       141.44        4.09        3.91        1.59        0.95        0.42
+   4s        1.49      3.62       1.82       228.39        6.12        5.89        2.57        0.96        0.44
+   5s        2.04      4.86       2.81       335.55        8.26        8.29        3.92        0.97        0.46
+
+Supplementary Table 8 | Average errors of trajectory forecasting metrics for Auckland FC with and without
+team conditioning.
+
+
+
+
+Metrics ADE↓ (m) FDE↓ (m) ∆|SI|↓ (m) ∆|SA|↓ (m2 ) ∆|TW|↓ (m) ∆|TL|↓ (m) ∆|FN|↓ (m) ∆|CD|↓ (m) ∆|SO|↓ (-)
+  Time                                          Original (Minimum Error)
+   1s        0.12      0.31       0.20        24.60        0.55        0.47        0.28        0.29        0.12
+   2s        0.37      0.91       0.66        83.76        1.75        1.61        0.93        0.50        0.17
+   3s        0.69      1.63       1.37       183.53        3.51        3.57        1.95        0.61        0.21
+   4s        1.03      2.39       2.35       333.71        5.60        6.51        3.39        0.67        0.23
+   5s        1.40      3.12       3.61       539.36        7.92        10.51       5.26        0.71        0.25
+
+  Time                                   Conditioned on Team (Minimum Error)
+   1s        0.15      0.38       0.10        12.34        0.50        0.30        0.15        0.29        0.12
+   2s        0.46      1.18       0.33        39.32        1.36        1.05        0.49        0.50        0.22
+   3s        0.88      2.20       0.67        80.08        2.60        2.00        1.00        0.57        0.27
+   4s        1.36      3.31       1.15       131.27        4.10        3.05        1.67        0.57        0.28
+   5s        1.87      4.46       1.86       193.52        5.52        4.44        2.65        0.54        0.31
+
+Supplementary Table 9 | Minimum errors of trajectory forecasting metrics for Auckland FC with and without
+team conditioning.
+
+
+As shown in Supplementary Table 8 and Supplementary Table 9., all results here are obtained with a fixed
+causal window of 0.2 s. Compared with the original opponent-conditioned model, team conditioning slightly
+increases ADE and FDE across all horizons, suggesting that enforcing team-specific style does not necessarily
+yield the geometrically closest future. In contrast, it consistently reduces errors in collective tactical metrics,
+especially at longer horizons. For example, at 5 s, the average errors of surface area, team width, and team
+length decrease from 652.25 to 335.55, from 9.97 to 8.26, and from 13.34 to 8.29, respectively. This indicates
+that team conditioning helps generate futures more consistent with the characteristic collective organization
+of Auckland FC.
+
+
+
+
+                                                                                                                  |34
+12.3.3 Performance of League-conditioned Trajectory Forecasting
+
+To evaluate the performance of league-conditioned trajectory forecasting, we simulate league-specific playing
+styles using two representative football competitions: the Australian Football League (AFL) and the German
+Bundesliga. For each league, we compare the original (unconditioned) trajectory forecasting setting with the
+league-conditioned setting (finetuned on matches from specific league) and measure the resulting errors in
+trajectory-induced tactical metrics across prediction horizons from 1 s to 5 s, where errors are summarized
+using average and minimun errors K(= 20) generated trajectory samples.
+Results for AFL conditioning are reported in Supplementary Table 10 and Supplementary Table 11, while for
+Bundesliga conditioning are presented in Supplementary Table 12 and Supplementary Table 13.
+
+Metrics ADE↓ (m) FDE↓ (m) ∆|SI|↓ (m) ∆|SA|↓ (m2 ) ∆|TW|↓ (m) ∆|TL|↓ (m) ∆|FN|↓ (m) ∆|CD|↓ (m) ∆|SO|↓ (-)
+ Time                                          Original (Average Error)
+   1s       0.71      1.44      0.37        46.65       1.06        1.30       0.50        0.89       0.25
+   2s       1.61      3.61      0.73        91.07       2.15        2.48       1.01        1.42       0.32
+   3s       2.76      6.46      1.10       134.33       3.41        3.61       1.51        1.66       0.34
+   4s       4.10      9.69      1.52       183.07       4.80        4.99       2.08        1.74       0.34
+   5s       5.57      13.09     2.00       242.65       6.22        7.06       2.76        1.77       0.35
+
+ Time                                   Conditioned on AFL (Average Error)
+   1s       0.44      1.11      0.21        29.21       1.10        1.16       0.31        0.68       0.23
+   2s       1.37      3.57      0.70        82.81       3.74        3.10       0.97        1.25       0.31
+   3s       2.67      6.95      1.38       145.42        7.60       4.96       1.91        1.74       0.35
+   4s       4.24      10.88     2.29       225.61       12.08       6.34       3.21        2.16       0.37
+   5s       6.00      15.08     3.46       334.85       16.56       7.18       4.92        2.50       0.38
+
+Supplementary Table 10 | Average errors of trajectory forecasting metrics for AFL with and without league
+conditioning.
+
+
+
+
+Metrics ADE↓ (m) FDE↓ (m) ∆|SI|↓ (m) ∆|SA|↓ (m2 ) ∆|TW|↓ (m) ∆|TL|↓ (m) ∆|FN|↓ (m) ∆|CD|↓ (m) ∆|SO|↓ (-)
+ Time                                         Original (Minimum Error)
+   1s       0.63      1.25      0.26        31.18       0.68        0.82       0.36        0.45       0.10
+   2s       1.39      3.03      0.55        66.26       1.49        1.72       0.76        0.83       0.16
+   3s       2.36      5.42      0.84        99.30       2.43        2.55       1.16        1.04       0.18
+   4s       3.50      8.21      1.16       133.57       3.51        3.44       1.59        1.10       0.19
+   5s       4.78      11.21     1.53       173.06       4.59        4.71       2.08        1.12       0.20
+
+ Time                                  Conditioned on AFL (Minimum Error)
+   1s       0.37      0.94      0.14        18.20       0.79        0.78       0.20        0.31       0.11
+   2s       1.17      3.02      0.49        53.76       2.81        2.23       0.69        0.57       0.14
+   3s       2.28      5.83      0.97        92.64       5.77        3.59       1.36        0.79       0.16
+   4s       3.60      8.98      1.63       143.05        9.21       4.42       2.31        0.95       0.16
+   5s       5.05      12.26     2.50       212.07       12.70       4.75       3.61        1.03       0.17
+
+Supplementary Table 11 | Minimum errors of trajectory forecasting metrics for AFL with and without league
+conditioning.
+
+
+
+
+                                                                                                             |35
+League-conditioned forecasting shows a consistent short-horizon advantage for both AFL and Bundesliga. In
+AFL, league conditioning improves the average ADE/FDE at 1 s from 0.71/1.44 m to 0.44/1.11 m, while in
+Bundesliga the corresponding values decrease from 0.71/1.40 m to 0.40/0.99 m. Similar trends are observed
+in the minimum errors. In addition to geometrical accuracy, several collective tactical metrics, including
+stretch index, surface area, Frobenius norm, and centroid displacement, are also reduced at short horizons
+after league conditioning. However, this advantage is not maintained uniformly as the prediction horizon
+extends. In particular, for AFL, structural errors such as team width, Frobenius norm, and surface area
+become noticeably larger at 4 s and 5 s, while Bundesliga remains relatively more stable but still shows a
+weaker gain than at short horizons. Overall, these results suggest that league conditioning mainly acts as
+a short-term tactical prior, helping the model better reproduce league-level playing tendencies in the early
+stages of trajectory rollout.
+
+
+Metrics ADE↓ (m) FDE↓ (m) ∆|SI|↓ (m) ∆|SA|↓ (m2 ) ∆|TW|↓ (m) ∆|TL|↓ (m) ∆|FN|↓ (m) ∆|CD|↓ (m) ∆|SO|↓ (-)
+ Time                                             Original (Average Error)
+   1s       0.71      1.40       0.33          42.93       1.05        1.11     0.45       0.77        0.29
+   2s       1.54      3.39       0.65          85.39       2.03        2.19     0.88       1.42        0.36
+   3s       2.61      6.06       0.98         131.61       3.06        3.37     1.35       1.88        0.39
+   4s       3.87      9.18       1.33         181.99       4.15        4.63     1.86       2.10        0.39
+   5s       5.28      12.51      1.70         234.92       5.30        5.96     2.40       2.16        0.40
+
+ Time                                   Conditioned on Bundesliga (Average Error)
+   1s       0.40      0.99       0.19          26.67       0.82        0.76     0.27       0.72        0.32
+   2s       1.22      3.17       0.56          74.35       2.42        1.86     0.80       1.11        0.39
+   3s       2.36      6.18       1.07         133.94       4.56        3.00     1.50       1.50        0.41
+   4s       3.77      9.76       1.67         198.30       7.05        4.07     2.33       1.86        0.42
+   5s       5.37      13.67      2.34         263.32       9.74        5.03     3.27       2.08        0.42
+
+Supplementary Table 12 | Average errors of trajectory forecasting tactical metrics for the Bundesliga with and
+without league conditioning.
+
+
+
+
+Metrics ADE↓ (m) FDE↓ (m) ∆|SI|↓ (m) ∆|SA|↓ (m2 ) ∆|TW|↓ (m) ∆|TL|↓ (m) ∆|FN|↓ (m) ∆|CD|↓ (m) ∆|SO|↓ (-)
+ Time                                            Original (Minimum Error)
+   1s       0.64      1.24       0.24          28.16       0.70        0.69     0.32       0.34        0.12
+   2s       1.35      2.84       0.48          59.22       1.43        1.45     0.66       0.80        0.19
+   3s       2.22      4.98       0.73          92.91       2.18        2.27     1.01       1.17        0.22
+   4s       3.26      7.59       1.00         129.34       2.95        3.14     1.40       1.36        0.23
+   5s       4.44      10.46      1.28         166.06       3.76        4.01     1.80       1.40        0.23
+
+ Time                                   Conditioned on Bundesliga (Minimum Error)
+   1s       0.36      0.91       0.14          18.85       0.59        0.53     0.20       0.49        0.19
+   2s       1.12      2.90       0.45          56.44       1.88        1.40     0.64       0.79        0.25
+   3s       2.17      5.64       0.88         104.65       3.67        2.34     1.23       1.08        0.27
+   4s       3.46      8.90       1.39         157.05       5.73        3.23     1.95       1.38        0.28
+   5s       4.93      12.48      1.97         209.15       7.98        3.99     2.76       1.57        0.29
+
+Supplementary Table 13 | Minimum errors of trajectory forecasting tactical metrics for the Bundesliga with and
+without league conditioning.
+
+
+
+
+                                                                                                              |36
+12.3.4 Performance of Objective-conditioned Trajectory Forecasting
+
+To evaluate the effect of objective-conditioned trajectory forecasting, we analyze how tactical metrics change
+after applying offensive or defensive guidance during trajectory generation. For each tactical scenario (e.g.,
+clearance, defended, goal, shot off target, and shot saved), we measure the resulting variations in high-level
+tactical metrics induced by the generated trajectories.
+The evaluated metrics include off-ball expected threat (∆xThreat), depth threat (∆Dpt. Threat), width threat
+(∆Wid. Threat), defensive shape disruption (∆Def. Dis.), and defensive dominant region (∆Def. Dom. Reg.).
+Depth threat, width threat, and defensive shape disruption are scaled by 10−2 for readability. Results under
+offensive guidance and defensive guidance are reported in Supplementary Table 14 and Supplementary Table 15,
+respectively. For offensive guidance, larger increases in offensive metrics indicate more effective attacking
+behaviors, while reductions in defensive stability metrics reflect stronger pressure on the defense. Conversely,
+for defensive guidance, improvements correspond to reduced offensive threat and enhanced defensive structural
+stability.
+
+                                       Offensive Side                                           Defensive Side
+   Scenario
+                  ∆xThreat↑ ∆Dpt. Threat(×10−2 )↑ ∆Wid. Threat(×10−2 )↑ ∆Def. Dis.(×10−2 )↓ ∆Def. Dom. Reg.(m2 )↓
+
+Clearance            1.58              4.95                     5.05                      –                    101.24
+Defended             0.30              0.58                     0.53                      –                     40.81
+Goal                 1.15              2.63                     2.98                      –                     45.05
+Shot off target      0.65              1.27                     2.22                      –                     64.55
+Shot saved           0.70              1.43                     3.67                      –                    -11.32
+
+Overall             0.87               2.17                     2.89                      –                    48.07
+
+Supplementary Table 14 | Changes in tactical metrics after offensive guidance. Positive values indicate increased
+offensive threat or expanded attacking structures. The defensive shape disruption column is not available here since we control
+the defensive team in the same trajectory as condition to forecast and guide the evolution of offensive team. As a result, the
+deviation of defensive shape disruption is always 0.
+
+
+
+
+                                       Offensive Side                                           Defensive Side
+   Scenario
+                  ∆xThreat↓   ∆Dpt. Threat(×10−2 )↓   ∆Wid. Threat(×10−2 )↓     ∆Def. Dis.(×10−2 )↑ ∆Def. Dom. Reg.(m2 )↑
+
+Clearance           -1.10             -4.58                     -5.56                   8.90                    27.51
+Defended            -0.45             -2.28                     -2.00                   5.86                    32.07
+Goal                -0.70             -3.14                     -3.52                   0.43                   171.55
+Shot off target     0.08               0.16                     -3.25                   1.96                    51.20
+Shot saved          0.12               0.16                     -3.90                   -0.33                   -7.77
+
+Overall             -0.41             -7.23                     -2.93                   3.49                   58.02
+
+Supplementary Table 15 | Changes in tactical metrics after defensive guidance. Improvements correspond to reduced
+offensive threat and enhanced defensive structural stability.
+
+
+As shown in Supplementary Table 14 and Supplementary Table 15, objective-conditioned forecasting is
+consistent with the intended tactical guidance. Under offensive guidance, the generated trajectories increase
+off-ball expected threat, depth threat, and width threat overall by 0.87, 2.17, and 2.89, indicating more
+aggressive attacking behavior. In contrast, defensive guidance reduces these offensive metrics by 0.41, 7.23,
+and 2.93, respectively, while increasing defensive shape disruption and defensive dominant region by 3.49 and
+58.02. This suggests that objective conditioning can effectively guide trajectory generation toward meaningful
+offensive or defensive tactical tendencies.
+
+
+
+
+                                                                                                                           |37
+12.3.5 Performance of Generalization of Trajectory Forecasting of GenTac on Other Team
+       Sports
+
+We further evaluate the generalization ability of GenTac trajectory forecasting across multiple team sports,
+including basketball, American football, and ice hockey, as reported in Supplementary Table 16 and Supple-
+mentary Table 17. Compared with Supplementary Table 4 and Supplementary Table 5, the experimental
+protocol remains identical except that an additional parameter H(s) is introduced to denote the history
+horizon length used for trajectory forecasting. The frame rate of each sport is indicated in parentheses.
+For all cross-sport trajectory forecasting experiments, we evaluate GenTac under the same two causal window
+settings, i.e., 0.2 s and 1 s, while preserving the original frame rate of each dataset, namely 5 FPS for basketball,
+10 FPS for American football, and 30 FPS for ice hockey. This setting allows us to assess the generalization
+ability of GenTac across different team sports under consistent forecasting protocols while respecting the native
+temporal resolution of each benchmark. A different history length is additionally considered for basketball due
+to the intrinsic structure of its dataset. Specifically, the basketball benchmark consists of 6-second trajectory
+clips. Therefore, when fixing the history horizon to 4 s, the remaining future available for evaluation is limited
+to only 2 s. To enable longer-horizon forecasting analysis from 1 s to 5 s, we further reduce the history horizon
+to 1 s for basketball, thereby reserving a sufficiently long future segment for evaluation.
+
+       Time                  1s                       2s                       3s                       4s                       5s
+H(s)   W(s)   OC   minADEK        minFDEK   minADEK        minFDEK   minADEK        minFDEK   minADEK        minFDEK   minADEK        minFDEK
+                                                             Basketball (5FPS)
+  4     0.2   ✓      0.04           0.08      0.07           0.19        –             –          –             –         –              –
+  4     0.2   ✗      0.23           0.38      0.46           0.86        –             –          –             –         –              –
+  4      1    ✓      0.05           0.10      0.12           0.23        –             –          –             –         –              –
+  4      1    ✗      0.21           0.40      0.50           1.02        –             –          –             –         –              –
+  1     0.2   ✓      0.04           0.08      0.1            0.21      0.17           0.36      0.25           0.51      0.32           0.64
+  1     0.2   ✗      0.15           0.28      0.37           0.78      0.65           1.43      0.97           2.19      1.33           3.01
+  1      1    ✓      0.12           0.22      0.24           0.40      0.34           0.51      0.42           0.60      0.48           0.67
+  1      1    ✗      0.98           1.91      1.94           2.64      2.57           3.78      3.17           4.89      3.70           5.47
+                                                      American Football (10FPS)
+  4     0.2   ✓      0.11           0.21      0.28           0.63      0.51           1.19      0.78           1.81      1.06           2.46
+  4     0.2   ✗      0.24           0.48      0.63           1.39      1.13           2.55      1.69           3.84      2.29           5.12
+  4      1    ✓      0.24           0.44      1.24           4.37      2.34           4.87      3.02           4.97      3.48           5.16
+  4      1    ✗      0.64           1.17      2.68           8.67      5.26          10.70      7.06           9.98      8.35          10.22
+                                                            Ice Hockey (30FPS)
+  4     0.2   ✓      0.24           0.48      0.51           0.86      0.71           1.12      0.89           1.30      1.04           1.45
+  4     0.2   ✗      0.62           1.24      1.37           2.57      2.07           3.70      2.71           4.65      3.29           5.44
+  4      1    ✓      2.72           3.21      3.54           3.76      3.96           3.94      4.20           3.95      4.38           4.01
+  4      1    ✗      3.03           4.15      4.67           5.10      5.63           5.70      6.30           6.13      6.89           6.35
+
+Supplementary Table 16 | GenTac trajectory forecasting performance (minimum error) across multiple team
+sports under varying window lengths and opponent conditioning.
+
+
+
+
+                                                                                                                                               |38
+       Time                  1s                       2s                       3s                       4s                       5s
+H(s)   W(s)   OC   avgADEK        avgFDEK   avgADEK        avgFDEK   avgADEK        avgFDEK   avgADEK        avgFDEK   avgADEK        avgFDEK
+                                                            Basketball (5FPS)
+  4     0.2   ✓      0.06           0.12      0.14           0.30       –              –         –              –          –             –
+  4     0.2   ✗      0.33           0.55      0.66           1.31       –              –         –              –          –             –
+  4      1    ✓      0.08           0.16      0.19           0.38       –              –         –              –          –             –
+  4      1    ✗      0.35           0.70      0.87           1.90       –              –         –              –          –             –
+  1     0.2   ✓      0.06           0.11      0.14           0.3       0.24           0.51      0.34           0.72      0.44           0.91
+  1     0.2   ✗      0.22           0.42      0.55           1.22      0.98           2.29      1.49           3.49      2.03           4.69
+  1      1    ✓      0.20           0.38      0.38           0.66      0.51           0.84      0.61           0.97      0.70           1.06
+  1      1    ✗      1.62           3.18      3.24           5.69      4.35           7.04      5.15           7.83      5.74           8.29
+                                                     American Football (10FPS)
+  4     0.2   ✓      0.13           0.23      0.31           0.69      0.55           1.28      0.83           1.95     1.14            2.65
+  4     0.2   ✗      0.28           0.57      0.74           1.65      1.30           2.97      1.94           4.43     2.61            5.91
+  4      1    ✓      0.30           0.56      1.36           4.76      2.55           5.31      3.25           5.40     3.71            5.69
+  4      1    ✗      0.77           1.41      4.18          15.83      9.13          19.76      11.6          17.04     12.85          18.14
+                                                           Ice Hockey (30FPS)
+  4     0.2   ✓      0.40           0.82      0.79           1.48      1.11           1.93      1.35           2.24     1.55            2.48
+  4     0.2   ✗      0.92           1.92      2.03           4.21      3.17           6.54      4.29           8.84     5.39           10.86
+  4      1    ✓      3.61           4.55      4.36           5.19      4.73           5.44      4.93           5.46     5.06            5.57
+  4      1    ✗      6.00           8.47      7.72          10.41      8.85          12.00      9.68          12.85     10.35          13.63
+
+Supplementary Table 17 | GenTac trajectory forecasting performance (average error) across multiple team
+sports under varying window lengths and opponent conditioning.
+
+
+
+
+                                                                                                                                               |39
+12.3.6 Performance of Tactical Event Grounding and Forecasting
+
+We further evaluate the capability of GenTac to ground and forecast tactical events directly from predicted
+trajectories. The evaluation follows the event taxonomy introduced in our benchmark, including both high-level
+event types and fine-grained subtypes. Supplementary Table 18 reports the trajectory-based classification
+performance for 5 event types, while Supplementary Table 19 presents the results for more detailed 15
+subtypes. Performance is reported using top-k recall for k ∈ {1, 3} for event types and k ∈ {1, 3, 5} for event
+subtypes, together with macro-average recall and overall accuracy.
+An observation from our classification analysis is the intrinsic ambiguity in 2D trajectory representations.
+Since our dataset captures the (x, y) coordinates of players and the ball, certain events exhibit near-identical
+physical patterns despite having distinct tactical outcomes. For instance, a“shot off target” that travels over
+the crossbar may be indistinguishable from a “Goal” in the 2D plane.
+
+                                        Top-k                  @1                @3
+
+                                        Type                           Recall
+
+                                        Build                  61.70             97.87
+                                        Interruption           78.95             84.21
+                                        Set piece              63.89             97.22
+                                        Threat                 82.50             90.00
+                                        Transition             72.65             99.59
+
+                                        Macro avg.             71.94             93.78
+
+                                        Accuracy               71.16             97.40
+
+
+Supplementary Table 18 | Trajectory-based event classification (Type). Per-class Performance Recall is reported for
+top-k predictions (k ∈ {1, 3}), together with Macro average and Overall Performance accuracy.
+
+
+
+                            Top-k                      @1                @3               @5
+
+                            Subtype                                     Recall
+
+                            Ball win                   55.13             92.31            98.72
+                            Clearance                  27.27             36.36            63.64
+                            Defended                   12.50             50.00            50.00
+                            Goal                       33.33            100.00           100.00
+                            Goal kick                  0.00              66.67           100.00
+                            Progression                47.19             97.75           100.00
+                            Shot off target            36.36             63.64            81.82
+                            Shot saved                 28.57             57.14            85.71
+                            Build                      61.70             91.49            97.87
+                            Corner                     75.00             87.50           100.00
+                            Free kick                  35.29             70.59            82.35
+                            Kick off                   50.00             50.00            50.00
+                            Penalty                    50.00             50.00            50.00
+                            Stoppage                   78.95             78.95            94.74
+                            Throw in                   75.00             90.00            90.00
+
+                            Macro avg.                 44.42             72.16           82.99
+
+                            Accuracy                   53.66             87.47           94.33
+
+
+Supplementary Table 19 | Trajectory-based event classification (Subtype). Per-class Performance Recall is reported
+for top-k predictions (k ∈ {1, 3, 5}), together with Macro average and Overall Performance accuracy.
+
+
+
+
+                                                                                                               |40
+

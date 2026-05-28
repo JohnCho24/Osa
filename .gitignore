@@ -1,0 +1,36 @@
+# ── Large / binary artifacts ─────────────────────────────────────────────
+# Model weights (regenerable via scripts/smoke_train.py; M7 ckpt belongs in
+# a release artifact or Git LFS, not the source tree)
+checkpoints/
+
+# Training + processed data (Metrica sample is publicly downloadable;
+# data/processed/ is regenerable via the converters)
+data/
+
+# Published paper PDF — link to arXiv instead
+gentac.pdf
+
+# ── Python ───────────────────────────────────────────────────────────────
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Node / build artifacts ───────────────────────────────────────────────
+node_modules/
+dist/
+build/
+
+# ── Editor / OS ──────────────────────────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Local Claude Code config (machine-specific paths) ────────────────────
+.claude/

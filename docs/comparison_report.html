@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>B START UP vs. GenTac — comparison</title>
+<style>
+  @page { size: Letter; margin: 0.55in 0.55in; }
+  @media print {
+    .pagebreak { page-break-before: always; }
+    a { color: inherit; text-decoration: none; }
+  }
+  :root {
+    --ink: #111418;
+    --muted: #555c66;
+    --faint: #8a929c;
+    --rule: #d8dde3;
+    --accent: #d24317;
+    --tint: #fbe6dd;
+    --us: #1f6b3a;
+    --paper: #2c4cad;
+  }
+  html, body { margin: 0; padding: 0; background: #fff; color: var(--ink); }
+  body {
+    font-family: "Charter", "Iowan Old Style", "Source Serif Pro", "Georgia", serif;
+    font-size: 9.5pt;
+    line-height: 1.42;
+    -webkit-font-smoothing: antialiased;
+  }
+  .doc { max-width: 100%; }
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+  }
+  h1 {
+    font-family: "Inter Tight", "Helvetica Neue", system-ui, sans-serif;
+    font-size: 18pt; line-height: 1.05; letter-spacing: -0.02em; font-weight: 800;
+    margin: 0;
+  }
+  .meta {
+    font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+    font-size: 7pt; color: var(--faint); text-transform: uppercase; letter-spacing: 0.08em;
+    text-align: right;
+  }
+  h2 {
+    font-family: "Inter Tight", "Helvetica Neue", system-ui, sans-serif;
+    font-size: 11pt; font-weight: 700; letter-spacing: -0.01em;
+    margin: 14px 0 6px 0;
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--rule);
+  }
+  h3 {
+    font-family: "Inter Tight", "Helvetica Neue", system-ui, sans-serif;
+    font-size: 9pt; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase;
+    margin: 10px 0 4px 0; color: var(--muted);
+  }
+  p { margin: 0 0 6px 0; }
+  .lede { font-style: italic; color: var(--muted); margin-bottom: 10px; font-size: 9pt; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin: 4px 0 8px 0; }
+  th, td {
+    text-align: left; vertical-align: top;
+    padding: 5px 7px; border-bottom: 0.5pt solid var(--rule);
+  }
+  th {
+    font-family: "Inter Tight", "Helvetica Neue", system-ui, sans-serif;
+    font-weight: 600; font-size: 7.5pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1pt solid var(--ink);
+    background: #fafbfc;
+  }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.win-us { color: var(--us); font-weight: 600; }
+  td.win-paper { color: var(--paper); font-weight: 600; }
+  td.win-tie { color: var(--muted); font-style: italic; }
+  td .cite { font-family: "JetBrains Mono", monospace; font-size: 7pt; color: var(--faint); display: block; margin-top: 1px; }
+
+  .row-num { font-family: "JetBrains Mono", monospace; color: var(--faint); width: 1.6em; text-align: right; }
+
+  .pillbar { display: flex; gap: 8px; margin: 8px 0 6px 0; }
+  .pill {
+    flex: 1; padding: 8px 10px; border: 0.75pt solid var(--rule); border-radius: 4px;
+    background: #fafbfc;
+  }
+  .pill .pill-h { font-family: "JetBrains Mono", monospace; font-size: 7pt; color: var(--faint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+  .pill .pill-v { font-size: 10pt; font-weight: 700; font-family: "Inter Tight", system-ui, sans-serif; }
+  .pill.us  .pill-v { color: var(--us); }
+  .pill.paper .pill-v { color: var(--paper); }
+
+  .note {
+    background: var(--tint); border-left: 2pt solid var(--accent);
+    padding: 6px 10px; margin: 6px 0; font-size: 8.5pt;
+  }
+  .note strong { color: var(--accent); }
+
+  footer {
+    margin-top: 14px; padding-top: 8px; border-top: 0.5pt solid var(--rule);
+    font-family: "JetBrains Mono", monospace; font-size: 6.5pt; color: var(--faint);
+    display: flex; justify-content: space-between; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  code { font-family: "JetBrains Mono", "SF Mono", monospace; font-size: 8.2pt; color: var(--accent); background: var(--tint); padding: 0.5px 4px; border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="doc">
+
+<header>
+  <h1>B START UP vs. GenTac<br/><span style="font-weight:500;color:var(--muted);font-size:11pt">A one-page comparison, with verified citations.</span></h1>
+  <div class="meta">
+    REPORT 2026&#x2011;05&#x2011;28<br/>
+    PAPER: Rao et al., arXiv 2604.11786v1<br/>
+    EVAL: checkpoints/smoke/eval.json
+  </div>
+</header>
+
+<p class="lede">
+  Paper figures verified against the extracted text of <code>gentac.pdf</code> (Rao, Gui, Wu, Wang, Xie — SJTU + Nanjing, 13 Apr 2026).
+  Our figures are from this session's eval against the smoke checkpoint (3 epochs, 2 Metrica matches, Mac MPS).
+  Where the README's prior paraphrase was inaccurate, the verified paper number takes precedence; corrections are flagged inline.
+</p>
+
+<div class="pillbar">
+  <div class="pill paper"><div class="pill-h">Paper wins on</div><div class="pill-v">Research substance</div></div>
+  <div class="pill us"><div class="pill-h">We win on</div><div class="pill-v">Product surface</div></div>
+  <div class="pill"><div class="pill-h">Both score</div><div class="pill-v">0 / 10 on customers</div></div>
+</div>
+
+<h2>Aspect-by-aspect</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width:1.6em">#</th>
+      <th style="width:24%">Aspect</th>
+      <th style="width:34%">Paper (Rao et al. 2026)</th>
+      <th style="width:30%">B START UP (us)</th>
+      <th style="width:11%">Winner</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="row-num">1</td><td>Original architecture</td>
+      <td>Diffusion + factorized spatiotemporal attention for multi-agent soccer trajectories. <span class="cite">§6.2</span></td>
+      <td>Paper-faithful reimplementation; M=4, d=256, 100 diffusion steps.</td>
+      <td class="win-paper">Paper</td></tr>
+    <tr><td class="row-num">2</td><td>Architectural extensions</td>
+      <td>Style conditioning (team, league, objective); event head (15-class). <span class="cite">§3.1, §3.2</span></td>
+      <td>Learned waypoint conditioning + classifier-free guidance + EMA + ball-pass arrows.</td>
+      <td class="win-tie">Different surfaces</td></tr>
+    <tr><td class="row-num">3</td><td>Training scale</td>
+      <td>60 epochs, batch 200, single NVIDIA A100, AdamW (lr 1e-3, wd 1e-4). <span class="cite">§6.3.3 l.947</span></td>
+      <td>3 epochs, batch 4, Mac MPS (smoke only). Cloud script ready, <em>never executed</em>.</td>
+      <td class="win-paper">Paper (~20&times;)</td></tr>
+    <tr><td class="row-num">4</td><td>Training data</td>
+      <td>TacBench-Trajectory: 2,838 &times; 15-s segments, multi-league sources incl. Metrica. <span class="cite">§l.250</span></td>
+      <td>~7,200 windows from 2 Metrica open-sample matches.</td>
+      <td class="win-paper">Paper</td></tr>
+    <tr><td class="row-num">5</td><td>Min ADE @ 1 s (best of K=20)</td>
+      <td class="num">0.62 m <span class="cite">§3.1 l.310</span></td>
+      <td class="num">n/a (we report mean over K=3, not min)</td>
+      <td class="win-paper">Paper</td></tr>
+    <tr><td class="row-num">6</td><td>Min FDE @ 5 s (unconditioned)</td>
+      <td class="num">10.80 m <span class="cite">§3.1 l.311</span></td>
+      <td class="num">n/a (we only evaluate @ 1 s)</td>
+      <td class="win-paper">Paper</td></tr>
+    <tr><td class="row-num">7</td><td>Min FDE @ 5 s (opponent-conditioned)</td>
+      <td class="num">2.89 m <span class="cite">§3.1 l.326</span></td>
+      <td class="num">n/a</td>
+      <td class="win-paper">Paper</td></tr>
+    <tr><td class="row-num">8</td><td>Mean ADE @ 1 s</td>
+      <td class="num">≈1.0–1.2 m (paper: "similar trend without diverging" <span class="cite">§l.311</span>)</td>
+      <td class="num">3.50 m [95% CI 2.63–4.13]</td>
+      <td class="win-paper">Paper (~3&times; lower)</td></tr>
+    <tr><td class="row-num">9</td><td>Style conditioning (team / league)</td>
+      <td>Auckland FC, A-League vs Bundesliga — ADE cut 38% at 1 s. <span class="cite">§3.1 l.355</span></td>
+      <td>None — single global model.</td>
+      <td class="win-paper">Paper</td></tr>
+    <tr><td class="row-num">10</td><td>Event recognition (15 classes)</td>
+      <td>F1@1 = 73.4% on type. <span class="cite">§3.2 l.468</span></td>
+      <td>Code complete, parked (labels not aligned).</td>
+      <td class="win-paper">Paper</td></tr>
+    <tr><td class="row-num">11</td><td>Counterfactual conditioning</td>
+      <td>Offensive vs defensive objective conditioning alters threat metrics. <span class="cite">§3.1</span></td>
+      <td>Arrow + CFG is the equivalent UX layer.</td>
+      <td class="win-tie">Both ship, different framings</td></tr>
+    <tr><td class="row-num">12</td><td>Physics post-processor</td>
+      <td>Not in paper (raw model output).</td>
+      <td>5-stage: anchor / speed-clip / smooth / clamp / repulse + re-clip. 0.0% off-pitch; vmax exactly 10.5 m/s.</td>
+      <td class="win-us">B START UP</td></tr>
+    <tr><td class="row-num">13</td><td>Inference server</td>
+      <td>None published.</td>
+      <td>FastAPI: async semaphore + X-API-Key + JSON logs + X-Request-Id + path-traversal-safe + Pydantic-bounded schema.</td>
+      <td class="win-us">B START UP</td></tr>
+    <tr><td class="row-num">14</td><td>Coach UX (the killer mechanic)</td>
+      <td>None — research code only.</td>
+      <td>Click-drag player arrows + ball arrows with recipient flow + touch (iPad) + overlay-diff compare.</td>
+      <td class="win-us">B START UP</td></tr>
+    <tr><td class="row-num">15</td><td>Eval methodology</td>
+      <td>Min &amp; mean over K=20, multiple horizons, ablation tables. <span class="cite">§3.1</span></td>
+      <td>95% bootstrap CIs + paired bootstrap p-values + <code>--compare A B</code>.</td>
+      <td class="win-tie">Both rigorous</td></tr>
+    <tr><td class="row-num">16</td><td>Cloud-training automation</td>
+      <td>N/A.</td>
+      <td><code>train_full.py --dry-run</code> + <code>modal_train.py --validate-local</code> + troubleshooting matrix.</td>
+      <td class="win-us">B START UP</td></tr>
+    <tr><td class="row-num">17</td><td>Handoff to downstream video gen</td>
+      <td>Not in scope.</td>
+      <td>Schema v0.2 + Python SDK example + vendor compat notes.</td>
+      <td class="win-us">B START UP</td></tr>
+    <tr><td class="row-num">18</td><td>Peer review / citability</td>
+      <td>Published, arXiv, formal references.</td>
+      <td>Engineering prototype; no peer review.</td>
+      <td class="win-paper">Paper</td></tr>
+    <tr><td class="row-num">19</td><td>Customer / commercial validation</td>
+      <td>N/A (academic).</td>
+      <td>Zero customers, zero signed partnerships, zero outreach sent.</td>
+      <td class="win-tie">Tie at zero</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>Corrections from prior report.</strong>
+  The README I'd been citing claimed paper "ADE ~1.4 m @ 1 s" and "FDE ~2.8 m @ 4 s." Verified against §3.1 of the PDF: the 1.4 / 2.8 numbers were actually the <em>opponent-conditioned 5 s</em> min ADE (1.30 m) and min FDE (2.89 m), misattributed to a different horizon. The true unconditioned min ADE @ 1 s is <strong>0.62 m</strong>. Our prior comparison oversold our novelty (row 2) by under-crediting the paper's style/league/objective conditioning surface. This report restates both honestly.
+</div>
+
+<h2>Bottom line</h2>
+<table>
+  <tbody>
+    <tr><td style="width:60%"><strong>Research substance</strong> — architecture, trained-model quality, breadth of conditioning, event head, peer review</td><td class="win-paper" style="text-align:right">Paper, decisively</td></tr>
+    <tr><td><strong>Product surface</strong> — UX, server, physics, handoff, deploy automation, eval reproducibility</td><td class="win-us" style="text-align:right">B START UP, decisively</td></tr>
+    <tr><td><strong>Stylistic / contextual conditioning</strong> (team, league, objective)</td><td class="win-paper" style="text-align:right">Paper (we don't have it)</td></tr>
+    <tr><td><strong>Coach-input conditioning</strong> (arrows, ball passes, CFG knob)</td><td class="win-us" style="text-align:right">B START UP (paper doesn't have it)</td></tr>
+    <tr><td><strong>Commercial validation</strong></td><td class="win-tie" style="text-align:right">Neither (paper doesn't need it; we need it badly)</td></tr>
+  </tbody>
+</table>
+
+<p style="margin-top:8px;font-size:9pt;color:var(--muted)">
+  The paper is a stronger <strong>trained model and benchmark</strong>. We are a stronger
+  <strong>product around that model</strong>. The two compose well: take the paper's trained weights, drop them into
+  our inference server + renderer + handoff spec, and the result is deployable. The single missing piece in our column
+  is the trained model itself — a ~$30 cloud run we have scripted and validated locally but have not executed because
+  we lack the league tracking data that would justify the GPU time. That gap is commercial, not technical.
+</p>
+
+<footer>
+  <span>B START UP // tactical what-if engine</span>
+  <span>Generated 2026&#x2011;05&#x2011;28 // checkpoint schema v3</span>
+</footer>
+
+</div>
+</body>
+</html>

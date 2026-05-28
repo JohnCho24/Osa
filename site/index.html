@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <title>B — The tactical what-if engine for elite football</title>
+  <meta name="description" content="Coaches draw arrows on a moment that already happened. We generate the physically plausible alternative — every player, every ball touch — for broadcast, analyst study, and league-wide competition research." />
+
+  <meta property="og:title" content="B — The tactical what-if engine for elite football" />
+  <meta property="og:description" content="Built for leagues. Replay every decision." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/public/og.svg" />
+  <meta property="og:image:type" content="image/svg+xml" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" href="/public/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <nav class="nav">
+    <a class="brand" href="#top" aria-label="B home">
+      <span class="brand-mark">B</span>
+      <span class="brand-divider"></span>
+      <span class="brand-context">tactical what-if engine</span>
+    </a>
+    <div class="nav-links">
+      <a href="#problem">Problem</a>
+      <a href="#product">Product</a>
+      <a href="#leagues">For leagues</a>
+      <a href="#how">How it works</a>
+      <a href="#tech">Technology</a>
+    </div>
+    <a class="nav-cta" href="#contact">Request a demo<span aria-hidden="true">→</span></a>
+  </nav>
+
+  <main id="top">
+
+    <!-- ───────── HERO ───────── -->
+    <section class="hero">
+      <div class="hero-grain" aria-hidden="true"></div>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            Tactical what-if engine for elite football
+          </div>
+          <h1 class="display">
+            Replay every<br />
+            <span class="display-accent">decision</span> your team makes.
+          </h1>
+          <p class="lede">
+            Coaches draw arrows on a moment that already happened. Our diffusion model
+            generates the physically plausible alternative — every player, every ball
+            touch — for broadcast augmentation, analyst study, and league-wide
+            competition research.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#contact">
+              Request a demo
+              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn-ghost" href="#how">See how it works</a>
+          </div>
+          <ul class="hero-credibility">
+            <li><strong>22 players</strong> + ball, 25 fps</li>
+            <li>Open Metrica format today; commercial adapters per engagement</li>
+            <li>Reimplements GenTac (Rao et al. 2026) + waypoint extension</li>
+          </ul>
+        </div>
+
+        <div class="hero-visual">
+          <div class="visual-frame">
+            <header class="visual-header">
+              <span class="visual-dot" data-color="actual"></span>
+              <span class="visual-label">LIVE — drawing an alternative</span>
+              <span class="visual-time" data-bind="time">00:00:00</span>
+            </header>
+            <canvas id="hero-pitch" width="900" height="600" aria-label="Animated tactical board demonstration"></canvas>
+            <footer class="visual-footer">
+              <div class="visual-stat">
+                <span class="visual-stat-k">Arrow drawn</span>
+                <span class="visual-stat-v" data-bind="arrow">awaiting</span>
+              </div>
+              <div class="visual-stat">
+                <span class="visual-stat-k">Model</span>
+                <span class="visual-stat-v">GenTac · waypoint+CFG</span>
+              </div>
+              <div class="visual-stat">
+                <span class="visual-stat-k">Latency</span>
+                <span class="visual-stat-v" data-bind="latency">—</span>
+              </div>
+            </footer>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-scrollhint" aria-hidden="true">
+        <span class="hero-scrollhint-line"></span>
+        scroll
+      </div>
+    </section>
+
+    <!-- ───────── DATA FORMATS we read ───────── -->
+    <section class="buyers" aria-label="Compatible tracking data formats">
+      <p class="buyers-line">Built on the open Metrica Sports format. Adapters for the major league tracking providers ship per-engagement.</p>
+      <div class="buyers-row">
+        <span class="buyer" data-status="live">METRICA SPORTS — LIVE</span>
+        <span class="buyer">HAWK-EYE — adapter scoped</span>
+        <span class="buyer">SPORTEC DFL — adapter scoped</span>
+        <span class="buyer">STATS PERFORM — adapter scoped</span>
+        <span class="buyer">SKILLCORNER — adapter scoped</span>
+      </div>
+    </section>
+
+    <!-- ───────── PROBLEM ───────── -->
+    <section class="section problem" id="problem">
+      <div class="section-head">
+        <span class="section-eyebrow">The problem</span>
+        <h2 class="section-h">
+          Every match has fifty decisions you wish you could replay.
+          <span class="muted-line">Today, you can only argue about them.</span>
+        </h2>
+      </div>
+      <div class="problem-grid">
+        <div class="problem-card">
+          <h3>Replays show what happened.</h3>
+          <p>Broadcasters cut to a slow-motion angle. The play is the play. The alternative goes unwitnessed.</p>
+        </div>
+        <div class="problem-card">
+          <h3>Tactics boards show what should have happened.</h3>
+          <p>Pundits drag pieces around a static pitch. The board never plays out — the other twenty-one players are frozen.</p>
+        </div>
+        <div class="problem-card">
+          <h3>Nobody can press play on the alternative.</h3>
+          <p>Until now, the counterfactual was a thought experiment. We make it a video.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── PRODUCT (3 pillars) ───────── -->
+    <section class="section product" id="product">
+      <div class="section-head">
+        <span class="section-eyebrow">The product</span>
+        <h2 class="section-h">
+          One gesture from the coach.
+          <span class="muted-line">An entire alternative future from the model.</span>
+        </h2>
+      </div>
+      <div class="pillars">
+        <article class="pillar" data-step="01">
+          <div class="pillar-glyph">
+            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <circle cx="18" cy="46" r="6" stroke="currentColor" stroke-width="2"/>
+              <path d="M22 42 L52 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M44 14 L52 14 L52 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Coaches draw.</h3>
+          <p>
+            Click a player. Drag where you wish they had run. No keyboard, no JSON, no data
+            science. The same gesture they already use on a touchscreen tactics board.
+          </p>
+        </article>
+        <article class="pillar" data-step="02">
+          <div class="pillar-glyph">
+            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <rect x="10" y="10" width="44" height="44" rx="4" stroke="currentColor" stroke-width="2"/>
+              <path d="M14 40 Q22 18 32 30 T54 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <circle cx="32" cy="30" r="2.5" fill="currentColor"/>
+            </svg>
+          </div>
+          <h3>Our model predicts.</h3>
+          <p>
+            A diffusion model trained on multi-agent trajectory data generates the alternative
+            future. Every other player moves plausibly. Max-speed, on-pitch and inter-player
+            collision constraints are enforced. Classifier-free guidance lets the coach dial
+            how strictly to honor their arrow.
+          </p>
+        </article>
+        <article class="pillar" data-step="03">
+          <div class="pillar-glyph">
+            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <rect x="8" y="14" width="48" height="36" rx="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M26 24 L42 32 L26 40 Z" fill="currentColor"/>
+            </svg>
+          </div>
+          <h3>3D video renders.</h3>
+          <p>
+            Trajectory output is shipped to a photorealistic AI video engine. The result is a
+            broadcast-quality replay of the alternative play, indistinguishable from a real
+            highlight reel — minus the ten million dollars in production crew.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────── BUILT FOR LEAGUES (the core pitch) ───────── -->
+    <section class="section leagues" id="leagues">
+      <div class="leagues-bg" aria-hidden="true"></div>
+      <div class="section-head">
+        <span class="section-eyebrow">Built for leagues</span>
+        <h2 class="section-h">
+          We sell to the institutions that already own the data
+          <span class="muted-line">and the broadcast contract.</span>
+        </h2>
+        <p class="section-lede">
+          Single-club deployments are point solutions. League-level deployments compound across
+          every match, every season, every fan — and the tracking data is already yours to
+          license. Four shapes the same brain takes on inside a league.
+        </p>
+      </div>
+
+      <div class="usecases">
+        <article class="usecase">
+          <span class="usecase-tag">Broadcast</span>
+          <h3>"What if Vinicius had passed instead?"</h3>
+          <p>
+            A new graphics layer for the world feed. The host broadcaster cuts to the
+            alternative version of a controversial moment during the half-time analysis
+            window. Owned by the league, licensed to rights-holding broadcasters.
+          </p>
+        </article>
+        <article class="usecase">
+          <span class="usecase-tag">Fans</span>
+          <h3>Official fan-facing product.</h3>
+          <p>
+            A "what if" tab inside the league app. Fans replay the decisions their team
+            should have made on the bus home. Aggregate engagement data feeds back into
+            sponsorship inventory.
+          </p>
+        </article>
+        <article class="usecase">
+          <span class="usecase-tag">Competition</span>
+          <h3>Internal competition research.</h3>
+          <p>
+            Match officials, technical committee, and competition research analysts replay
+            every offside, every red card, every decisive moment of every match in the
+            season. Reasoned dissent, on demand.
+          </p>
+        </article>
+        <article class="usecase">
+          <span class="usecase-tag">Clubs</span>
+          <h3>Standardized analytics for member clubs.</h3>
+          <p>
+            The league distributes a single tool to every member club's analysis department.
+            Every club sees the same alternative-history primitive — no bespoke vendor
+            agreements, no fragmented tooling, no data export risk.
+          </p>
+        </article>
+      </div>
+
+      <aside class="leagues-quote">
+        <blockquote>
+          "The league owns the rights, the data and the broadcast. The brain that turns
+          those three into a new product category should sit with the league too."
+        </blockquote>
+      </aside>
+    </section>
+
+    <!-- ───────── HOW IT WORKS ───────── -->
+    <section class="section how" id="how">
+      <div class="section-head">
+        <span class="section-eyebrow">How it works</span>
+        <h2 class="section-h">
+          Four steps from a moment in the match
+          <span class="muted-line">to a broadcast-ready alternative.</span>
+        </h2>
+      </div>
+      <ol class="how-steps">
+        <li class="how-step">
+          <span class="how-step-n">01</span>
+          <h3>Tracking ingest</h3>
+          <p>The league's existing optical-tracking feed (Hawk-Eye, Sportec DFL, Stats Perform, SkillCorner) is normalized into a common per-frame coordinate stream at 25 fps.</p>
+        </li>
+        <li class="how-step">
+          <span class="how-step-n">02</span>
+          <h3>Arrow input</h3>
+          <p>The analyst or operator opens the decision moment plus four seconds of preceding history. A click and a drag is the entire user interface.</p>
+        </li>
+        <li class="how-step">
+          <span class="how-step-n">03</span>
+          <h3>Diffusion + physics</h3>
+          <p>A waypoint-conditioned diffusion model samples a multi-agent alternative future. A deterministic physics post-processor enforces max-speed, on-pitch constraints and inter-player repulsion.</p>
+        </li>
+        <li class="how-step">
+          <span class="how-step-n">04</span>
+          <h3>Video handoff</h3>
+          <p>The alternative trajectory ships to a photorealistic AI video engine as a per-frame JSON. The broadcaster receives the cut as a normal video file.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ───────── TECHNOLOGY ───────── -->
+    <section class="section tech" id="tech">
+      <div class="section-head">
+        <span class="section-eyebrow">The technology</span>
+        <h2 class="section-h">
+          Paper-faithful research, extended.
+          <span class="muted-line">Not a prompt wrapper.</span>
+        </h2>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <span class="tech-label">Backbone</span>
+          <p>TimeSformer-style factorized spatiotemporal attention over the 23-entity trajectory tensor. <code>d=256</code>, four layers, eight heads.</p>
+        </div>
+        <div class="tech-card">
+          <span class="tech-label">Diffusion</span>
+          <p>DDPM with 100 reverse-diffusion steps, linear β-schedule, ε-prediction. Causal sliding-window rollout for long-horizon forecasting.</p>
+        </div>
+        <div class="tech-card">
+          <span class="tech-label">Extension</span>
+          <p>Learned waypoint conditioning with classifier-free guidance. The model sees per-entity arrow targets and trains under CFG dropout — coaches get a tunable "honor my arrow" knob.</p>
+        </div>
+        <div class="tech-card">
+          <span class="tech-label">Physics</span>
+          <p>Deterministic post-pass: seam anchoring, per-frame max-speed clip, exponential smoothing, on-pitch clamp with 2 m margin, pairwise inter-player repulsion.</p>
+        </div>
+        <div class="tech-card">
+          <span class="tech-label">Eval</span>
+          <p>ADE, FDE, inter-sample diversity, off-pitch violation rate and arrow-honoring error under a CFG sweep — reported per checkpoint, machine-readable.</p>
+        </div>
+        <div class="tech-card">
+          <span class="tech-label">Provenance</span>
+          <p>Built on GenTac (<a href="https://arxiv.org/abs/2604.11786" target="_blank" rel="noopener">arXiv:2604.11786</a>), TimeSformer (<a href="https://arxiv.org/abs/2102.05095" target="_blank" rel="noopener">arXiv:2102.05095</a>), DDPM (<a href="https://arxiv.org/abs/2006.11239" target="_blank" rel="noopener">arXiv:2006.11239</a>).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── CONTACT ───────── -->
+    <section class="section contact" id="contact">
+      <div class="contact-card">
+        <div class="contact-copy">
+          <span class="section-eyebrow">Contact</span>
+          <h2 class="section-h">
+            Pricing is bespoke per league.
+            <span class="muted-line">Get in touch.</span>
+          </h2>
+          <p class="section-lede">
+            Every league has a different broadcast contract, a different data licensing
+            posture and a different appetite for what it ships to fans versus what it keeps
+            internal. We tailor the deployment to the league. Reach out and we will respond
+            within two business days.
+          </p>
+          <ul class="contact-channels">
+            <li>
+              <span class="contact-channel-k">Book a 15-minute demo</span>
+              <a class="contact-channel-v" id="calendly-link" href="https://calendly.com/bstartup/intro" target="_blank" rel="noopener">calendly.com/bstartup/intro</a>
+            </li>
+            <li>
+              <span class="contact-channel-k">League partnerships</span>
+              <a class="contact-channel-v" href="mailto:leagues@bstartup.dev">leagues@bstartup.dev</a>
+            </li>
+            <li>
+              <span class="contact-channel-k">Technical &amp; research inquiries</span>
+              <a class="contact-channel-v" href="mailto:research@bstartup.dev">research@bstartup.dev</a>
+            </li>
+            <li>
+              <span class="contact-channel-k">Press &amp; data partnerships</span>
+              <a class="contact-channel-v" href="mailto:press@bstartup.dev">press@bstartup.dev</a>
+            </li>
+          </ul>
+        </div>
+        <form class="contact-form" id="contact-form">
+          <label class="field">
+            <span>Your name</span>
+            <input type="text" name="name" required autocomplete="name" />
+          </label>
+          <label class="field">
+            <span>Work email</span>
+            <input type="email" name="email" required autocomplete="email" placeholder="you@league.com" />
+          </label>
+          <label class="field">
+            <span>Organization</span>
+            <input type="text" name="org" required autocomplete="organization" placeholder="League / club / broadcaster" />
+          </label>
+          <label class="field">
+            <span>What are you trying to do?</span>
+            <textarea name="message" rows="4" required placeholder="Use case, season, scale…"></textarea>
+          </label>
+          <button class="btn btn-primary btn-block" type="submit">
+            Send
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <p class="form-note" id="form-note" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <div class="foot-grid">
+      <div>
+        <span class="brand-mark">B</span>
+        <p class="foot-tag">The tactical what-if engine for elite football.</p>
+      </div>
+      <div>
+        <span class="foot-h">Product</span>
+        <a href="#problem">Problem</a>
+        <a href="#product">Product</a>
+        <a href="#leagues">For leagues</a>
+        <a href="#how">How it works</a>
+      </div>
+      <div>
+        <span class="foot-h">Research</span>
+        <a href="https://arxiv.org/abs/2604.11786" target="_blank" rel="noopener">GenTac (arXiv:2604.11786)</a>
+        <a href="https://arxiv.org/abs/2102.05095" target="_blank" rel="noopener">TimeSformer</a>
+        <a href="https://arxiv.org/abs/2006.11239" target="_blank" rel="noopener">DDPM</a>
+      </div>
+      <div>
+        <span class="foot-h">Talk to us</span>
+        <a href="mailto:leagues@bstartup.dev">leagues@bstartup.dev</a>
+        <a href="mailto:research@bstartup.dev">research@bstartup.dev</a>
+      </div>
+    </div>
+    <div class="foot-rule">
+      <span>© 2026 B START UP</span>
+      <span class="foot-meta">Built end-to-end on a single laptop. Trained on the cloud.</span>
+    </div>
+  </footer>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
