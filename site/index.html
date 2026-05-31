@@ -34,6 +34,7 @@
     <div class="nav-links">
       <a href="#problem">Problem</a>
       <a href="#product">Product</a>
+      <a href="#demo">Demo</a>
       <a href="#leagues">For leagues</a>
       <a href="#how">How it works</a>
       <a href="#tech">Technology</a>
@@ -199,6 +200,61 @@
             highlight reel — minus the ten million dollars in production crew.
           </p>
         </article>
+      </div>
+    </section>
+
+    <!-- ───────── DEMO VIDEO ───────── -->
+    <section class="section demo" id="demo">
+      <div class="section-head">
+        <span class="section-eyebrow">See it run</span>
+        <h2 class="section-h">
+          One arrow. Twenty-two players react.
+          <span class="muted-line">Watch a real moment replay as the alternative.</span>
+        </h2>
+      </div>
+      <div class="demo-frame visual-frame">
+        <header class="visual-header">
+          <span class="visual-dot"></span>
+          <span class="visual-label">Demo — coach draws, model generates, video renders</span>
+          <span class="visual-time">60s</span>
+        </header>
+        <div class="demo-player">
+          <video
+            id="demo-video"
+            class="demo-video"
+            poster="/public/og.svg"
+            preload="none"
+            playsinline
+            controls
+            controlslist="nodownload"
+          >
+            <source src="/public/demo.mp4" type="video/mp4" />
+            <source src="/public/demo.webm" type="video/webm" />
+            Your browser doesn’t support embedded video.
+            <a href="/public/demo.mp4">Download the demo (MP4)</a>.
+          </video>
+          <button class="demo-play" id="demo-play" type="button" aria-label="Play the demo video">
+            <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
+              <circle cx="32" cy="32" r="31" fill="rgba(8,9,12,0.55)" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M26 21 L45 32 L26 43 Z" fill="currentColor"/>
+            </svg>
+            <span class="demo-play-label">Play demo</span>
+          </button>
+        </div>
+        <footer class="visual-footer">
+          <div class="visual-stat">
+            <span class="visual-stat-k">Input</span>
+            <span class="visual-stat-v">One drawn arrow</span>
+          </div>
+          <div class="visual-stat">
+            <span class="visual-stat-k">Model</span>
+            <span class="visual-stat-v">GenTac · waypoint+CFG</span>
+          </div>
+          <div class="visual-stat">
+            <span class="visual-stat-k">Output</span>
+            <span class="visual-stat-v">Broadcast-quality 3D</span>
+          </div>
+        </footer>
       </div>
     </section>
 

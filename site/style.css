@@ -411,6 +411,56 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   display: block;
 }
 
+/* ───────── DEMO VIDEO ───────── */
+.demo-frame {
+  max-width: 1040px;
+  margin: 0 auto;
+  /* keep the demo flat & readable, unlike the tilted hero visual */
+  transform: none;
+}
+.demo-frame:hover { transform: none; }
+
+.demo-player {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--bg);
+}
+
+.demo-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  background: var(--bg);
+}
+
+.demo-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--text);
+  background: linear-gradient(to bottom, rgba(8, 9, 12, 0.1), rgba(8, 9, 12, 0.45));
+  transition: opacity 240ms ease, visibility 240ms ease;
+}
+.demo-play svg { color: var(--accent); transition: transform 240ms ease; }
+.demo-play:hover svg { transform: scale(1.06); }
+.demo-play-label {
+  font-family: var(--mono-font);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.demo-player[data-playing="true"] .demo-play {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .hero-scrollhint {
   position: absolute;
   bottom: 32px;

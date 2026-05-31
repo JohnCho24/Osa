@@ -509,3 +509,24 @@ document.addEventListener("visibilitychange", () => {
   // requestAnimationFrame already pauses on hidden tabs in modern browsers;
   // this is just an explicit signal hook for future expansion.
 });
+
+// ─── Demo video: click-to-play (poster stays until the user hits play) ──────
+(() => {
+  const video = document.getElementById("demo-video");
+  const playBtn = document.getElementById("demo-play");
+  const player = video && video.closest(".demo-player");
+  if (!video || !playBtn || !player) return;
+
+  const markPlaying = (on) => player.setAttribute("data-playing", on ? "true" : "false");
+
+  playBtn.addEventListener("click", () => {
+    video.play().catch(() => {
+      // Autoplay/playback blocked — fall back to native controls.
+      video.focus();
+    });
+  });
+
+  video.addEventListener("play", () => markPlaying(true));
+  video.addEventListener("pause", () => markPlaying(false));
+  video.addEventListener("ended", () => markPlaying(false));
+})();
