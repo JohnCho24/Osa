@@ -34,3 +34,11 @@ build/
 
 # ── Local Claude Code config (machine-specific paths) ────────────────────
 .claude/
+
+# ── Secrets (API keys for Higgsfield, etc.) — never commit ───────────────
+.env
+.env.local
+*.env
+
+# ── Local analysis scratch (detection crops, stage screenshots) ──────────
+analysis/

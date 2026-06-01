@@ -510,23 +510,76 @@ document.addEventListener("visibilitychange", () => {
   // this is just an explicit signal hook for future expansion.
 });
 
-// ─── Demo video: click-to-play (poster stays until the user hits play) ──────
+// ─── Demo sequencer: play → rewind → draw arrows → alternative ──────────────
+// Stage 1 plays the real clip; stage 2 plays a pre-rendered 1.5x reverse clip
+// (smooth & frame-accurate — browsers can't reverse-play reliably); stage 3
+// draws tactical arrows over the frozen decision frame; stage 4 crossfades to
+// the generated alternative.
 (() => {
-  const video = document.getElementById("demo-video");
+  const stage = document.getElementById("demo-stage");
+  const orig = document.getElementById("demo-original");
+  const rew = document.getElementById("demo-rewind");
+  const alt = document.getElementById("demo-alt");
+  const label = document.getElementById("demo-stage-label");
   const playBtn = document.getElementById("demo-play");
-  const player = video && video.closest(".demo-player");
-  if (!video || !playBtn || !player) return;
+  if (!stage || !orig || !rew || !alt || !playBtn) return;
 
-  const markPlaying = (on) => player.setAttribute("data-playing", on ? "true" : "false");
+  const ARROW_HOLD_MS = 2200; // arrow choreography runs ~1.8s, then advance
 
-  playBtn.addEventListener("click", () => {
-    video.play().catch(() => {
-      // Autoplay/playback blocked — fall back to native controls.
-      video.focus();
-    });
+  const setStage = (s) => stage.setAttribute("data-stage", s);
+  const setLabel = (t) => { if (label) label.textContent = t; };
+
+  // Pre-measure each run/defender arrow's length so the draw animation is exact.
+  stage.querySelectorAll(".demo-arrow").forEach((p) => {
+    try { p.style.setProperty("--len", Math.ceil(p.getTotalLength())); }
+    catch { /* getTotalLength unsupported — CSS fallback covers it */ }
   });
 
-  video.addEventListener("play", () => markPlaying(true));
-  video.addEventListener("pause", () => markPlaying(false));
-  video.addEventListener("ended", () => markPlaying(false));
+  const showButton = (show, text) => {
+    playBtn.style.display = show ? "" : "none";
+    if (text) playBtn.querySelector(".demo-play-label").textContent = text;
+  };
+
+  // Stage 2 — smooth reverse clip; its last frame is the decision moment.
+  const rewind = () => {
+    setStage("rewind");
+    setLabel("Rewinding to the decision");
+    rew.currentTime = 0;
+    rew.onended = drawArrows;
+    rew.play().catch(drawArrows); // clip missing → skip to arrows
+  };
+
+  // Stage 3 — arrows draw via CSS over the held decision frame, then advance.
+  const drawArrows = () => {
+    rew.pause();
+    setStage("arrows");
+    setLabel("Coach draws the alternative");
+    setTimeout(playAlternative, ARROW_HOLD_MS);
+  };
+
+  // Stage 4 — crossfade to the alternative (or finish if it's not added yet).
+  const playAlternative = () => {
+    setStage("alternative");
+    setLabel("The generated what-if");
+    alt.currentTime = 0;
+    alt.onended = finish;
+    alt.play().then(() => {}).catch(finish);
+  };
+
+  const finish = () => { setStage("done"); setLabel(""); showButton(true, "Replay"); };
+
+  const start = () => {
+    showButton(false);
+    setStage("original");
+    setLabel("The play as it happened");
+    orig.currentTime = 0;
+    orig.onended = rewind;
+    orig.play().catch(() => {
+      // Playback blocked / clip missing — recover to idle so the poster shows.
+      setStage("idle");
+      showButton(true, "Play demo");
+    });
+  };
+
+  playBtn.addEventListener("click", start);
 })();

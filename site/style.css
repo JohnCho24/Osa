@@ -424,14 +424,172 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   position: relative;
   aspect-ratio: 16 / 9;
   background: var(--bg);
+  overflow: hidden;
 }
 
+/* Both clips are stacked; we crossfade opacity between stages. */
 .demo-video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
   background: var(--bg);
+}
+/* Three stacked clips: original (stage 1) → rewind (stage 2/3) → alt (stage 4). */
+#demo-rewind, .demo-video-alt { opacity: 0; transition: opacity 400ms ease; }
+.demo-player[data-stage="rewind"] #demo-rewind,
+.demo-player[data-stage="arrows"] #demo-rewind { opacity: 1; }
+.demo-player[data-stage="alternative"] .demo-video-alt { opacity: 1; }
+.demo-player[data-stage="rewind"]      #demo-original,
+.demo-player[data-stage="arrows"]      #demo-original,
+.demo-player[data-stage="alternative"] #demo-original,
+.demo-player[data-stage="alternative"] #demo-rewind { opacity: 0; transition: opacity 400ms ease; }
+
+/* ── Rewind FX (stage 2): VHS ⏪ sign + scanlines while the reverse clip plays ── */
+.demo-rewind-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+.demo-player[data-stage="rewind"] .demo-rewind-fx { opacity: 1; }
+/* faint drifting scanlines for the tape-rewind feel */
+.demo-rewind-fx::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.05) 0px,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  mix-blend-mode: screen;
+  animation: demo-scan 0.9s linear infinite;
+}
+@keyframes demo-scan { from { background-position: 0 0; } to { background-position: 0 8px; } }
+
+.demo-rewind-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(8, 9, 12, 0.6);
+  border: 1px solid rgba(255, 86, 86, 0.55);
+  color: #ff5656;
+  font-family: var(--mono-font);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  animation: demo-rew-blink 0.9s steps(1, end) infinite;
+}
+.demo-rewind-ic { width: 16px; height: 16px; fill: currentColor; }
+.demo-rewind-tag { line-height: 1; padding-top: 1px; }
+@keyframes demo-rew-blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0.3; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-rewind-fx::before, .demo-rewind-badge { animation: none; }
+}
+
+/* ── Tactical arrow overlay (stage 3) ───────────────────────────────────── */
+.demo-arrows {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.demo-player[data-stage="arrows"] .demo-arrows { opacity: 1; }
+
+/* Player + ball position markers, popped in first. */
+.demo-node { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.demo-node.node-a    { fill: var(--accent); }
+.demo-node.node-b    { fill: var(--team-b); }
+.demo-node.node-ball { fill: none; stroke: var(--ball); stroke-width: 2.5; }
+.demo-player[data-stage="arrows"] .demo-node {
+  animation: demo-pop 300ms cubic-bezier(0.3, 1.4, 0.5, 1) forwards;
+}
+@keyframes demo-pop { from { opacity: 0; transform: scale(0.2); } to { opacity: 0.95; transform: scale(1); } }
+
+/* Player-run arrows (solid, curved) and defender reaction (blue). */
+.demo-arrow {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: var(--len, 1000);
+  stroke-dashoffset: var(--len, 1000);
+}
+.demo-arrow.run { stroke: var(--accent); stroke-width: 7; filter: drop-shadow(0 0 6px var(--accent-line)); }
+.demo-arrow.def { stroke: var(--team-b); stroke-width: 4.5; opacity: 0.9; filter: drop-shadow(0 0 5px rgba(79, 195, 247, 0.4)); }
+.demo-player[data-stage="arrows"] .demo-arrow {
+  animation: demo-draw 650ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.demo-arrow.a1  { animation-delay: 150ms; }
+.demo-arrow.a2  { animation-delay: 1050ms; }
+.demo-arrow.def { animation-delay: 1100ms; }
+@keyframes demo-draw { to { stroke-dashoffset: 0; } }
+
+/* Pass: dotted line + a ball that travels along it. */
+.demo-passline {
+  fill: none;
+  stroke: var(--ball);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 2 14;
+  opacity: 0;
+  filter: drop-shadow(0 0 4px rgba(250, 250, 250, 0.5));
+}
+.demo-player[data-stage="arrows"] .demo-passline { animation: demo-fade 400ms ease 380ms forwards; }
+@keyframes demo-fade { to { opacity: 0.95; } }
+
+.demo-ballmove {
+  fill: var(--ball);
+  opacity: 0;
+  offset-path: path("M554 249 Q870 235 1140 300");
+  offset-distance: 0%;
+  filter: drop-shadow(0 0 6px rgba(250, 250, 250, 0.8));
+}
+.demo-player[data-stage="arrows"] .demo-ballmove { animation: demo-ball 700ms cubic-bezier(0.45, 0, 0.3, 1) 820ms forwards; }
+@keyframes demo-ball {
+  0%   { offset-distance: 0%;   opacity: 0; }
+  12%  { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 1; }
+}
+
+/* Stage caption (rewinding / drawing / generating). */
+.demo-stage-label {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  font-family: var(--mono-font);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: rgba(8, 9, 12, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.demo-player:not([data-stage="idle"]):not([data-stage="done"]) .demo-stage-label { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-arrow, .demo-passline, .demo-ballmove, .demo-node { animation: none; }
+  .demo-arrow   { stroke-dashoffset: 0; }
+  .demo-passline { opacity: 0.95; }
+  .demo-ballmove { opacity: 1; offset-distance: 100%; }
+  .demo-node    { opacity: 0.95; transform: none; }
 }
 
 .demo-play {

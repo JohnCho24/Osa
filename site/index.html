@@ -218,22 +218,101 @@
           <span class="visual-label">Demo — coach draws, model generates, video renders</span>
           <span class="visual-time">60s</span>
         </header>
-        <div class="demo-player">
+        <div class="demo-player" id="demo-stage" data-stage="idle">
+          <!-- Stage 1: the real play (Veo). Stage 4 crossfades to the alternative. -->
           <video
-            id="demo-video"
+            id="demo-original"
             class="demo-video"
-            poster="/public/og.svg"
+            poster="/public/demo-poster.jpg"
             preload="none"
+            muted
             playsinline
-            controls
-            controlslist="nodownload"
+            controlslist="nodownload noremoteplayback"
           >
-            <source src="/public/demo.mp4" type="video/mp4" />
-            <source src="/public/demo.webm" type="video/webm" />
-            Your browser doesn’t support embedded video.
-            <a href="/public/demo.mp4">Download the demo (MP4)</a>.
+            <source src="/public/demo-original.mp4" type="video/mp4" />
+            <source src="/public/demo-original.webm" type="video/webm" />
           </video>
-          <button class="demo-play" id="demo-play" type="button" aria-label="Play the demo video">
+          <!-- Stage 2: pre-rendered 1.5x reverse clip — a smooth, frame-accurate
+               rewind (browsers can't reverse-play reliably). Its last frame is
+               the decision moment the arrows draw onto. -->
+          <video
+            id="demo-rewind"
+            class="demo-video demo-video-rewind"
+            preload="none"
+            muted
+            playsinline
+          >
+            <source src="/public/demo-rewind.mp4" type="video/mp4" />
+          </video>
+          <video
+            id="demo-alt"
+            class="demo-video demo-video-alt"
+            preload="none"
+            muted
+            playsinline
+            controlslist="nodownload noremoteplayback"
+          >
+            <source src="/public/demo-alternative.mp4" type="video/mp4" />
+            <source src="/public/demo-alternative.webm" type="video/webm" />
+          </video>
+
+          <!-- Stage 2 FX: VHS-style rewind sign + scanlines, shown only while
+               the reverse clip plays back to the decision moment. -->
+          <div class="demo-rewind-fx" aria-hidden="true">
+            <div class="demo-rewind-badge">
+              <svg class="demo-rewind-ic" viewBox="0 0 24 24">
+                <path d="M11 5 L3 12 L11 19 Z" />
+                <path d="M21 5 L13 12 L21 19 Z" />
+              </svg>
+              <span class="demo-rewind-tag">REW</span>
+            </div>
+          </div>
+
+          <!-- Stage 3: tactical arrows draw on the frozen decision frame.
+               Multiple notation types — solid curved player runs (orange, team A),
+               a dashed pass with a travelling ball, and a defender reaction (blue,
+               team B). viewBox is 16:9; coords anchored to real detected players. -->
+          <svg class="demo-arrows" id="demo-arrows" viewBox="0 0 1280 720"
+               preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <marker id="ah-run" viewBox="0 0 12 12" refX="9" refY="6"
+                      markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M1 1 L11 6 L1 11 Z" fill="var(--accent)" />
+              </marker>
+              <marker id="ah-def" viewBox="0 0 12 12" refX="9" refY="6"
+                      markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M1 1 L11 6 L1 11 Z" fill="var(--team-b)" />
+              </marker>
+              <marker id="ah-pass" viewBox="0 0 12 12" refX="9" refY="6"
+                      markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M1 1 L11 6 L1 11" fill="none" stroke="var(--ball)"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </marker>
+            </defs>
+
+            <!-- Markers on the REAL detected entities (scripts/detect_players.py →
+                 analysis/veo/players.json, 1280x720 frame coords):
+                 ball/carrier Y3 (554,249), runners Y8 (1014,263) & Y6 (921,247),
+                 recovering defender D9 (1057,260). -->
+            <circle class="demo-node node-ball" cx="554" cy="249" r="13" />
+            <circle class="demo-node node-a" cx="1014" cy="263" r="11" />
+            <circle class="demo-node node-a" cx="921" cy="247" r="11" />
+            <circle class="demo-node node-b" cx="1057" cy="260" r="11" />
+
+            <!-- runs (solid, curved): Y8 sprints in behind onto the pass, Y6 underlaps -->
+            <path class="demo-arrow run a1" d="M1014 263 Q1088 268 1148 298" marker-end="url(#ah-run)" />
+            <path class="demo-arrow run a2" d="M921 247 Q985 300 1020 360" marker-end="url(#ah-run)" />
+            <!-- defender reaction (blue): D9 scrambles across to cover the through-ball -->
+            <path class="demo-arrow def" d="M1057 260 Q1108 280 1150 315" marker-end="url(#ah-def)" />
+
+            <!-- through-ball (dotted) from the ball into the right channel where Y8 arrives -->
+            <path class="demo-passline" d="M554 249 Q870 235 1140 300" marker-end="url(#ah-pass)" />
+            <circle class="demo-ballmove" r="8" />
+          </svg>
+
+          <div class="demo-stage-label" id="demo-stage-label" aria-live="polite"></div>
+
+          <button class="demo-play" id="demo-play" type="button" aria-label="Play the demo">
             <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
               <circle cx="32" cy="32" r="31" fill="rgba(8,9,12,0.55)" stroke="currentColor" stroke-width="1.5"/>
               <path d="M26 21 L45 32 L26 43 Z" fill="currentColor"/>
