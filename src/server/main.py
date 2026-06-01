@@ -105,7 +105,10 @@ _waiting_count = 0
 MAX_K = 32
 MAX_HORIZON_FRAMES = 250          # 10 s @ 25 fps
 MAX_ARROWS = 23                   # 22 players + ball
-MAX_FADE_FRAMES = 50
+# Fade is the number of frames before the target to hard-pin (samplers.py).
+# It is naturally bounded by the horizon, so it shares the horizon's cap — the
+# client sends fade_frames = horizon - 1 to trace the full arrow path.
+MAX_FADE_FRAMES = MAX_HORIZON_FRAMES
 
 ALLOWED_MODES = ("unconditioned", "opp_conditioned_team0", "opp_conditioned_team1")
 
