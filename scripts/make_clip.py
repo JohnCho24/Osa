@@ -104,8 +104,14 @@ def make_clip(game: str, n: int) -> None:
         }
 
     meta = dict(full["metadata"])
-    meta["team0"] = {"name": meta.get("team0", {}).get("name", "Home"), "players": t0}
-    meta["team1"] = {"name": meta.get("team1", {}).get("name", "Away"), "players": t1}
+    src_t0 = full["metadata"].get("team0", {})
+    src_t1 = full["metadata"].get("team1", {})
+    # Carry real player names (kloppy/Sportec source) for the slotted XI so the
+    # renderer can label them; harmless no-op for anonymized Metrica clips.
+    n0 = {p: src_t0.get("player_names", {})[p] for p in t0 if p in src_t0.get("player_names", {})}
+    n1 = {p: src_t1.get("player_names", {})[p] for p in t1 if p in src_t1.get("player_names", {})}
+    meta["team0"] = {"name": src_t0.get("name", "Home"), "players": t0, **({"player_names": n0} if n0 else {})}
+    meta["team1"] = {"name": src_t1.get("name", "Away"), "players": t1, **({"player_names": n1} if n1 else {})}
     meta["n_frames"] = n
     meta["clip_start"] = start
     meta["clip_end"] = start + n

@@ -3,9 +3,9 @@
 # a release artifact or Git LFS, not the source tree)
 checkpoints/
 
-# Training + processed data (Metrica sample is publicly downloadable;
-# data/processed/ is regenerable via the converters)
-data/
+# Training + processed data (regenerable via scripts/fetch_sportec.py + the
+# converters). Root-anchored so it does NOT also ignore src/data/ (source code).
+/data/
 
 # Published paper PDF — link to arXiv instead
 gentac.pdf
