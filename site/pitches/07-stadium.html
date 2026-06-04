@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GenTac — Every match has a second ending</title>
+<meta name="description" content="Under the floodlights, one decision changes everything. GenTac plays out the other one — the full alternative possession, every player, rendered for broadcast. The second ending, on demand." />
+<link rel="icon" href="../public/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06080f; --bg2:#080b16; --ink:#eef2fb; --muted:#9aa4be; --faint:#5b657f;
+  --cyan:#3fd0ff; --violet:#9b7bff; --pitch:#1ad1a5; --line:rgba(160,180,230,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:"Sora",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.55}
+a{color:inherit;text-decoration:none}
+.serif{font-family:"Instrument Serif",Georgia,serif;font-style:italic;font-weight:400}
+.wrap{max-width:1200px;margin:0 auto;padding:0 clamp(20px,4vw,46px)}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;backdrop-filter:blur(10px);background:rgba(6,8,15,.5);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.01em}
+.brand .m{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--cyan),var(--violet));display:grid;place-items:center;font-weight:800;color:#06080f}
+.links{display:flex;gap:26px;font-size:14px;color:var(--muted)}
+.links a:hover{color:var(--ink)}
+.cta-btn{font-size:14px;font-weight:600;border:1px solid var(--line);border-radius:10px;padding:9px 16px;background:rgba(255,255,255,.03);transition:.2s}
+.cta-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+@media(max-width:860px){.links{display:none}}
+
+/* HERO */
+.hero{position:relative;min-height:100vh;display:grid;place-items:center;text-align:center;overflow:hidden;padding:120px 0 80px}
+.hero .floods{position:absolute;inset:0;z-index:0}
+.flood{position:absolute;top:-12%;width:42vw;height:120vh;
+  background:linear-gradient(to bottom,rgba(63,208,255,.16),transparent 55%);filter:blur(8px);transform-origin:top center}
+.flood.l{left:-6%;transform:rotate(13deg);background:linear-gradient(to bottom,rgba(63,208,255,.18),transparent 55%)}
+.flood.r{right:-6%;transform:rotate(-13deg);background:linear-gradient(to bottom,rgba(155,123,255,.18),transparent 55%)}
+.hero .pitchglow{position:absolute;left:50%;bottom:-30%;width:130vw;height:80vh;transform:translateX(-50%);
+  background:radial-gradient(50% 60% at 50% 50%,rgba(26,209,165,.22),transparent 70%);filter:blur(20px)}
+.hero .stars{position:absolute;inset:0;background:
+  radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,.5),transparent),
+  radial-gradient(1px 1px at 70% 20%,rgba(255,255,255,.4),transparent),
+  radial-gradient(1px 1px at 40% 60%,rgba(255,255,255,.3),transparent),
+  radial-gradient(1px 1px at 85% 50%,rgba(255,255,255,.35),transparent);opacity:.6}
+.hero .wrap{position:relative;z-index:2}
+.hero .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);border:1px solid var(--line);border-radius:999px;padding:8px 16px;background:rgba(63,208,255,.06)}
+.hero h1{font-size:clamp(40px,8vw,94px);font-weight:700;line-height:1.02;letter-spacing:-.03em;margin-top:28px}
+.hero h1 .serif{font-size:1.04em;color:var(--cyan);display:inline}
+.hero p{font-size:clamp(16px,1.9vw,21px);color:var(--muted);max-width:620px;margin:26px auto 0}
+.hero .ctas{display:flex;gap:13px;justify-content:center;margin-top:34px;flex-wrap:wrap}
+.btn-glow{font-size:15px;font-weight:600;padding:13px 24px;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#06080f;box-shadow:0 12px 40px -12px var(--cyan);transition:.2s}
+.btn-glow:hover{transform:translateY(-2px)}
+.btn-ghost{font-size:15px;font-weight:600;padding:13px 24px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.btn-ghost:hover{border-color:var(--cyan)}
+.scrollhint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);color:var(--faint);font-size:12px;letter-spacing:.2em;text-transform:uppercase;z-index:2}
+.scrollhint .ln{width:1px;height:34px;margin:10px auto 0;background:linear-gradient(var(--cyan),transparent);animation:drop 2s infinite}
+@keyframes drop{0%{opacity:0;transform:scaleY(0)}40%{opacity:1}100%{opacity:0;transform:scaleY(1)}}
+
+/* SCROLL STORY */
+.story{padding:clamp(40px,7vw,90px) 0 clamp(60px,9vw,120px);position:relative}
+.story .head{text-align:center;max-width:680px;margin:0 auto clamp(30px,5vw,60px)}
+.story .head .k{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+.story .head h2{font-size:clamp(28px,4.4vw,46px);font-weight:700;letter-spacing:-.02em;margin-top:12px;line-height:1.1}
+.story .grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,72px);align-items:start}
+@media(max-width:900px){.story .grid{grid-template-columns:1fr}}
+
+/* sticky stage */
+.stage-col{position:sticky;top:90px;height:min(70vh,560px)}
+@media(max-width:900px){.stage-col{position:relative;top:0;height:auto;margin-bottom:30px}}
+.stage{position:relative;height:100%;min-height:340px;border:1px solid var(--line);border-radius:20px;overflow:hidden;
+  background:radial-gradient(120% 100% at 50% 120%,rgba(26,209,165,.18),transparent 60%),var(--bg2)}
+.stage .frame{position:absolute;inset:0;opacity:0;transition:opacity .5s ease;display:grid;place-items:center}
+.stage .frame.on{opacity:1}
+.stage .pf{position:relative;width:84%;aspect-ratio:16/10;border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 36px,transparent 36px 72px)}
+.stage .pf .mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.14)}
+.stage .pf svg{position:absolute;inset:0;width:100%;height:100%}
+.stage .dot{position:absolute;width:13px;height:13px;border-radius:50%;transform:translate(-50%,-50%)}
+.stage .a{background:var(--pitch);box-shadow:0 0 12px var(--pitch)}
+.stage .b{background:var(--cyan)}
+.stage .ball{width:8px;height:8px;background:#fff}
+.stage .cap{position:absolute;left:18px;bottom:16px;font-size:13px;color:var(--cyan);letter-spacing:.04em;background:rgba(6,8,15,.6);backdrop-filter:blur(6px);border:1px solid var(--line);padding:7px 12px;border-radius:9px}
+.stage .frame video{width:84%;border-radius:12px;border:1px solid var(--line)}
+
+/* steps */
+.step{min-height:62vh;display:flex;flex-direction:column;justify-content:center;padding:20px 0}
+@media(max-width:900px){.step{min-height:auto;padding:14px 0 30px}}
+.step .n{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--cyan)}
+.step h3{font-size:clamp(26px,3.6vw,40px);font-weight:700;letter-spacing:-.02em;margin-top:14px;line-height:1.08}
+.step h3 .serif{color:var(--violet);display:inline}
+.step p{color:var(--muted);font-size:clamp(15px,1.7vw,18px);margin-top:16px;max-width:46ch}
+.step.active h3{background:linear-gradient(110deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* QUOTE band */
+.quote{padding:clamp(60px,9vw,120px) 0;text-align:center;position:relative;overflow:hidden}
+.quote::before{content:"";position:absolute;left:50%;top:50%;width:700px;height:300px;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(63,208,255,.12),transparent)}
+.quote blockquote{font-family:"Instrument Serif";font-style:italic;font-size:clamp(28px,5vw,56px);line-height:1.18;max-width:880px;margin:0 auto;position:relative}
+.quote blockquote .c{color:var(--cyan)}
+.quote cite{display:block;margin-top:24px;font-style:normal;font-family:"Sora";font-size:14px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase}
+
+/* CASES */
+.cases{padding:clamp(50px,8vw,100px) 0;border-top:1px solid var(--line)}
+.cases .head{max-width:640px}
+.cases .head .k{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+.cases .head h2{font-size:clamp(28px,4.4vw,46px);font-weight:700;letter-spacing:-.02em;margin-top:12px}
+.cases .head p{color:var(--muted);margin-top:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:44px}
+@media(max-width:900px){.grid4{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.grid4{grid-template-columns:1fr}}
+.gc{border:1px solid var(--line);border-radius:16px;padding:24px;background:rgba(255,255,255,.02);position:relative;overflow:hidden;transition:.25s}
+.gc:hover{transform:translateY(-4px);border-color:rgba(63,208,255,.35)}
+.gc::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--violet));opacity:0;transition:.25s}
+.gc:hover::after{opacity:1}
+.gc .t{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan)}
+.gc h3{font-size:18px;font-weight:700;margin-top:12px}
+.gc p{color:var(--muted);font-size:14px;margin-top:9px}
+
+/* CTA */
+.cta{position:relative;padding:clamp(70px,11vw,150px) 0;text-align:center;overflow:hidden}
+.cta .floods{position:absolute;inset:0;z-index:0;opacity:.7}
+.cta .wrap{position:relative;z-index:2}
+.cta h2{font-size:clamp(34px,6vw,72px);font-weight:700;letter-spacing:-.03em;line-height:1.02}
+.cta h2 .serif{color:var(--cyan);display:inline}
+.cta p{color:var(--muted);max-width:520px;margin:18px auto 0}
+.cta .ctas{display:flex;gap:13px;justify-content:center;margin-top:32px;flex-wrap:wrap}
+
+footer{border-top:1px solid var(--line);padding:30px 0;color:var(--faint);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+</style>
+</head>
+<body>
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="#top"><span class="m">B</span> GenTac</a>
+  <div class="links"><a href="#story">The second ending</a><a href="#cases">For leagues</a></div>
+  <a class="cta-btn" href="#start">Request a demo</a>
+</div></nav>
+
+<main id="top">
+<section class="hero">
+  <div class="floods"><span class="flood l"></span><span class="flood r"></span><span class="pitchglow"></span><span class="stars"></span></div>
+  <div class="wrap">
+    <span class="eyebrow">The what-if engine for elite football</span>
+    <h1>Every match has<br>a <span class="serif">second ending.</span></h1>
+    <p>One decision under the lights changes everything. GenTac plays out the other one — the full alternative possession, every player and the ball, rendered for broadcast. Press play on the version that never aired.</p>
+    <div class="ctas">
+      <a class="btn-glow" href="#start">Request a demo →</a>
+      <a class="btn-ghost" href="#story">See it unfold</a>
+    </div>
+  </div>
+  <div class="scrollhint">scroll<div class="ln"></div></div>
+</section>
+
+<!-- SCROLL STORY -->
+<section class="story" id="story"><div class="wrap">
+  <div class="head">
+    <div class="k">How a moment becomes a second ending</div>
+    <h2>Watch one decision get its other life.</h2>
+  </div>
+  <div class="grid">
+    <!-- sticky stage -->
+    <div class="stage-col">
+      <div class="stage">
+        <!-- frame 0: the moment -->
+        <div class="frame on" data-frame="0">
+          <div class="pf"><span class="mid"></span>
+            <span class="dot a" style="left:24%;top:66%"></span>
+            <span class="dot a" style="left:42%;top:78%"></span>
+            <span class="dot b" style="left:60%;top:40%"></span>
+            <span class="dot b" style="left:52%;top:60%"></span>
+            <span class="dot ball" style="left:24%;top:65%"></span>
+            <span class="cap">① The real moment · tracking</span>
+          </div>
+        </div>
+        <!-- frame 1: the arrow -->
+        <div class="frame" data-frame="1">
+          <div class="pf"><span class="mid"></span>
+            <svg viewBox="0 0 320 200" preserveAspectRatio="none"><path d="M77 130 Q160 60 250 96" fill="none" stroke="#3fd0ff" stroke-width="2.6" stroke-dasharray="3 7" stroke-linecap="round"/><path d="M244 88 l11 9 -13 7" fill="none" stroke="#3fd0ff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="dot a" style="left:24%;top:66%"></span>
+            <span class="dot ball" style="left:24%;top:65%"></span>
+            <span class="cap">② The coach draws one run</span>
+          </div>
+        </div>
+        <!-- frame 2: the generation -->
+        <div class="frame" data-frame="2">
+          <div class="pf"><span class="mid"></span>
+            <svg viewBox="0 0 320 200" preserveAspectRatio="none">
+              <path d="M77 130 Q160 60 250 96" fill="none" stroke="#1ad1a5" stroke-width="2.2" stroke-dasharray="3 7"/>
+              <path d="M134 156 Q170 130 196 112" fill="none" stroke="#1ad1a5" stroke-width="1.6" opacity=".6"/>
+              <path d="M192 80 Q210 100 226 124" fill="none" stroke="#3fd0ff" stroke-width="1.6" opacity=".6"/>
+            </svg>
+            <span class="dot a" style="left:78%;top:48%"></span>
+            <span class="dot a" style="left:60%;top:56%"></span>
+            <span class="dot b" style="left:70%;top:62%"></span>
+            <span class="dot ball" style="left:76%;top:48%"></span>
+            <span class="cap">③ 22 players resolve · physics-clamped</span>
+          </div>
+        </div>
+        <!-- frame 3: broadcast -->
+        <div class="frame" data-frame="3">
+          <video id="storyvid" poster="../public/demo-poster.jpg" muted playsinline preload="none" loop autoplay></video>
+          <span class="cap" style="z-index:3">④ Rendered for broadcast</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- steps -->
+    <div class="steps">
+      <div class="step active" data-step="0"><div class="n">01</div><h3>It starts with what actually happened.</h3><p>GenTac reads the match's own optical tracking — the real positions of all 22 players and the ball, the four seconds leading into the decision everyone's still arguing about.</p></div>
+      <div class="step" data-step="1"><div class="n">02</div><h3>Then someone draws the <span class="serif">other choice.</span></h3><p>A coach, an analyst, a fan: tap the player, drag the run they should have made. A dial decides how strictly the model honours it. One gesture is the whole interface.</p></div>
+      <div class="step" data-step="2"><div class="n">03</div><h3>The whole pitch comes alive.</h3><p>A diffusion model rolls every player forward off that single arrow. Teammates adjust, defenders react, the ball travels at a believable speed — kept on the pitch and out of each other by a physics pass.</p></div>
+      <div class="step" data-step="3"><div class="n">04</div><h3>And it ends on the screen.</h3><p>The alternative renders to broadcast-quality video — handed to the studio feed, the league app, or the review desk. Not a diagram of the second ending. The second ending itself.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- QUOTE -->
+<section class="quote"><div class="wrap">
+  <blockquote>The replay shows what happened. The board argues what should have. <span class="c">Only this lets you watch it.</span></blockquote>
+  <cite>— GenTac, the second-ending engine</cite>
+</div></section>
+
+<!-- CASES -->
+<section class="cases" id="cases"><div class="wrap">
+  <div class="head">
+    <div class="k">Built for leagues</div>
+    <h2>The competition owns the lights, the data and the feed.</h2>
+    <p>So the second ending belongs there too — one engine that shows up in four places across a league.</p>
+  </div>
+  <div class="grid4">
+    <div class="gc"><div class="t">Broadcast</div><h3>The half-time graphic</h3><p>Cut to the alternative during analysis — a layer only the rights-holding league can air.</p></div>
+    <div class="gc"><div class="t">Fans</div><h3>The app moment</h3><p>A what-if tab where supporters replay their version on the bus home. Engagement becomes inventory.</p></div>
+    <div class="gc"><div class="t">Integrity</div><h3>The review desk</h3><p>The competition re-runs decisive moments under fixed constraints — calm, repeatable, off-air.</p></div>
+    <div class="gc"><div class="t">Clubs</div><h3>The shared tool</h3><p>One primitive issued to every member club's analysts, with nothing exported to a third party.</p></div>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="cta" id="start">
+  <div class="floods"><span class="flood l"></span><span class="flood r"></span></div>
+  <div class="wrap">
+    <h2>Give your match its <span class="serif">second ending.</span></h2>
+    <p>Bespoke per league, built around your data licence and broadcast contract. Tell us the competition and what you'd replay first. We reply within two business days.</p>
+    <div class="ctas">
+      <a class="btn-glow" href="mailto:leagues@bstartup.dev?subject=GenTac%20demo">leagues@bstartup.dev</a>
+      <a class="btn-ghost" href="https://calendly.com/bstartup/intro" target="_blank" rel="noopener">Book 15 minutes</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">
+  <span>© 2026 B START UP — GenTac</span>
+  <span>Every match has a second ending</span>
+</div></footer>
+
+<script>
+(function(){
+  var steps=[].slice.call(document.querySelectorAll('.step'));
+  var frames=[].slice.call(document.querySelectorAll('.stage .frame'));
+  var vid=document.getElementById('storyvid');
+  if(vid){var s=document.createElement('source');s.src='../public/demo-alternative.mp4';s.type='video/mp4';vid.appendChild(s);}
+  function setActive(i){
+    steps.forEach(function(s,k){s.classList.toggle('active',k===i)});
+    frames.forEach(function(f,k){f.classList.toggle('on',k===i)});
+    if(vid){ if(i===3){ vid.play().catch(function(){}); } else { vid.pause(); } }
+  }
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ setActive(+e.target.dataset.step); } });
+  },{rootMargin:'-45% 0px -45% 0px',threshold:0});
+  steps.forEach(function(s){io.observe(s)});
+})();
+</script>
+</body>
+</html>

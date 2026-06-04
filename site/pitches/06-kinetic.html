@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GENTAC — REPLAY THE WHAT-IF</title>
+<meta name="description" content="Draw the run. Generate the alternative. Put it on air. GenTac is the what-if engine for elite football — every player, every touch, the version that never happened." />
+<link rel="icon" href="../public/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0b0c; --bg2:#101012; --ink:#f6f6f3; --muted:#9b9b97; --faint:#5c5c58;
+  --lime:#c6f135; --lime-d:#a8d11f; --line:#1f1f22;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.anton{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase}
+.wrap{max-width:1280px;margin:0 auto;padding:0 clamp(18px,4vw,46px)}
+::selection{background:var(--lime);color:#0b0b0c}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(11,11,12,.7);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:flex;align-items:center;gap:11px;font-family:"Anton";font-size:22px;letter-spacing:.02em}
+.brand .m{width:30px;height:30px;background:var(--lime);color:#0b0b0c;display:grid;place-items:center;font-family:"Anton";font-size:18px}
+.links{display:flex;gap:26px;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.links a:hover{color:var(--lime)}
+.navcta{font-family:"Anton";font-size:14px;letter-spacing:.06em;background:var(--lime);color:#0b0b0c;padding:9px 16px;text-transform:uppercase}
+.navcta:hover{background:#fff}
+@media(max-width:880px){.links{display:none}}
+
+/* HERO */
+.hero{position:relative;padding:130px 0 60px;overflow:hidden}
+.streaks{position:absolute;inset:0;z-index:0;opacity:.9}
+.streaks path{fill:none;stroke-linecap:round}
+.hero .wrap{position:relative;z-index:2}
+.hero .tagrow{display:flex;align-items:center;gap:14px;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--lime)}
+.hero .tagrow .ln{height:1px;width:60px;background:var(--lime)}
+.kine{font-family:"Anton";line-height:.82;letter-spacing:.005em;margin-top:18px;font-size:clamp(64px,16.5vw,232px)}
+.kine .o{color:var(--lime)}
+.kine .out{color:transparent;-webkit-text-stroke:2px var(--ink)}
+.herometa{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-top:30px}
+.herometa p{max-width:480px;color:var(--muted);font-size:clamp(15px,1.7vw,19px);line-height:1.5}
+.herometa p b{color:var(--ink);font-weight:600}
+.herometa .ctas{display:flex;gap:12px;flex-wrap:wrap}
+.btn{font-family:"Anton";font-size:15px;letter-spacing:.05em;text-transform:uppercase;padding:14px 22px;transition:.18s}
+.btn-lime{background:var(--lime);color:#0b0b0c}.btn-lime:hover{background:#fff;transform:translate(-2px,-2px)}
+.btn-out{border:1.5px solid var(--ink);color:var(--ink)}.btn-out:hover{border-color:var(--lime);color:var(--lime)}
+
+/* MARQUEE */
+.marq{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--lime);color:#0b0b0c;overflow:hidden;white-space:nowrap;padding:14px 0}
+.marq .t{display:inline-block;animation:slide 24s linear infinite;font-family:"Anton";font-size:26px;letter-spacing:.04em;text-transform:uppercase}
+.marq .t span{margin:0 26px}
+.marq .t .star{color:#0b0b0c;opacity:.55}
+@keyframes slide{to{transform:translateX(-50%)}}
+.marq.rev{background:var(--bg);color:var(--ink);border-top:0}
+.marq.rev .t{animation-duration:30s;animation-direction:reverse}
+.marq.rev .t .star{color:var(--lime)}
+
+/* MOVE rows */
+.move{padding:clamp(56px,9vw,120px) 0}
+.move .label{font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--lime)}
+.move .row{display:grid;grid-template-columns:120px 1fr 1.1fr;gap:24px;align-items:center;padding:34px 0;border-top:1px solid var(--line)}
+.move .row:last-child{border-bottom:1px solid var(--line)}
+.move .row .n{font-family:"Anton";font-size:clamp(40px,7vw,92px);color:transparent;-webkit-text-stroke:1.5px var(--faint);line-height:1}
+.move .row h3{font-family:"Anton";font-size:clamp(28px,4.4vw,56px);line-height:.95;text-transform:uppercase}
+.move .row:hover h3{color:var(--lime)}
+.move .row p{color:var(--muted);font-size:16px;line-height:1.55}
+@media(max-width:760px){.move .row{grid-template-columns:1fr;gap:12px}.move .row .n{font-size:54px}}
+
+/* USE CASE blocks */
+.cases{padding:clamp(40px,7vw,90px) 0;background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cases h2{font-family:"Anton";font-size:clamp(34px,6vw,76px);text-transform:uppercase;line-height:.9}
+.cases h2 .o{color:var(--lime)}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:44px;border:1px solid var(--line)}
+@media(max-width:880px){.cgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.cgrid{grid-template-columns:1fr}}
+.cblock{padding:30px 24px;border-right:1px solid var(--line);transition:.2s}
+.cblock:last-child{border-right:0}
+.cblock:hover{background:var(--lime);color:#0b0b0c}
+.cblock .tag{font-family:"Anton";font-size:13px;letter-spacing:.08em;color:var(--lime)}
+.cblock:hover .tag{color:#0b0b0c}
+.cblock h3{font-family:"Anton";font-size:24px;text-transform:uppercase;margin-top:16px;line-height:1}
+.cblock p{font-size:14px;margin-top:12px;line-height:1.5;color:var(--muted)}
+.cblock:hover p{color:#0b0b0c}
+
+/* STATS */
+.stats{padding:clamp(50px,8vw,100px) 0;text-align:center}
+.stats .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+@media(max-width:700px){.stats .grid{grid-template-columns:1fr 1fr}}
+.stats .v{font-family:"Anton";font-size:clamp(46px,8vw,96px);line-height:.9;color:var(--lime)}
+.stats .k{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:12px}
+
+/* CTA */
+.cta{padding:clamp(60px,10vw,140px) 0;text-align:center;position:relative;overflow:hidden}
+.cta h2{font-family:"Anton";font-size:clamp(46px,11vw,160px);text-transform:uppercase;line-height:.82}
+.cta h2 .out{color:transparent;-webkit-text-stroke:2px var(--ink)}
+.cta p{color:var(--muted);max-width:520px;margin:22px auto 0;font-size:16px}
+.cta .ctas{display:flex;gap:14px;justify-content:center;margin-top:30px;flex-wrap:wrap}
+
+footer{border-top:1px solid var(--line);padding:28px 0;color:var(--faint);font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+</style>
+</head>
+<body>
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="#top"><span class="m">B</span>GENTAC</a>
+  <div class="links">
+    <a href="#move">The Move</a><a href="#cases">Where</a><a href="#stats">Numbers</a>
+  </div>
+  <a class="navcta" href="#play">Get a demo</a>
+</div></nav>
+
+<main id="top">
+<section class="hero">
+  <svg class="streaks" viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path d="M-50 560 Q400 360 760 470 T1500 300" stroke="#c6f135" stroke-width="2.5" opacity=".5"/>
+    <path d="M-50 640 Q500 520 900 540 T1520 420" stroke="#c6f135" stroke-width="1.5" opacity=".3"/>
+    <path d="M-50 470 Q360 600 820 360 T1500 200" stroke="#ffffff" stroke-width="1.2" opacity=".12"/>
+    <circle cx="760" cy="470" r="6" fill="#c6f135"/><circle cx="900" cy="540" r="4" fill="#c6f135" opacity=".6"/>
+  </svg>
+  <div class="wrap">
+    <div class="tagrow"><span class="ln"></span> The what-if engine for elite football</div>
+    <h1 class="kine">REPLAY<br>THE <span class="o">WHAT-IF</span></h1>
+    <div class="herometa">
+      <p>Draw the run a player <em>should</em> have made. We generate the entire alternative — <b>all 22 players, the ball, physics intact</b> — and render it broadcast-ready. The version that never happened, on tape.</p>
+      <div class="ctas">
+        <a class="btn btn-lime" href="#play">Get a demo</a>
+        <a class="btn btn-out" href="#move">See the move</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="marq"><div class="t">
+  <span>DRAW IT</span><span class="star">✦</span><span>GENERATE IT</span><span class="star">✦</span><span>PUT IT ON AIR</span><span class="star">✦</span><span>22 PLAYERS REACT</span><span class="star">✦</span><span>DRAW IT</span><span class="star">✦</span><span>GENERATE IT</span><span class="star">✦</span><span>PUT IT ON AIR</span><span class="star">✦</span><span>22 PLAYERS REACT</span><span class="star">✦</span>
+</div></div>
+
+<!-- THE MOVE -->
+<section class="move" id="move"><div class="wrap">
+  <div class="label">The move · three beats</div>
+  <div class="row"><span class="n">01</span><h3 class="anton">Draw</h3><p>Tap a player on a real moment. Drag the run you wish they'd made. One arrow — no JSON, no data scientist, the same gesture as a touchscreen tactics board.</p></div>
+  <div class="row"><span class="n">02</span><h3 class="anton">Generate</h3><p>A diffusion model rolls the whole pitch forward off your arrow. Teammates adjust, the defence reacts, the ball moves at a speed a ball can move. Physics-clamped, never off the pitch.</p></div>
+  <div class="row"><span class="n">03</span><h3 class="anton">Air it</h3><p>The alternative renders to broadcast-quality video and hands straight to the studio feed, the league app, or the review desk. A clip, not a diagram.</p></div>
+</div></section>
+
+<div class="marq rev"><div class="t">
+  <span>METRICA</span><span class="star">/</span><span>HAWK-EYE</span><span class="star">/</span><span>SPORTEC DFL</span><span class="star">/</span><span>STATS PERFORM</span><span class="star">/</span><span>SKILLCORNER</span><span class="star">/</span><span>METRICA</span><span class="star">/</span><span>HAWK-EYE</span><span class="star">/</span><span>SPORTEC DFL</span><span class="star">/</span><span>STATS PERFORM</span><span class="star">/</span><span>SKILLCORNER</span><span class="star">/</span>
+</div></div>
+
+<!-- CASES -->
+<section class="cases" id="cases"><div class="wrap">
+  <h2 class="anton">ONE ENGINE.<br>FOUR <span class="o">ARENAS.</span></h2>
+  <div class="cgrid">
+    <div class="cblock"><div class="tag anton">Broadcast</div><h3>On the feed</h3><p>Cut to the alternative during half-time analysis. A graphics layer only the rights-holding league can put on air.</p></div>
+    <div class="cblock"><div class="tag anton">Fans</div><h3>In the app</h3><p>A what-if tab where supporters replay their version. Every query is engagement that turns into inventory.</p></div>
+    <div class="cblock"><div class="tag anton">Integrity</div><h3>At the desk</h3><p>The competition re-runs decisive moments under fixed rules — repeatable, auditable, off-air.</p></div>
+    <div class="cblock"><div class="tag anton">Clubs</div><h3>For the squad</h3><p>One tool issued to every member club's analysts. Same primitive, nothing exported.</p></div>
+  </div>
+</div></section>
+
+<!-- STATS -->
+<section class="stats" id="stats"><div class="wrap">
+  <div class="grid">
+    <div><div class="v anton">22+1</div><div class="k">players &amp; ball, one system</div></div>
+    <div><div class="v anton">25</div><div class="k">fps your tracking already runs</div></div>
+    <div><div class="v anton">0%</div><div class="k">off-pitch — physics enforced</div></div>
+    <div><div class="v anton">1</div><div class="k">arrow is the whole UI</div></div>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="cta" id="play"><div class="wrap">
+  <h2 class="anton">PRESS PLAY<br>ON THE <span class="out">OTHER VERSION</span></h2>
+  <p>Bespoke per league — built around your data licence and broadcast contract. Tell us the competition and we'll line up a demo. Reply within two business days.</p>
+  <div class="ctas">
+    <a class="btn btn-lime" href="mailto:leagues@bstartup.dev?subject=GENTAC%20demo">leagues@bstartup.dev</a>
+    <a class="btn btn-out" href="https://calendly.com/bstartup/intro" target="_blank" rel="noopener">Book 15 min</a>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <span>© 2026 B START UP — GENTAC</span>
+  <span>Draw it · generate it · air it</span>
+</div></footer>
+</body>
+</html>

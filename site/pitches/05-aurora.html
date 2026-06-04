@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GenTac — One arrow. A new outcome.</title>
+<meta name="description" content="GenTac turns one drawn arrow into the full alternative play — every player, the ball, broadcast-ready. The what-if engine for elite football, built for leagues." />
+<link rel="icon" href="../public/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a14; --bg2:#0e0e1c; --card:rgba(255,255,255,.035); --card-bd:rgba(255,255,255,.09);
+  --ink:#eef0f7; --muted:#a4a7bd; --faint:#6b6f8a;
+  --indigo:#7c6cff; --blue:#3aa0ff; --teal:#34e2c8; --pink:#ff7ac0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.55;position:relative}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1200px;margin:0 auto;padding:0 clamp(20px,4vw,40px);position:relative;z-index:2}
+
+/* aurora mesh background */
+.aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.aurora b{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55}
+.a1{width:620px;height:620px;background:var(--indigo);left:-160px;top:-180px;animation:float1 18s ease-in-out infinite}
+.a2{width:520px;height:520px;background:var(--blue);right:-140px;top:-60px;opacity:.4;animation:float2 22s ease-in-out infinite}
+.a3{width:480px;height:480px;background:var(--teal);left:30%;top:520px;opacity:.22;animation:float1 26s ease-in-out infinite}
+.a4{width:420px;height:420px;background:var(--pink);right:5%;top:1100px;opacity:.18;animation:float2 24s ease-in-out infinite}
+@keyframes float1{50%{transform:translate(40px,40px)}}
+@keyframes float2{50%{transform:translate(-50px,30px)}}
+body::after{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 80% at 50% -10%,transparent 50%,rgba(10,10,20,.6));}
+/* subtle grid */
+.gridbg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:60px 60px;mask:radial-gradient(120% 80% at 50% 0,#000 30%,transparent 75%)}
+
+/* NAV */
+.nav{position:sticky;top:14px;z-index:40;margin-top:14px}
+.nav .bar{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(16,16,28,.6);backdrop-filter:blur(16px);border:1px solid var(--card-bd);border-radius:16px;padding:11px 14px 11px 18px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700}
+.brand .m{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--indigo),var(--blue));display:grid;place-items:center;font-weight:800;color:#fff}
+.navlinks{display:flex;gap:24px;font-size:14px;color:var(--muted);font-weight:500}
+.navlinks a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:14px;border-radius:11px;padding:10px 17px;transition:.2s}
+.btn-grad{background:linear-gradient(135deg,var(--indigo),var(--blue));color:#fff;box-shadow:0 8px 26px -10px var(--indigo)}
+.btn-grad:hover{transform:translateY(-1px);box-shadow:0 14px 34px -10px var(--indigo)}
+.btn-glass{border:1px solid var(--card-bd);color:var(--ink);background:var(--card)}
+.btn-glass:hover{border-color:rgba(255,255,255,.22)}
+@media(max-width:860px){.navlinks{display:none}}
+
+/* HERO */
+.hero{text-align:center;padding:clamp(56px,9vw,120px) 0 clamp(30px,5vw,60px)}
+.badge{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:500;color:var(--muted);
+  border:1px solid var(--card-bd);background:var(--card);border-radius:999px;padding:7px 15px}
+.badge .d{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 10px var(--teal)}
+.hero h1{font-size:clamp(40px,7.5vw,82px);font-weight:800;line-height:1.02;letter-spacing:-.035em;margin-top:24px}
+.hero h1 .grad{background:linear-gradient(110deg,var(--blue),var(--indigo) 40%,var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.sub{font-size:clamp(16px,1.9vw,20px);color:var(--muted);max-width:600px;margin:24px auto 0}
+.hero .ctas{display:flex;gap:13px;justify-content:center;margin-top:32px;flex-wrap:wrap}
+.trust{margin-top:42px;color:var(--faint);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase}
+.trust .row{display:flex;gap:26px;justify-content:center;margin-top:14px;flex-wrap:wrap;align-items:center;font-size:13.5px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:600}
+.trust .row span{opacity:.7}
+
+/* product mock */
+.mock{max-width:920px;margin:clamp(40px,5vw,64px) auto 0;border:1px solid var(--card-bd);border-radius:20px;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));backdrop-filter:blur(20px);
+  padding:14px;box-shadow:0 50px 120px -50px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.03) inset;position:relative;overflow:hidden}
+.mock .winbar{display:flex;align-items:center;gap:8px;padding:6px 6px 14px}
+.mock .winbar i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.18)}
+.mock .winbar .url{margin-left:12px;font-size:12px;color:var(--faint);background:rgba(255,255,255,.04);border-radius:7px;padding:5px 12px}
+.mock .stage{border-radius:13px;overflow:hidden;border:1px solid var(--card-bd);background:#08080f;aspect-ratio:16/9;position:relative}
+.mock .stage .pitch{position:absolute;inset:0;background:
+  radial-gradient(120% 120% at 50% 120%,rgba(124,108,255,.2),transparent 60%),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 44px,transparent 44px 88px)}
+.mock .stage .mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.12)}
+.mock .stage svg{position:absolute;inset:0;width:100%;height:100%}
+.mock .dot{position:absolute;width:13px;height:13px;border-radius:50%;transform:translate(-50%,-50%)}
+.mock .dot.a{background:var(--teal);box-shadow:0 0 12px var(--teal)}
+.mock .dot.b{background:var(--blue)}
+.mock .dot.ball{width:8px;height:8px;background:#fff}
+.mock .toast{position:absolute;left:18px;bottom:16px;display:flex;align-items:center;gap:9px;background:rgba(10,10,20,.75);backdrop-filter:blur(8px);border:1px solid var(--card-bd);border-radius:11px;padding:9px 13px;font-size:12.5px}
+.mock .toast .pp{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+/* SECTION */
+.sec{padding:clamp(56px,8vw,110px) 0}
+.sec-head{text-align:center;max-width:680px;margin:0 auto}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--indigo);text-transform:uppercase}
+.sec h2{font-size:clamp(28px,4.4vw,48px);font-weight:800;letter-spacing:-.03em;margin-top:12px;line-height:1.08}
+.sec .lead{color:var(--muted);font-size:clamp(15px,1.7vw,18px);margin-top:16px}
+
+/* BENTO */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-top:48px}
+.glass{background:var(--card);border:1px solid var(--card-bd);border-radius:18px;padding:26px;position:relative;overflow:hidden;transition:.25s}
+.glass:hover{border-color:rgba(255,255,255,.2);transform:translateY(-3px)}
+.glass::before{content:"";position:absolute;inset:0;background:radial-gradient(400px circle at var(--mx,50%) var(--my,0%),rgba(124,108,255,.14),transparent 40%);opacity:0;transition:.3s}
+.glass:hover::before{opacity:1}
+.b-lg{grid-column:span 4}.b-sm{grid-column:span 2}.b-md{grid-column:span 3}
+@media(max-width:880px){.b-lg,.b-sm,.b-md{grid-column:span 6}}
+.glass .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(124,108,255,.25),rgba(58,160,255,.15));border:1px solid var(--card-bd);margin-bottom:18px}
+.glass h3{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.glass p{color:var(--muted);font-size:14.5px;margin-top:9px}
+.glass .stat{font-size:40px;font-weight:800;letter-spacing:-.03em;background:linear-gradient(120deg,var(--teal),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* STEPS */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+@media(max-width:820px){.steps{grid-template-columns:1fr}}
+.step{background:var(--card);border:1px solid var(--card-bd);border-radius:18px;padding:28px}
+.step .n{font-size:13px;font-weight:700;color:var(--indigo);letter-spacing:.04em}
+.step h3{font-size:20px;font-weight:700;margin-top:14px;letter-spacing:-.01em}
+.step p{color:var(--muted);font-size:14.5px;margin-top:10px}
+
+/* USE CASES */
+.uc{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:48px}
+@media(max-width:900px){.uc{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.uc{grid-template-columns:1fr}}
+.ucc{border:1px solid var(--card-bd);background:var(--card);border-radius:16px;padding:22px;transition:.2s}
+.ucc:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.2)}
+.ucc .t{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal)}
+.ucc h3{font-size:17px;font-weight:700;margin-top:12px}
+.ucc p{color:var(--muted);font-size:13.5px;margin-top:8px}
+
+/* STATS BAND */
+.band{margin-top:0;border-top:1px solid var(--card-bd);border-bottom:1px solid var(--card-bd);background:rgba(255,255,255,.02)}
+.band .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:0;text-align:center}
+@media(max-width:700px){.band .wrap{grid-template-columns:1fr 1fr}}
+.band .s{padding:38px 16px;border-right:1px solid var(--card-bd)}
+.band .s:last-child{border-right:0}
+.band .v{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.03em;background:linear-gradient(120deg,var(--indigo),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+.band .k{color:var(--muted);font-size:13px;margin-top:8px}
+
+/* CTA */
+.cta{padding:clamp(60px,9vw,120px) 0}
+.cta .card{position:relative;border-radius:26px;padding:clamp(38px,6vw,72px);text-align:center;overflow:hidden;
+  background:linear-gradient(180deg,rgba(124,108,255,.16),rgba(58,160,255,.06));border:1px solid var(--card-bd)}
+.cta .card::before{content:"";position:absolute;left:50%;top:-40%;width:600px;height:600px;transform:translateX(-50%);background:radial-gradient(circle,rgba(124,108,255,.3),transparent 60%);filter:blur(40px)}
+.cta h2{font-size:clamp(30px,5vw,58px);font-weight:800;letter-spacing:-.03em;position:relative}
+.cta p{color:var(--muted);max-width:520px;margin:16px auto 0;position:relative}
+.cta .ctas{display:flex;gap:13px;justify-content:center;margin-top:30px;position:relative;flex-wrap:wrap}
+
+footer{border-top:1px solid var(--card-bd);padding:30px 0}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;color:var(--faint);font-size:13px}
+</style>
+</head>
+<body>
+<div class="aurora"><b class="a1"></b><b class="a2"></b><b class="a3"></b><b class="a4"></b></div>
+<div class="gridbg"></div>
+
+<nav class="nav"><div class="bar">
+  <a class="brand" href="#top"><span class="m">B</span> GenTac</a>
+  <div class="navlinks">
+    <a href="#features">Features</a><a href="#how">How it works</a><a href="#cases">Use cases</a><a href="#numbers">Numbers</a>
+  </div>
+  <a class="btn btn-grad" href="#start">Request a demo</a>
+</div></nav>
+
+<main id="top">
+<section class="hero"><div class="wrap">
+  <span class="badge"><span class="d"></span> The what-if engine for elite football</span>
+  <h1>One arrow.<br><span class="grad">A whole new outcome.</span></h1>
+  <p class="sub">Draw the run a player should have made. GenTac generates the entire alternative — all 22 players, the ball, physics intact — and renders it broadcast-ready. The counterfactual, on demand.</p>
+  <div class="ctas">
+    <a class="btn btn-grad" href="#start">Request a demo →</a>
+    <a class="btn btn-glass" href="#how">See how it works</a>
+  </div>
+  <div class="trust">
+    Speaks the tracking your league already licenses
+    <div class="row"><span>Metrica</span><span>Hawk-Eye</span><span>Sportec / DFL</span><span>Stats Perform</span><span>SkillCorner</span></div>
+  </div>
+
+  <div class="mock">
+    <div class="winbar"><i></i><i></i><i></i><span class="url">gentac.app · session · 67:14</span></div>
+    <div class="stage">
+      <div class="pitch"></div><div class="mid"></div>
+      <svg viewBox="0 0 320 180" preserveAspectRatio="none">
+        <path d="M70 130 Q150 60 250 92" fill="none" stroke="#34e2c8" stroke-width="2.4" stroke-dasharray="3 7" stroke-linecap="round"/>
+        <path d="M244 84 l11 9 -13 7" fill="none" stroke="#34e2c8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M120 150 Q160 124 188 108" fill="none" stroke="#34e2c8" stroke-width="1.6" opacity=".55"/>
+      </svg>
+      <span class="dot a" style="left:22%;top:72%"></span>
+      <span class="dot a" style="left:78%;top:51%"></span>
+      <span class="dot b" style="left:62%;top:36%"></span>
+      <span class="dot b" style="left:54%;top:64%"></span>
+      <span class="dot ball" style="left:22%;top:71%"></span>
+      <div class="toast"><span class="pp"></span> Generating alternative · 22 players · honour 70%</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- FEATURES BENTO -->
+<section class="sec" id="features"><div class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow">Why it's different</div>
+    <h2>Not a drawing. A simulation that moves.</h2>
+    <p class="lead">A tactics board freezes one frame and lets you doodle. GenTac moves every body on the pitch the way it actually would.</p>
+  </div>
+  <div class="bento" id="bento">
+    <div class="glass b-lg">
+      <div class="ic">✦</div>
+      <h3>Every player reacts</h3>
+      <p>One waypoint in; a coherent 22-player + ball future out. Teammates adjust, the defence collapses or recovers — modelled as one interacting system, not one moving piece on a still photo.</p>
+    </div>
+    <div class="glass b-sm">
+      <div class="ic">◎</div>
+      <h3>You set the strictness</h3>
+      <p>A guidance dial takes your arrow from gentle suggestion to firm instruction.</p>
+    </div>
+    <div class="glass b-sm">
+      <div class="stat">0%</div>
+      <p style="margin-top:6px">off-pitch frames. A physics pass enforces speed, bounds and collisions.</p>
+    </div>
+    <div class="glass b-md">
+      <div class="ic">◈</div>
+      <h3>A range, not a guess</h3>
+      <p>Diffusion returns a distribution of plausible alternatives — sample several and choose the one worth airing.</p>
+    </div>
+    <div class="glass b-md">
+      <div class="ic">▶</div>
+      <h3>Render-ready out</h3>
+      <p>Trajectories hand off to a photoreal video engine. Out comes a clean clip — straight to the studio, the app or the review desk.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- HOW -->
+<section class="sec" id="how"><div class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow">How it works</div>
+    <h2>Three moves, no data team.</h2>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="n">STEP 01</div><h3>Pick the moment</h3><p>Scrub to the decision; the four seconds of real tracking around it load from your league's own optical feed.</p></div>
+    <div class="step"><div class="n">STEP 02</div><h3>Draw the intent</h3><p>Tap a player, drag the run you wanted. Set how hard the model should honour it. That's the entire interface.</p></div>
+    <div class="step"><div class="n">STEP 03</div><h3>Watch &amp; ship</h3><p>The model rolls the alternative forward, physics-checks it, and renders. Export the clip wherever it needs to go.</p></div>
+  </div>
+</div></section>
+
+<!-- USE CASES -->
+<section class="sec" id="cases"><div class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow">Built for leagues</div>
+    <h2>One engine, four surfaces.</h2>
+    <p class="lead">The league holds the data, the rights and the broadcast — so the alternative belongs there too.</p>
+  </div>
+  <div class="uc">
+    <div class="ucc"><div class="t">Broadcast</div><h3>World-feed graphic</h3><p>Cut to the alternative during the half-time window — a layer only the league can license.</p></div>
+    <div class="ucc"><div class="t">Fans</div><h3>App what-if tab</h3><p>Let supporters replay their version. Engagement becomes sponsorship inventory.</p></div>
+    <div class="ucc"><div class="t">Competition</div><h3>Integrity review</h3><p>The desk re-runs decisive moments under fixed constraints, off-air.</p></div>
+    <div class="ucc"><div class="t">Clubs</div><h3>Analyst seats</h3><p>One standardised tool to every member club. No data leaves the building.</p></div>
+  </div>
+</div></section>
+
+<!-- STATS -->
+<section class="band" id="numbers"><div class="wrap">
+  <div class="s"><div class="v">22+1</div><div class="k">players &amp; ball, modelled together</div></div>
+  <div class="s"><div class="v">25 fps</div><div class="k">the rate your tracking already runs</div></div>
+  <div class="s"><div class="v">1 arrow</div><div class="k">the entire user interface</div></div>
+  <div class="s"><div class="v">∞</div><div class="k">alternatives per moment, sampled on demand</div></div>
+</div></section>
+
+<!-- CTA -->
+<section class="cta" id="start"><div class="wrap">
+  <div class="card">
+    <h2>See your match replay the other way.</h2>
+    <p>Pricing is bespoke per league. Tell us the competition and what you'd replay first — we'll scope a demo and reply within two business days.</p>
+    <div class="ctas">
+      <a class="btn btn-grad" href="mailto:leagues@bstartup.dev?subject=GenTac%20demo">Request a demo →</a>
+      <a class="btn btn-glass" href="https://calendly.com/bstartup/intro" target="_blank" rel="noopener">Book 15 minutes</a>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <span>© 2026 B START UP — GenTac</span>
+  <span>The what-if engine for elite football</span>
+</div></footer>
+
+<script>
+// spotlight follow on glass cards
+document.querySelectorAll('.glass').forEach(function(c){
+  c.addEventListener('pointermove',function(e){var r=c.getBoundingClientRect();
+    c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px');});
+});
+</script>
+</body>
+</html>

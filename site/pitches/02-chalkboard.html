@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GenTac — Draw it. Watch it play out.</title>
+<meta name="description" content="The coach's whiteboard, finally animated. Draw the run you wish your player had made and GenTac plays the whole alternative out — all 22 players moving like they really would." />
+<link rel="icon" href="../public/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --board:#15362b; --board2:#102a21; --slate:#0d231c;
+  --chalk:#eef6ee; --chalk-dim:#a9c2b4; --chalk-faint:#6f8a7d;
+  --yellow:#ffe27a; --skyline:#7fd1c4; --pink:#f4a0b5;
+  --line:rgba(238,246,238,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--board);color:var(--chalk);font-family:"Inter",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.6;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%,rgba(127,209,196,.08),transparent),
+    linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:auto, 34px 34px, 34px 34px;
+}
+/* faint chalk dust */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.03),transparent 40%),radial-gradient(circle at 70% 80%,rgba(255,255,255,.025),transparent 45%);}
+a{color:inherit;text-decoration:none}
+.grotesk{font-family:"Space Grotesk",sans-serif}
+.hand{font-family:"Caveat",cursive}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(20px,4vw,44px);position:relative;z-index:1}
+
+.nav{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,rgba(21,54,43,.95),rgba(21,54,43,.78));backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:66px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .m{width:34px;height:34px;border:2px solid var(--chalk);border-radius:50%;display:grid;place-items:center;font-family:"Space Grotesk";font-weight:700;font-size:17px}
+.brand b{font-family:"Space Grotesk";font-weight:600;letter-spacing:.01em}
+.brand .tag{font-size:12px;color:var(--chalk-dim)}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--chalk-dim)}
+.nav-links a:hover{color:var(--chalk)}
+.pill{border:1.5px solid var(--chalk);border-radius:999px;padding:9px 18px;font-size:14px;font-weight:600;transition:.2s;font-family:"Space Grotesk"}
+.pill:hover{background:var(--chalk);color:var(--board)}
+@media(max-width:860px){.nav-links{display:none}}
+
+/* HERO — editorial asymmetric */
+.hero{padding:clamp(46px,7vw,92px) 0 clamp(30px,5vw,64px)}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(28px,5vw,64px);align-items:end}
+@media(max-width:940px){.hero-grid{grid-template-columns:1fr}}
+.kick{font-family:"Caveat";font-size:26px;color:var(--yellow);transform:rotate(-2deg);display:inline-block}
+.hero h1{font-family:"Space Grotesk";font-weight:500;font-size:clamp(40px,6.6vw,82px);line-height:1.02;letter-spacing:-.02em;margin-top:6px}
+.hero h1 .u{position:relative;white-space:nowrap}
+.hero h1 .u svg{position:absolute;left:-2%;bottom:-.18em;width:104%;height:.35em;overflow:visible}
+.hero p.lede{font-size:clamp(16px,1.7vw,19px);color:var(--chalk-dim);max-width:520px;margin-top:26px}
+.hero .ctas{display:flex;gap:14px;align-items:center;margin-top:30px;flex-wrap:wrap}
+.btn-solid{background:var(--chalk);color:var(--board);font-family:"Space Grotesk";font-weight:600;padding:13px 22px;border-radius:10px;transition:.2s}
+.btn-solid:hover{transform:translateY(-2px)}
+.btn-line{font-family:"Space Grotesk";font-weight:600;color:var(--chalk);border-bottom:2px solid var(--yellow);padding-bottom:3px}
+
+/* tactics board card */
+.board-card{background:var(--slate);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 30px 70px -40px rgba(0,0,0,.7)}
+.board-card .topline{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--chalk-faint);margin-bottom:12px;font-family:"Space Grotesk"}
+.board-card .topline .live{color:var(--skyline)}
+.pitch{position:relative;aspect-ratio:4/3;border:1.5px solid rgba(238,246,238,.3);border-radius:8px;overflow:hidden;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 38px,rgba(255,255,255,0) 38px 76px)}
+.pitch .mid{position:absolute;left:50%;top:0;bottom:0;width:1.5px;background:rgba(238,246,238,.28)}
+.pitch .circle{position:absolute;left:50%;top:50%;width:74px;height:74px;border:1.5px solid rgba(238,246,238,.28);border-radius:50%;transform:translate(-50%,-50%)}
+.pitch svg{position:absolute;inset:0;width:100%;height:100%}
+.dot{position:absolute;width:15px;height:15px;border-radius:50%;transform:translate(-50%,-50%);font:700 9px/15px "Space Grotesk";text-align:center;color:#0d231c}
+.dot.a{background:var(--yellow)}.dot.b{background:var(--skyline)}.dot.ball{width:9px;height:9px;background:#fff}
+.board-card .cap{font-family:"Caveat";font-size:19px;color:var(--yellow);margin-top:12px;text-align:center}
+
+/* generic section */
+.sec{padding:clamp(54px,8vw,100px) 0;position:relative}
+.sec.alt{background:var(--board2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"Space Grotesk";font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--skyline)}
+.sec h2{font-family:"Space Grotesk";font-weight:500;font-size:clamp(28px,4.4vw,50px);line-height:1.04;letter-spacing:-.02em;margin-top:14px;max-width:780px}
+.sec .lead{color:var(--chalk-dim);font-size:clamp(15px,1.6vw,18px);max-width:600px;margin-top:16px}
+
+/* THE SESSION — problem, two columns + note */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,64px);margin-top:44px;align-items:start}
+@media(max-width:780px){.cols{grid-template-columns:1fr}}
+.cols p{color:var(--chalk-dim);font-size:16px;margin-top:0}
+.cols p + p{margin-top:18px}
+.cols .lead-in{color:var(--chalk);font-family:"Space Grotesk";font-size:21px;line-height:1.4;font-weight:500}
+.note{border-left:2px solid var(--yellow);padding:6px 0 6px 20px;margin-top:8px}
+.note .hand{font-size:24px;color:var(--yellow);line-height:1.2}
+
+/* THE DRILL — numbered steps */
+.drill{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+@media(max-width:820px){.drill{grid-template-columns:1fr}}
+.step{position:relative;padding-top:24px}
+.step .arc{position:absolute;top:-6px;left:0;font-family:"Caveat";font-size:46px;color:var(--yellow);line-height:1}
+.step h3{font-family:"Space Grotesk";font-size:21px;font-weight:600;margin-top:18px}
+.step p{color:var(--chalk-dim);margin-top:10px;font-size:15px}
+.step .pin{display:inline-block;margin-top:14px;font-family:"Space Grotesk";font-size:12px;color:var(--chalk-faint);border:1px dashed var(--chalk-faint);border-radius:6px;padding:4px 9px}
+
+/* THE ROSTER — use cases as line-up cards */
+.roster{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:44px}
+@media(max-width:760px){.roster{grid-template-columns:1fr}}
+.player{border:1px solid var(--line);border-radius:14px;padding:26px;background:rgba(255,255,255,.02);transition:.25s;position:relative;overflow:hidden}
+.player:hover{background:rgba(255,255,255,.04);transform:translateY(-3px)}
+.player .num{font-family:"Space Grotesk";font-weight:700;font-size:40px;color:rgba(255,226,122,.35);line-height:1}
+.player h3{font-family:"Space Grotesk";font-size:22px;font-weight:600;margin-top:6px}
+.player p{color:var(--chalk-dim);margin-top:11px;font-size:15px}
+.player .pos{position:absolute;top:24px;right:26px;font-family:"Space Grotesk";font-size:12px;letter-spacing:.1em;color:var(--skyline);text-transform:uppercase}
+
+/* TEAM SHEET — spec table */
+.sheet{margin-top:40px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.sheet .row{display:grid;grid-template-columns:200px 1fr;gap:0;border-bottom:1px solid var(--line)}
+.sheet .row:last-child{border-bottom:0}
+.sheet .row:nth-child(odd){background:rgba(255,255,255,.018)}
+.sheet .k{padding:18px 24px;font-family:"Space Grotesk";font-weight:600;border-right:1px solid var(--line);color:var(--chalk)}
+.sheet .v{padding:18px 24px;color:var(--chalk-dim);font-size:15px}
+.sheet .v code{font-family:"Space Grotesk";color:var(--yellow);background:rgba(255,226,122,.08);padding:2px 7px;border-radius:5px;font-size:13.5px}
+@media(max-width:600px){.sheet .row{grid-template-columns:1fr}.sheet .k{border-right:0;border-bottom:1px solid var(--line);padding-bottom:8px}}
+
+/* CTA */
+.cta{padding:clamp(60px,9vw,120px) 0;text-align:center}
+.cta .hand{font-size:32px;color:var(--yellow);transform:rotate(-2deg);display:inline-block}
+.cta h2{font-family:"Space Grotesk";font-weight:500;font-size:clamp(34px,5.5vw,66px);line-height:1.02;letter-spacing:-.02em;margin-top:8px}
+.cta p{color:var(--chalk-dim);max-width:520px;margin:18px auto 0}
+.cta .ctas{display:flex;gap:16px;justify-content:center;margin-top:30px;flex-wrap:wrap;align-items:center}
+
+footer{border-top:1px solid var(--line);padding:30px 0;color:var(--chalk-faint);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+</style>
+</head>
+<body>
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="#top"><span class="m">B</span><b>GenTac</b><span class="tag">· the moving whiteboard</span></a>
+  <div class="nav-links">
+    <a href="#session">The Session</a><a href="#drill">The Drill</a><a href="#roster">The Roster</a><a href="#sheet">Team Sheet</a>
+  </div>
+  <a class="pill" href="#chalk">Get on the board</a>
+</div></nav>
+
+<main id="top">
+<section class="hero"><div class="wrap">
+  <div class="hero-grid">
+    <div>
+      <span class="kick">you've always drawn it...</span>
+      <h1 class="grotesk">Draw it. Then actually <span class="u">watch it play out.<svg viewBox="0 0 300 12" preserveAspectRatio="none"><path d="M2 8 C70 2 150 11 298 4" fill="none" stroke="#ffe27a" stroke-width="3" stroke-linecap="round"/></svg></span></h1>
+      <p class="lede">For a hundred years coaches have dragged magnets across a board and said <em>"he should have gone here."</em> The board never answered back. GenTac does — draw one run, and every player on the pitch moves the way they really would have. The whiteboard, finally pressed play.</p>
+      <div class="ctas">
+        <a class="btn-solid grotesk" href="#chalk">Book a session</a>
+        <a class="btn-line" href="#drill">Walk the drill</a>
+      </div>
+    </div>
+
+    <div class="board-card">
+      <div class="topline grotesk"><span>SESSION 14 · BUILD-UP</span><span class="live">● recording the alt</span></div>
+      <div class="pitch">
+        <span class="mid"></span><span class="circle"></span>
+        <svg viewBox="0 0 400 300" preserveAspectRatio="none">
+          <path d="M120 210 Q210 120 300 150" fill="none" stroke="#ffe27a" stroke-width="3" stroke-dasharray="3 9" stroke-linecap="round"/>
+          <path d="M292 140 l12 11 -14 7" fill="none" stroke="#ffe27a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M210 240 Q250 200 270 175" fill="none" stroke="#7fd1c4" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="dot a" style="left:30%;top:70%">8</span>
+        <span class="dot a" style="left:52%;top:80%">6</span>
+        <span class="dot b" style="left:68%;top:58%">5</span>
+        <span class="dot ball" style="left:31%;top:69%"></span>
+        <span class="dot a" style="left:75%;top:50%">9</span>
+      </div>
+      <div class="cap hand">"What if 8 plays it into the channel?"</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- THE SESSION (problem) -->
+<section class="sec" id="session"><div class="wrap">
+  <span class="eyebrow">The session</span>
+  <h2 class="grotesk">The board can show what should've happened. It just can't show it happening.</h2>
+  <div class="cols">
+    <div>
+      <p class="lead-in">Telestration freezes one frame and lets a pundit slide a single arrow across it.</p>
+      <p>It's a still photograph with a doodle on top. The other twenty-one players stay exactly where the camera left them. The pass you're describing never travels, the run never arrives, the defender never has to react.</p>
+      <p>So the most interesting question in football — <em>what if he'd done the other thing?</em> — has only ever had one honest answer: <em>we'll never know.</em></p>
+    </div>
+    <div>
+      <div class="note"><span class="hand">we turn "we'll never know" into a clip you can watch.</span></div>
+      <p style="margin-top:22px">GenTac takes the same gesture every coach already makes — point at a player, drag where they should have gone — and fills in everyone else. The teammates adjust. The defence collapses or doesn't. The ball travels at a speed a ball can actually travel. It's not a drawing of the alternative. It's the alternative, moving.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- THE DRILL (how it works) -->
+<section class="sec alt" id="drill"><div class="wrap">
+  <span class="eyebrow">The drill</span>
+  <h2 class="grotesk">Three touches from a hunch to a highlight.</h2>
+  <p class="lead">No JSON, no data scientist, no keyboard. If you can run a touchscreen tactics board, you can run this.</p>
+  <div class="drill">
+    <div class="step">
+      <span class="arc hand">one</span>
+      <h3 class="grotesk">Pick the moment</h3>
+      <p>Scrub to the decision and grab the four seconds of run-up around it from the match's own tracking data. The real positions are already there.</p>
+      <span class="pin grotesk">your league's optical feed, 25 fps</span>
+    </div>
+    <div class="step">
+      <span class="arc hand">two</span>
+      <h3 class="grotesk">Draw the run</h3>
+      <p>Tap a player, drag the path you wish they'd taken. Dial how hard the model should honour your arrow — suggestion, or instruction.</p>
+      <span class="pin grotesk">classifier-free guidance knob</span>
+    </div>
+    <div class="step">
+      <span class="arc hand">three</span>
+      <h3 class="grotesk">Watch it back</h3>
+      <p>A diffusion model rolls the whole alternative forward — everyone moving plausibly, nobody running through walls or off the pitch. Then it renders to video.</p>
+      <span class="pin grotesk">physics-checked, broadcast-ready</span>
+    </div>
+  </div>
+</div></section>
+
+<!-- THE ROSTER (use cases) -->
+<section class="sec" id="roster"><div class="wrap">
+  <span class="eyebrow">The roster</span>
+  <h2 class="grotesk">Same engine, picked in four positions.</h2>
+  <p class="lead">It's built to live inside a league — where the data, the broadcast and the clubs all already sit under one roof.</p>
+  <div class="roster">
+    <div class="player"><span class="pos">Analysis</span><span class="num grotesk">04</span><h3 class="grotesk">The coaching room</h3><p>Settle the Monday-morning argument with footage. Replay the build-up you wish your side had played and show the staff exactly why it breaks down — or why it would have worked.</p></div>
+    <div class="player"><span class="pos">Broadcast</span><span class="num grotesk">09</span><h3 class="grotesk">The studio analyst</h3><p>Give the panel a tactics board that actually plays. Cut the alternative to air during the half-time window — a graphic only the rights-holding league can offer.</p></div>
+    <div class="player"><span class="pos">Fans</span><span class="num grotesk">10</span><h3 class="grotesk">The supporter</h3><p>A "what-if" tab in the official app. Everyone who's ever shouted at the screen finally gets to draw it themselves and watch their version run.</p></div>
+    <div class="player"><span class="pos">Integrity</span><span class="num grotesk">05</span><h3 class="grotesk">The review desk</h3><p>The competition's own analysts re-run decisive moments under clear constraints — a calm, repeatable way to study the calls everyone replays anyway.</p></div>
+  </div>
+</div></section>
+
+<!-- TEAM SHEET (specs) -->
+<section class="sec alt" id="sheet"><div class="wrap">
+  <span class="eyebrow">Team sheet</span>
+  <h2 class="grotesk">What's actually on the pitch.</h2>
+  <div class="sheet">
+    <div class="row"><div class="k grotesk">The squad</div><div class="v">All <code>22 players</code> plus the ball, modelled together as one system — not one arrow over a frozen still.</div></div>
+    <div class="row"><div class="k grotesk">The brain</div><div class="v">A waypoint-conditioned <code>diffusion model</code> over the full trajectory, faithful to the GenTac research line — not a chatbot with a football skin.</div></div>
+    <div class="row"><div class="k grotesk">The rules</div><div class="v">A physics pass enforces <code>max speed</code>, keeps players <code>on the pitch</code>, and stops bodies overlapping. Plausible, every time.</div></div>
+    <div class="row"><div class="k grotesk">The feed</div><div class="v">Reads the optical tracking your league already licenses — Hawk-Eye, Sportec, Stats Perform, SkillCorner — normalised to one stream.</div></div>
+    <div class="row"><div class="k grotesk">The output</div><div class="v">A clean video file of the alternative play. Hand it to the studio, drop it in the app, file it for review.</div></div>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="cta" id="chalk"><div class="wrap">
+  <span class="hand">let's see your what-if move...</span>
+  <h2 class="grotesk">Get your idea on the board.</h2>
+  <p>Tell us your competition and what you'd want to replay first. We tailor the rollout to your data and your broadcast setup, and reply within two business days.</p>
+  <div class="ctas">
+    <a class="btn-solid grotesk" href="mailto:leagues@bstartup.dev?subject=GenTac%20session">leagues@bstartup.dev</a>
+    <a class="btn-line" href="https://calendly.com/bstartup/intro" target="_blank" rel="noopener">Book 15 minutes</a>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <span>© 2026 B START UP — GenTac, the moving whiteboard</span>
+  <span class="hand" style="font-size:18px;color:var(--chalk-dim)">draw it · watch it · settle it</span>
+</div></footer>
+</body>
+</html>

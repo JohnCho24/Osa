@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <title>Use Product — B tactical what-if engine</title>
+  <meta name="description" content="Upload a match photo or clip, convert it to an accurate top-down 2D tactical board, draw curved arrows, and play the alternative." />
+
+  <link rel="icon" href="/public/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="product.css" />
+</head>
+<body class="product-body">
+
+  <!-- ───────── NAV (cloned from landing page) ───────── -->
+  <nav class="nav">
+    <a class="brand" href="index.html#top" aria-label="B home">
+      <span class="brand-mark">B</span>
+      <span class="brand-divider"></span>
+      <span class="brand-context">tactical what-if engine</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html#problem">Problem</a>
+      <a href="index.html#product">Product</a>
+      <a href="index.html#demo">Demo</a>
+      <a href="index.html#how">How it works</a>
+      <a href="product.html" class="is-active" aria-current="page">Use Product</a>
+    </div>
+    <button class="nav-cta" id="open-upload" type="button">New upload<span aria-hidden="true">↑</span></button>
+  </nav>
+
+  <!-- ───────── BOARD STAGE ───────── -->
+  <main class="stage" id="stage">
+    <canvas id="board" aria-label="Top-down 2D tactical board"></canvas>
+
+    <!-- HUD: top-left status -->
+    <div class="hud hud-tl">
+      <div class="status-chip" id="status-chip" data-mode="idle">
+        <span class="status-dot"></span>
+        <span class="status-text" id="status-text">Awaiting footage</span>
+      </div>
+      <div class="accuracy-note">
+        Coordinate target <strong>±1&nbsp;cm</strong> · real pitch 105×68&nbsp;m
+        <span class="engine-flag" id="engine-flag">Engine not connected — simulated preview</span>
+      </div>
+    </div>
+
+    <!-- HUD: top-right tools -->
+    <div class="hud hud-tr">
+      <div class="coord-readout" id="coord-readout" aria-live="off">x —  ·  y —</div>
+      <button class="hud-btn" id="clear-arrows" type="button" disabled>Clear arrows</button>
+    </div>
+
+    <!-- Drawing hint -->
+    <div class="draw-hint" id="draw-hint" hidden>
+      Drag from a player to move them — or from the ball to pass. The path curves freely.
+    </div>
+
+    <!-- ───────── BOTTOM CONTROLS: timeline + dock ───────── -->
+    <div class="controls" id="controls" hidden>
+      <div class="timeline">
+        <span class="tl-time" id="tl-cur">0.0s</span>
+        <input class="tl-track" id="tl-track" type="range" min="0" max="1000" value="0" step="1"
+               aria-label="Playback timeline" />
+        <span class="tl-time tl-time--total" id="tl-total">5.0s</span>
+        <span class="tl-frame" id="tl-frame">frame 0 / 125</span>
+      </div>
+
+      <div class="dock" role="toolbar" aria-label="Playback controls">
+        <div class="dock-group">
+          <button class="dock-btn" id="dock-play" type="button" aria-label="Play base scene" aria-pressed="false">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+          </button>
+          <button class="dock-btn" id="dock-pause" type="button" aria-label="Pause" aria-pressed="false">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>
+          </button>
+          <button class="dock-btn" id="dock-reset" type="button" aria-label="Reset to start">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5V2L7 7l5 5V8a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z" fill="currentColor"/></svg>
+          </button>
+        </div>
+        <span class="dock-divider" aria-hidden="true"></span>
+        <div class="dock-group">
+          <button class="dock-btn dock-btn--accent" id="dock-alt" type="button" aria-label="Play alternative" aria-pressed="false" disabled>
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 17c6-10 10-10 16 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M16 11l4 6-6 1z" fill="currentColor"/></svg>
+            <span class="dock-label">Alternative play</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ───────── UPLOAD MODAL ───────── -->
+  <div class="up-modal" id="up-modal" role="dialog" aria-modal="true" aria-labelledby="up-title" hidden>
+    <div class="up-scrim" data-close></div>
+    <div class="up-card">
+      <button class="up-close" type="button" data-close aria-label="Close">×</button>
+
+      <!-- view: dropzone -->
+      <div class="up-view" id="up-view-drop">
+        <p class="up-eyebrow">Use Product</p>
+        <h2 class="up-title" id="up-title">Turn footage into an accurate 2D board</h2>
+        <p class="up-sub">Drop a match photo or a short clip. We convert the camera view into a top-down
+          tactical board — every player and the ball in real pitch coordinates.</p>
+
+        <label class="dropzone" id="dropzone">
+          <input type="file" id="up-input" accept="image/*,video/*" hidden />
+          <svg class="dz-icon" viewBox="0 0 24 24" width="40" height="40" aria-hidden="true">
+            <path d="M12 16V4m0 0L7 9m5-5 5 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          </svg>
+          <span class="dz-main">Drop a photo or video, or <u>browse</u></span>
+          <span class="dz-sub">JPG · PNG · MP4 · MOV — single broadcast or tactical-cam angle</span>
+        </label>
+
+        <div class="up-row">
+          <button class="btn btn-ghost" id="use-sample" type="button">Use a sample frame</button>
+          <span class="up-error" id="up-error" role="alert" aria-live="assertive"></span>
+        </div>
+      </div>
+
+      <!-- view: processing -->
+      <div class="up-view" id="up-view-proc" hidden>
+        <p class="up-eyebrow">Converting to 2D</p>
+        <h2 class="up-title">Reading the pitch</h2>
+        <ul class="proc-steps" id="proc-steps">
+          <li data-step="detect">Detecting players</li>
+          <li data-step="ball">Tracking the ball</li>
+          <li data-step="homography">Estimating camera homography</li>
+          <li data-step="project">Projecting to top-down 2D · ±1&nbsp;cm target</li>
+        </ul>
+        <div class="proc-bar"><span class="proc-fill" id="proc-fill"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="product.js" defer></script>
+</body>
+</html>

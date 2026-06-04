@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GenTac — The physics of the play that never was</title>
+<meta name="description" content="A technical schematic of GenTac: a conditional diffusion model over 22 players and the ball, waypoint-guided and physics-constrained. Paper-faithful research, drawn out in full. Not a prompt wrapper." />
+<link rel="icon" href="../public/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#08193a; --navy2:#0a1f47; --panel:#0c2350; --line:rgba(120,180,255,.22); --line2:rgba(120,180,255,.4);
+  --ink:#eaf2ff; --blue:#6db0ff; --cyan:#58e0ff; --amber:#ffcf66; --muted:#9bb4dd; --faint:#62799f;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--ink);font-family:"Chakra Petch",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  background-image:
+    linear-gradient(rgba(120,180,255,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(120,180,255,.06) 1px,transparent 1px),
+    linear-gradient(rgba(120,180,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(120,180,255,.03) 1px,transparent 1px);
+  background-size:120px 120px,120px 120px,24px 24px,24px 24px;
+}
+a{color:inherit;text-decoration:none}
+.mono{font-family:"Space Mono",monospace}
+.body{font-family:"Inter",sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+.cyan{color:var(--cyan)}.amb{color:var(--amber)}.blue{color:var(--blue)}.dim{color:var(--muted)}
+
+/* sheet border */
+.sheet{border:1.5px solid var(--line2);margin:14px;min-height:calc(100vh - 28px);position:relative}
+.sheet::before{content:"";position:absolute;inset:7px;border:1px solid var(--line);pointer-events:none}
+.corner{position:fixed;width:14px;height:14px;border:1.5px solid var(--cyan);z-index:5}
+.c-tl{left:14px;top:14px;border-right:0;border-bottom:0}.c-tr{right:14px;top:14px;border-left:0;border-bottom:0}
+.c-bl{left:14px;bottom:14px;border-right:0;border-top:0}.c-br{right:14px;bottom:14px;border-left:0;border-top:0}
+
+/* NAV / titleblock top */
+.nav{border-bottom:1px solid var(--line);background:rgba(8,25,58,.7);backdrop-filter:blur(6px);position:sticky;top:0;z-index:20}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.04em}
+.brand .m{width:28px;height:28px;border:1.5px solid var(--cyan);display:grid;place-items:center;color:var(--cyan);font-weight:700}
+.brand small{color:var(--faint);font-weight:400}
+.links{display:flex;gap:24px;font-size:13px;color:var(--muted);letter-spacing:.03em}
+.links a:hover{color:var(--cyan)}
+.req{font-size:13px;font-weight:600;border:1px solid var(--cyan);color:var(--cyan);padding:8px 15px;letter-spacing:.04em}
+.req:hover{background:var(--cyan);color:var(--navy)}
+@media(max-width:880px){.links{display:none}}
+
+/* HERO */
+.hero{padding:clamp(36px,6vw,70px) 0}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,4vw,56px);align-items:center}
+@media(max-width:960px){.hero-grid{grid-template-columns:1fr}}
+.tag{font-family:"Space Mono";font-size:12px;letter-spacing:.14em;color:var(--cyan);text-transform:uppercase}
+.hero h1{font-weight:700;font-size:clamp(34px,5.6vw,64px);line-height:1.02;letter-spacing:-.01em;margin-top:16px}
+.hero h1 .u{color:var(--cyan)}
+.hero p.lede{font-family:"Inter";color:var(--muted);font-size:clamp(15px,1.7vw,18px);margin-top:20px;max-width:520px;line-height:1.6}
+.hero .ctas{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+.btn{font-family:"Chakra Petch";font-weight:600;font-size:14px;padding:12px 20px;letter-spacing:.03em;transition:.18s}
+.btn-c{background:var(--cyan);color:var(--navy)}.btn-c:hover{background:#fff}
+.btn-o{border:1px solid var(--line2);color:var(--ink)}.btn-o:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* drawing card */
+.drawing{border:1px solid var(--line2);background:rgba(8,22,52,.6);padding:18px;position:relative}
+.drawing .dh{display:flex;justify-content:space-between;font-family:"Space Mono";font-size:11px;color:var(--faint);letter-spacing:.08em;margin-bottom:10px}
+.drawing svg{width:100%;height:auto;display:block}
+.dimtxt{font-family:"Space Mono";font-size:9px;fill:var(--muted);letter-spacing:.05em}
+.callout-txt{font-family:"Space Mono";font-size:9.5px;fill:var(--cyan)}
+
+/* SECTION */
+.sec{padding:clamp(50px,7vw,96px) 0;border-top:1px solid var(--line)}
+.sec .k{font-family:"Space Mono";font-size:12px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.sec h2{font-weight:700;font-size:clamp(26px,4vw,44px);letter-spacing:-.01em;margin-top:12px;line-height:1.08}
+.sec .sub{font-family:"Inter";color:var(--muted);max-width:62ch;margin-top:14px;font-size:15.5px;line-height:1.6}
+
+/* PIPELINE diagram */
+.pipe{margin-top:42px;border:1px solid var(--line);background:rgba(8,22,52,.5);padding:clamp(20px,3vw,34px);overflow-x:auto}
+.pipe-row{display:flex;align-items:stretch;gap:0;min-width:760px}
+.blk{flex:1;border:1px solid var(--line2);background:var(--navy2);padding:18px 14px;position:relative;text-align:center}
+.blk .id{font-family:"Space Mono";font-size:10px;color:var(--faint);letter-spacing:.08em}
+.blk h4{font-size:16px;font-weight:600;margin-top:8px}
+.blk p{font-family:"Inter";font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.4}
+.conn{display:flex;align-items:center;color:var(--cyan);padding:0 4px;font-size:18px}
+.blk.hl{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan) inset}
+.pipe .note{font-family:"Space Mono";font-size:11px;color:var(--faint);margin-top:18px;text-align:center}
+
+/* SPEC callouts */
+.specs{display:grid;grid-template-columns:repeat(2,1fr);gap:0;margin-top:42px;border:1px solid var(--line)}
+@media(max-width:740px){.specs{grid-template-columns:1fr}}
+.spc{padding:24px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative}
+.spc:nth-child(2n){border-right:0}
+.spc .ref{position:absolute;top:18px;right:20px;font-family:"Space Mono";font-size:10px;color:var(--faint)}
+.spc .nm{font-family:"Space Mono";font-size:11px;letter-spacing:.1em;color:var(--cyan);text-transform:uppercase}
+.spc h3{font-size:19px;font-weight:600;margin-top:10px}
+.spc p{font-family:"Inter";color:var(--muted);font-size:14px;margin-top:9px;line-height:1.55}
+.spc code{font-family:"Space Mono";color:var(--amber);font-size:12.5px}
+
+/* WRAPPER comparison */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:42px}
+@media(max-width:740px){.cmp{grid-template-columns:1fr}}
+.cmp .col{border:1px solid var(--line);padding:26px}
+.cmp .col.bad{opacity:.78}
+.cmp .col h3{font-size:18px;font-weight:600;display:flex;align-items:center;gap:9px}
+.cmp .col .badge{font-family:"Space Mono";font-size:10px;padding:3px 8px;border:1px solid;letter-spacing:.06em}
+.cmp .bad .badge{color:var(--faint);border-color:var(--faint)}
+.cmp .good .badge{color:var(--cyan);border-color:var(--cyan)}
+.cmp ul{list-style:none;margin-top:16px;font-family:"Inter";font-size:14px;color:var(--muted)}
+.cmp li{padding:8px 0 8px 24px;position:relative;border-top:1px solid var(--line)}
+.cmp li::before{position:absolute;left:0;top:8px;font-family:"Space Mono"}
+.cmp .bad li::before{content:"✕";color:var(--faint)}
+.cmp .good li::before{content:"✓";color:var(--cyan)}
+
+/* provenance */
+.prov{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:40px}
+@media(max-width:740px){.prov{grid-template-columns:1fr}}
+.pv{border:1px solid var(--line);padding:20px;font-family:"Space Mono"}
+.pv .l{font-size:10px;color:var(--faint);letter-spacing:.08em}
+.pv a{color:var(--cyan);font-size:13px;display:block;margin-top:8px;word-break:break-all}
+.pv span{font-family:"Inter";color:var(--muted);font-size:12.5px;display:block;margin-top:8px}
+
+/* CTA / titleblock */
+.cta{padding:clamp(50px,7vw,90px) 0;border-top:1px solid var(--line)}
+.cta-grid{display:grid;grid-template-columns:1.4fr 1fr;border:1.5px solid var(--line2)}
+@media(max-width:740px){.cta-grid{grid-template-columns:1fr}}
+.cta-l{padding:clamp(28px,4vw,48px)}
+.cta-l h2{font-size:clamp(26px,4vw,44px);font-weight:700;letter-spacing:-.01em;line-height:1.05}
+.cta-l p{font-family:"Inter";color:var(--muted);margin-top:14px;max-width:46ch}
+.cta-l .ctas{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+.titleblock{border-left:1px solid var(--line2);padding:0}
+.tb-row{display:flex;border-bottom:1px solid var(--line);font-family:"Space Mono"}
+.tb-row:last-child{border-bottom:0}
+.tb-row .tk{width:42%;padding:12px 14px;font-size:10px;color:var(--faint);letter-spacing:.06em;border-right:1px solid var(--line)}
+.tb-row .tv{padding:12px 14px;font-size:12px;color:var(--ink)}
+
+footer{border-top:1px solid var(--line);padding:22px 0;font-family:"Space Mono";font-size:11px;color:var(--faint)}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;letter-spacing:.06em}
+</style>
+</head>
+<body>
+<span class="corner c-tl"></span><span class="corner c-tr"></span><span class="corner c-bl"></span><span class="corner c-br"></span>
+<div class="sheet">
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="#top"><span class="m">B</span>GENTAC <small>// DWG-001</small></a>
+  <div class="links"><a href="#system">System</a><a href="#components">Components</a><a href="#wrapper">vs. Wrapper</a><a href="#provenance">Provenance</a></div>
+  <a class="req" href="#spec">Open the spec →</a>
+</div></nav>
+
+<main id="top">
+<section class="hero"><div class="wrap">
+  <div class="hero-grid">
+    <div>
+      <div class="tag">REV 1.0 · MULTI-AGENT TRAJECTORY GENERATION</div>
+      <h1>The physics of the play that <span class="u">never was.</span></h1>
+      <p class="lede">GenTac generates the alternative to any football moment — all 22 players and the ball, moving as one coupled system — by drawing the trajectory, not describing it. This sheet is the schematic: a conditional diffusion model, waypoint-guided and physics-constrained. Drawn in full so you can check our work.</p>
+      <div class="ctas">
+        <a class="btn btn-c" href="#system">Read the schematic</a>
+        <a class="btn btn-o" href="#spec">Request the spec</a>
+      </div>
+    </div>
+
+    <div class="drawing">
+      <div class="dh"><span>FIG.1 — STATE + WAYPOINT</span><span>SCALE 1:1</span></div>
+      <svg viewBox="0 0 420 300" preserveAspectRatio="xMidYMid meet">
+        <!-- pitch box with dims -->
+        <rect x="40" y="40" width="340" height="210" fill="none" stroke="rgba(120,180,255,.5)" stroke-width="1"/>
+        <line x1="210" y1="40" x2="210" y2="250" stroke="rgba(120,180,255,.3)" stroke-width="1" stroke-dasharray="3 4"/>
+        <circle cx="210" cy="145" r="34" fill="none" stroke="rgba(120,180,255,.3)" stroke-width="1"/>
+        <!-- dimension line top -->
+        <line x1="40" y1="24" x2="380" y2="24" stroke="var(--cyan)" stroke-width=".7"/>
+        <path d="M40 20 L40 28 M380 20 L380 28" stroke="var(--cyan)" stroke-width=".7"/>
+        <text class="dimtxt" x="210" y="18" text-anchor="middle">23 ENTITIES · 25 FPS</text>
+        <!-- arrow -->
+        <path d="M120 200 Q210 95 320 140" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-dasharray="3 5"/>
+        <path d="M313 132 l10 8 -12 6" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linejoin="round"/>
+        <!-- entities -->
+        <circle cx="120" cy="200" r="5" fill="var(--cyan)"/>
+        <circle cx="180" cy="180" r="4" fill="rgba(120,180,255,.7)"/>
+        <circle cx="250" cy="120" r="4" fill="rgba(120,180,255,.7)"/>
+        <circle cx="300" cy="170" r="4" fill="var(--amber)"/>
+        <circle cx="320" cy="140" r="3" fill="#fff"/>
+        <!-- callouts -->
+        <line x1="120" y1="200" x2="70" y2="262" stroke="var(--cyan)" stroke-width=".6"/>
+        <text class="callout-txt" x="44" y="274">P8 · carrier (waypoint)</text>
+        <line x1="300" y1="170" x2="350" y2="262" stroke="var(--amber)" stroke-width=".6"/>
+        <text class="callout-txt" x="300" y="274" fill="var(--amber)">D9 · reacts</text>
+      </svg>
+    </div>
+  </div>
+</div></section>
+
+<!-- SYSTEM -->
+<section class="sec" id="system"><div class="wrap">
+  <div class="k">02 — System diagram</div>
+  <h2>Input to broadcast, every block named.</h2>
+  <p class="sub">No black box, no &ldquo;AI magic.&rdquo; A deterministic pipeline with one generative core. Each stage does exactly one thing.</p>
+  <div class="pipe">
+    <div class="pipe-row">
+      <div class="blk"><div class="id">A · INGEST</div><h4>Tracking</h4><p>Optical XY → 23-entity tensor, 25 fps, validity-masked.</p></div>
+      <div class="conn">→</div>
+      <div class="blk"><div class="id">B · ENCODE</div><h4>Spatiotemporal encoder</h4><p>Factorised attention over entities × time.</p></div>
+      <div class="conn">→</div>
+      <div class="blk hl"><div class="id">C · CORE</div><h4>Diffusion model</h4><p>DDPM ε-prediction, ~100 reverse steps over joint trajectory.</p></div>
+      <div class="conn">→</div>
+      <div class="blk"><div class="id">D · GUIDE</div><h4>Waypoint + CFG</h4><p>Drawn arrow → per-entity target; guidance weight w.</p></div>
+      <div class="conn">→</div>
+      <div class="blk"><div class="id">E · CLAMP</div><h4>Physics post-pass</h4><p>Max-speed, on-pitch, anti-collision, smoothing.</p></div>
+      <div class="conn">→</div>
+      <div class="blk"><div class="id">F · OUT</div><h4>Render</h4><p>Trajectories → photoreal video file.</p></div>
+    </div>
+    <div class="note">— deterministic in/out · single generative core at [C] · evaluated against constant-velocity baseline —</div>
+  </div>
+</div></section>
+
+<!-- COMPONENTS -->
+<section class="sec" id="components"><div class="wrap">
+  <div class="k">03 — Component schedule</div>
+  <h2>What each block actually is.</h2>
+  <div class="specs">
+    <div class="spc"><span class="ref mono">REF C</span><div class="nm">Backbone</div><h3>Factorised spatiotemporal attention</h3><p>Attention runs spatially across the 23 entities, then temporally across time — <code>d=256</code>, 4 layers, 8 heads. The standard structure for multi-agent trajectories.</p></div>
+    <div class="spc"><span class="ref mono">REF C</span><div class="nm">Generative head</div><h3>Conditional diffusion (DDPM)</h3><p><code>ε-prediction</code>, linear β-schedule, ~100 reverse steps. Returns a distribution of futures — sample <code>K</code> and pick, not one deterministic guess.</p></div>
+    <div class="spc"><span class="ref mono">REF D</span><div class="nm">Control</div><h3>Waypoint + classifier-free guidance</h3><p>The drawn arrow becomes a per-entity waypoint; trained under CFG dropout so weight <code>w</code> tunes how strictly the arrow is honoured — suggestion to instruction.</p></div>
+    <div class="spc"><span class="ref mono">REF E</span><div class="nm">Constraints</div><h3>Deterministic physics pass</h3><p>Seam anchoring, per-frame <code>max-speed</code> clip, exponential smoothing, on-pitch clamp w/ 2 m margin, pairwise repulsion. <code>0.0%</code> off-pitch.</p></div>
+    <div class="spc"><span class="ref mono">REF —</span><div class="nm">Evaluation</div><h3>Honest metrics</h3><p><code>minADE</code> / <code>minFDE</code>, diversity, off-pitch rate, arrow-honour error under a CFG sweep — reported per checkpoint against a <code>constant-velocity</code> floor.</p></div>
+    <div class="spc"><span class="ref mono">REF A</span><div class="nm">Data plane</div><h3>Provider-agnostic ingest</h3><p>Open Metrica format live today; <code>Hawk-Eye / Sportec / Stats Perform / SkillCorner</code> adapters scoped per engagement. Source token + validity mask handle mixed feeds.</p></div>
+  </div>
+</div></section>
+
+<!-- WRAPPER -->
+<section class="sec" id="wrapper"><div class="wrap">
+  <div class="k">04 — Design rationale</div>
+  <h2>Why this isn't a prompt wrapper.</h2>
+  <p class="sub">The difference is the unit of work. A wrapper describes a scene in tokens and hopes the pixels comply. We solve for the physical state of every body on the pitch first, then render it.</p>
+  <div class="cmp">
+    <div class="col bad"><h3><span class="badge mono">GENERIC</span> Text-to-video wrapper</h3><ul>
+      <li>Players appear and vanish; counts drift mid-clip</li>
+      <li>No control over who goes where — you negotiate with a prompt</li>
+      <li>Physics is whatever the pixels felt like</li>
+      <li>Nothing to measure; nothing to audit</li>
+    </ul></div>
+    <div class="col good"><h3><span class="badge mono">GENTAC</span> Trajectory-first model</h3><ul>
+      <li>Fixed 22 players + ball, coherent for the whole horizon</li>
+      <li>Per-entity waypoint control with a guidance dial</li>
+      <li>Speed, bounds and collisions enforced deterministically</li>
+      <li>Every output scored against a constant-velocity baseline</li>
+    </ul></div>
+  </div>
+</div></section>
+
+<!-- PROVENANCE -->
+<section class="sec" id="provenance"><div class="wrap">
+  <div class="k">05 — Provenance</div>
+  <h2>Standing on cited work.</h2>
+  <div class="prov">
+    <div class="pv"><div class="l">CORE</div><a href="https://arxiv.org/abs/2604.11786" target="_blank" rel="noopener">arXiv:2604.11786</a><span>GenTac — the trajectory line we reimplement and extend with waypoint control.</span></div>
+    <div class="pv"><div class="l">BACKBONE</div><a href="https://arxiv.org/abs/2102.05095" target="_blank" rel="noopener">arXiv:2102.05095</a><span>Factorised space-time attention (TimeSformer-style).</span></div>
+    <div class="pv"><div class="l">DIFFUSION</div><a href="https://arxiv.org/abs/2006.11239" target="_blank" rel="noopener">arXiv:2006.11239</a><span>DDPM — the denoising-diffusion formulation at the core.</span></div>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="cta" id="spec"><div class="wrap">
+  <div class="cta-grid">
+    <div class="cta-l">
+      <h2>Want the full spec?</h2>
+      <p>We'll walk your technical team through the architecture, the eval methodology and the honest baselines — then scope an adapter for your tracking provider.</p>
+      <div class="ctas">
+        <a class="btn btn-c" href="mailto:research@bstartup.dev?subject=GenTac%20technical%20spec">research@bstartup.dev</a>
+        <a class="btn btn-o" href="https://calendly.com/bstartup/intro" target="_blank" rel="noopener">Book a technical call →</a>
+      </div>
+    </div>
+    <div class="titleblock">
+      <div class="tb-row"><div class="tk">PROJECT</div><div class="tv">GENTAC</div></div>
+      <div class="tb-row"><div class="tk">SHEET</div><div class="tv">DWG-001 · 1/1</div></div>
+      <div class="tb-row"><div class="tk">ENTITIES</div><div class="tv">22 + BALL</div></div>
+      <div class="tb-row"><div class="tk">RATE</div><div class="tv">25 FPS</div></div>
+      <div class="tb-row"><div class="tk">REV</div><div class="tv">1.0 · 2026</div></div>
+      <div class="tb-row"><div class="tk">DRAWN BY</div><div class="tv">B START UP</div></div>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <span>© 2026 B START UP — GENTAC // DWG-001</span>
+  <span>TRAJECTORY-FIRST · PHYSICS-CONSTRAINED · BASELINE-CHECKED</span>
+</div></footer>
+</div>
+</body>
+</html>

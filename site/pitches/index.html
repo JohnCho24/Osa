@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>B — 10 pitch directions for GenTac</title>
+<meta name="description" content="Ten distinct landing-page directions for GenTac, the tactical what-if engine for elite football. Pick one." />
+<link rel="icon" href="../public/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#070708; --panel:#0e0f12; --panel-2:#14151a; --line:#23252c;
+    --ink:#f4f5f7; --muted:#9498a3; --faint:#5b5f6a; --accent:#ff5722;
+    --r:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif; -webkit-font-smoothing:antialiased;
+    line-height:1.5; min-height:100vh;
+  }
+  .wrap{max-width:1240px;margin:0 auto;padding:clamp(28px,5vw,72px) clamp(20px,4vw,48px)}
+  .mono{font-family:"JetBrains Mono",monospace}
+
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{width:36px;height:36px;border-radius:9px;background:var(--accent);color:#08090c;
+    display:grid;place-items:center;font-weight:800;font-size:20px;letter-spacing:-1px}
+  .brand-sub{font-size:12.5px;color:var(--muted);letter-spacing:.04em}
+  .chip{font-size:11.5px;color:var(--muted);border:1px solid var(--line);border-radius:999px;
+    padding:6px 12px;letter-spacing:.06em;text-transform:uppercase}
+
+  .hero{margin:clamp(40px,7vw,90px) 0 clamp(28px,4vw,46px);max-width:900px}
+  .hero h1{font-size:clamp(34px,6vw,68px);line-height:1.02;letter-spacing:-.03em;font-weight:800}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero p{margin-top:22px;font-size:clamp(15px,1.6vw,19px);color:var(--muted);max-width:680px}
+  .meta-row{display:flex;gap:26px;flex-wrap:wrap;margin-top:28px}
+  .meta-row div{font-size:13px;color:var(--faint)}
+  .meta-row b{color:var(--ink);font-weight:600}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;margin-top:14px}
+  a.card{
+    text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:var(--r);
+    overflow:hidden;background:var(--panel);position:relative;
+    transition:transform .25s cubic-bezier(.2,.7,.2,1),border-color .25s,box-shadow .25s;
+    display:flex;flex-direction:column;min-height:248px;
+  }
+  a.card:hover{transform:translateY(-4px);border-color:#3a3d46;box-shadow:0 24px 60px -28px rgba(0,0,0,.8)}
+  .swatch{height:128px;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .swatch::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.35))}
+  .card-body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:7px;flex:1}
+  .card-num{font-size:11px;letter-spacing:.18em;color:var(--faint)}
+  .card-title{font-size:18px;font-weight:700;letter-spacing:-.01em}
+  .card-desc{font-size:13px;color:var(--muted);line-height:1.45}
+  .card-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:12px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .tag{font-size:10.5px;color:var(--faint);border:1px solid var(--line);border-radius:6px;padding:3px 7px}
+  .go{font-size:12.5px;color:var(--accent);font-weight:600;display:flex;align-items:center;gap:5px}
+  a.card:hover .go{gap:9px}
+
+  /* per-concept swatch art */
+  .s01{background:#0a0a0c}
+  .s01 .scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 4px)}
+  .s01 .hud{position:absolute;left:14px;top:12px;font:11px/1 "JetBrains Mono",monospace;color:#ff5722;letter-spacing:.1em}
+  .s01 .rec{position:absolute;right:14px;top:11px;width:8px;height:8px;border-radius:50%;background:#ff3b30;box-shadow:0 0 0 3px rgba(255,59,48,.2)}
+  .s01 .bar{position:absolute;left:14px;right:14px;bottom:14px;height:3px;background:#1c1d22;border-radius:2px;overflow:hidden}
+  .s01 .bar::after{content:"";position:absolute;left:0;top:0;bottom:0;width:62%;background:#ff5722}
+
+  .s02{background:#0f3d2e;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:22px 22px}
+  .s02 .arrowsvg{position:absolute;inset:0}
+
+  .s03{background:#05060a}
+  .s03 .tick{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);font:12px/1.6 "JetBrains Mono",monospace;color:#39d98a;white-space:nowrap;opacity:.85}
+  .s03 .tick span{color:#f4c84a}
+
+  .s04{background:#f4f1ea}
+  .s04 .ser{position:absolute;left:18px;top:16px;font:italic 600 30px/1 Georgia,serif;color:#1a1a1a}
+  .s04 .rule{position:absolute;left:18px;right:18px;bottom:26px;height:1px;background:#1a1a1a;opacity:.25}
+  .s04 .rule2{position:absolute;left:18px;right:18px;bottom:18px;height:1px;background:#1a1a1a;opacity:.12}
+
+  .s05{background:radial-gradient(120% 120% at 20% 0%,#3b2c7a 0%,#161232 45%,#0a0816 100%)}
+  .s05 .glow{position:absolute;width:160px;height:160px;border-radius:50%;left:55%;top:-30px;background:radial-gradient(circle,#7b5cff 0%,transparent 70%);filter:blur(8px)}
+  .s05 .glow2{position:absolute;width:120px;height:120px;border-radius:50%;left:5%;top:50px;background:radial-gradient(circle,#27c2ff 0%,transparent 70%);opacity:.6}
+
+  .s06{background:#e7ff4d;color:#0a0a0a}
+  .s06 .big{position:absolute;inset:0;display:grid;place-items:center;font-weight:800;font-size:46px;letter-spacing:-.04em;color:#0a0a0a;line-height:.85;text-align:center}
+
+  .s07{background:radial-gradient(80% 120% at 50% 120%,#1e3a8a 0%,#0b1020 60%,#05070f 100%)}
+  .s07 .flood{position:absolute;left:50%;top:-40px;transform:translateX(-50%);width:200px;height:160px;background:conic-gradient(from 90deg at 50% 0,transparent 60deg,rgba(120,200,255,.35) 90deg,transparent 120deg)}
+  .s07 .glowc{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);width:140px;height:60px;border-radius:50%;background:radial-gradient(circle,#27c2ff 0%,transparent 70%);filter:blur(6px)}
+
+  .s08{background:#0a1530;background-image:linear-gradient(rgba(90,160,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(90,160,255,.12) 1px,transparent 1px);background-size:18px 18px}
+  .s08 .node{position:absolute;width:12px;height:12px;border:1.5px solid #5aa0ff;border-radius:50%}
+  .s08 .ln{position:absolute;height:1.5px;background:#5aa0ff;opacity:.7}
+
+  .s09{background:linear-gradient(160deg,#0b1c4a 0%,#0a1430 100%)}
+  .s09 .crest{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:74px;
+    background:linear-gradient(180deg,#d9b75b,#a8842f);clip-path:polygon(50% 0,100% 18%,100% 64%,50% 100%,0 64%,0 18%);opacity:.9}
+  .s09 .crest::after{content:"B";position:absolute;inset:0;display:grid;place-items:center;color:#0b1c4a;font-weight:800;font-size:26px}
+
+  .s10{background:#f2f0eb;color:#0a0a0a}
+  .s10 .blk{position:absolute;border:2px solid #0a0a0a}
+  .s10 .b1{left:16px;top:16px;width:90px;height:54px;background:#ff4d2e}
+  .s10 .b2{right:16px;top:30px;width:70px;height:70px;background:#0a0a0a}
+  .s10 .num{position:absolute;left:18px;bottom:8px;font-weight:800;font-size:52px;letter-spacing:-.04em;color:#0a0a0a}
+
+  /* featured Apple card */
+  a.card.feat{grid-column:1/-1;flex-direction:row;min-height:0}
+  @media(max-width:760px){a.card.feat{flex-direction:column}}
+  a.card.feat .swatch{height:auto;width:46%;border-bottom:0;border-right:1px solid var(--line)}
+  @media(max-width:760px){a.card.feat .swatch{width:100%;height:160px;border-right:0;border-bottom:1px solid var(--line)}}
+  a.card.feat .card-body{justify-content:center;padding:30px 34px}
+  a.card.feat .card-title{font-size:24px}
+  a.card.feat .card-desc{font-size:14.5px;max-width:52ch}
+  .feat-flag{position:absolute;left:16px;top:14px;z-index:2;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    background:#fff;color:#0a0a0a;font-weight:700;padding:5px 10px;border-radius:999px}
+  .s11{background:linear-gradient(180deg,#fbfbfd 0%,#eef0f3 100%);position:relative}
+  .s11 .frame{position:absolute;left:8%;right:8%;top:50%;transform:translateY(-50%);aspect-ratio:16/9;border-radius:14px;
+    background:#0a0a0a;box-shadow:0 26px 60px -30px rgba(0,0,0,.5);overflow:hidden}
+  .s11 .frame::after{content:"";position:absolute;inset:0;background:
+    radial-gradient(60% 80% at 50% 120%,rgba(41,151,255,.4),transparent 60%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 22px,transparent 22px 44px)}
+  .s11 .frame .arw{position:absolute;left:18%;top:64%;width:64%;height:2px;z-index:2}
+  .s11 .ttl{position:absolute;left:0;right:0;top:14px;text-align:center;font-weight:600;font-size:13px;color:#1d1d1f;letter-spacing:-.01em}
+
+  footer{margin-top:64px;border-top:1px solid var(--line);padding-top:22px;color:var(--faint);font-size:12.5px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+  @media (max-width:560px){ .meta-row{gap:16px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">B</div>
+      <div>
+        <div style="font-weight:700">B START UP</div>
+        <div class="brand-sub">GenTac · tactical what-if engine</div>
+      </div>
+    </div>
+    <span class="chip">11 directions · pick one</span>
+  </header>
+
+  <section class="hero">
+    <h1>Eleven ways to pitch the same&nbsp;idea: <em>replay the play that never happened.</em></h1>
+    <p>
+      Each card below is a complete, self-contained landing page for <b style="color:var(--ink)">GenTac</b> —
+      built start-to-end on its own, with its own voice, palette, layout and motion. No two share copy or style.
+      The newest one up top is the Apple-grade direction. Open them side by side and tell me which one wins —
+      I'll rebuild any you don't love.
+    </p>
+    <div class="meta-row mono">
+      <div><b>11</b> distinct directions</div>
+      <div><b>0</b> shared stylesheets</div>
+      <div>Inspo: <b>Genius Sports · SkillCorner · Stats Perform · Apple</b></div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <a class="card feat" href="11-apple.html">
+      <div class="swatch s11">
+        <span class="feat-flag">★ Newest · Apple-grade</span>
+        <div class="ttl">GenTac — the replay, rewritten.</div>
+        <div class="frame"><svg class="arw" viewBox="0 0 200 8" preserveAspectRatio="none"><path d="M6 6 Q90 -4 188 3" fill="none" stroke="#2997ff" stroke-width="2.5" stroke-dasharray="3 7" stroke-linecap="round"/><path d="M182 -1 l8 4 -8 5" fill="none" stroke="#2997ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="card-body">
+        <div class="card-num mono">11 · APPLE-GRADE</div>
+        <div class="card-title">The Replay, Rewritten.</div>
+        <div class="card-desc">The premium pick. SF Pro typography, alternating white/black moments, a pinned hero video that scales to full-bleed, Apple's signature bento grid, scroll-reveals and count-ups — all built around your real demo footage. apple.com energy, end to end.</div>
+        <div class="card-foot"><div class="tags"><span class="tag">premium</span><span class="tag">cinematic</span><span class="tag">scroll-fx</span></div><span class="go">Open →</span></div>
+      </div>
+    </a>
+
+    <a class="card" href="01-broadcast.html">
+      <div class="swatch s01"><div class="scan"></div><span class="hud">CAM 04 · ALT FEED</span><span class="rec"></span><div class="bar"></div></div>
+      <div class="card-body">
+        <div class="card-num mono">01 · BROADCAST BLACK</div>
+        <div class="card-title">The Alternate Broadcast</div>
+        <div class="card-desc">A TV control-room feed for the play that didn't air. HUD overlays, timecode, live-graphics energy.</div>
+        <div class="card-foot"><div class="tags"><span class="tag">cinematic</span><span class="tag">video-hero</span></div><span class="go">Open →</span></div>
+      </div>
+    </a>
+
+    <a class="card" href="02-chalkboard.html">
+      <div class="swatch s02"><svg class="arrowsvg" viewBox="0 0 290 128"><path d="M40 96 Q120 40 200 70" fill="none" stroke="#eafff4" stroke-width="2.5" stroke-dasharray="2 7" stroke-linecap="round"/><path d="M196 60 l10 10 -12 6" fill="none" stroke="#eafff4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="96" r="6" fill="none" stroke="#eafff4" stroke-width="2.5"/></svg></div>
+      <div class="card-body">
+        <div class="card-num mono">02 · CHALKBOARD</div>
+        <div class="card-title">Draw It. Watch It Play Out.</div>
+        <div class="card-desc">The coach's whiteboard, finally animated. Pitch-green, chalk arrows, editorial columns.</div>
+        <div class="card-foot"><div class="tags"><span class="tag">coaching</span><span class="tag">editorial</span></div><span class="go">Open →</span></div>
+      </div>
+    </a>
+
+    <a class="card" href="03-terminal.html">
+      <div class="swatch s03"><div class="tick mono">minFDE 0.40 ▸ <span>ALT +2.1xG</span> ▸ POSS 61% ▸ <span>WHAT-IF #4471</span> ▸ minADE 0.18 ▸ <span>RENDER 46ms</span></div></div>
+      <div class="card-body">
+        <div class="card-num mono">03 · DATA TERMINAL</div>
+        <div class="card-title">Query the Match That Didn't Happen</div>
+        <div class="card-desc">A counterfactual analytics terminal. Bloomberg-for-football: dense bento, live tickers, mono.</div>
+        <div class="card-foot"><div class="tags"><span class="tag">quant</span><span class="tag">dashboard</span></div><span class="go">Open →</span></div>
+      </div>
+    </a>
+
+    <a class="card" href="04-editorial.html">
+      <div class="swatch s04"><span class="ser">The alternative.</span><div class="rule"></div><div class="rule2"></div></div>
+      <div class="card-body">
+        <div class="card-num mono">04 · EDITORIAL</div>
+        <div class="card-title">A New Primitive for the Game</div>
+        <div class="card-desc">A white-paper thesis. Luxe whitespace, serif display, the institutional argument for owning the counterfactual.</div>
+        <div class="card-foot"><div class="tags"><span class="tag">minimal</span><span class="tag">serif</span></div><span class="go">Open →</span></div>
+      </div>
+    </a>
+
+    <a class="card" href="05-aurora.html">
+      <div class="swatch s05"><div class="glow"></div><div class="glow2"></div></div>
+      <div class="card-body">
+        <div class="card-num mono">05 · AURORA SAAS</div>
+        <div class="card-title">One Arrow, A New Outcome</div>
+        <div class="card-desc">Modern product-led SaaS. Indigo gradient mesh, glass spotlight cards, a clean bento grid.</div>
+        <div class="card-foot"><div class="tags"><span class="tag">product</span><span class="tag">bento</span></div><span class="go">Open →</span></div>
+      </div>
+    </a>
+
+    <a class="card" href="06-kinetic.html">
+      <div class="swatch s06"><div class="big">WHAT<br>IF?</div></div>
+      <div class="card-body">
+        <div class="card-num mono">06 · KINETIC</div>
+        <div class="card-title">Replay the What-If</div>
+        <div class="card-desc">A loud sports brand. Oversized kinetic type, trajectory traces, a marquee of leagues.</div>
+        <div class="card-foot"><div class="tags"><span class="tag">bold</span><span class="tag">type</span></div><span class="go">Open →</span></div>
+      </div>
+    </a>
+
+    <a class="card" href="07-stadium.html">
+      <div class="swatch s07"><div class="flood"></div><div class="glowc"></div></div>
+      <div class="card-body">
+        <div class="card-num mono">07 · STADIUM NIGHT</div>
+        <div class="card-title">Every Match Has a Second Ending</div>
+        <div class="card-desc">Cinematic floodlight reveal. Cyan-violet bloom, depth, a sticky scroll-story down the pitch.</div>
+        <div class="card-foot"><div class="tags"><span class="tag">cinematic</span><span class="tag">scroll</span></div><span class="go">Open →</span></div>
+      </div>
+    </a>
+
+    <a class="card" href="08-blueprint.html">
+      <div class="swatch s08"><span class="node" style="left:30px;top:40px"></span><span class="node" style="left:150px;top:30px"></span><span class="node" style="left:230px;top:80px"></span><span class="ln" style="left:42px;top:46px;width:108px;transform:rotate(-6deg)"></span><span class="ln" style="left:160px;top:38px;width:78px;transform:rotate(28deg)"></span></div>
+      <div class="card-body">
+        <div class="card-num mono">08 · BLUEPRINT</div>
+        <div class="card-title">The Physics of the Play That Never Was</div>
+        <div class="card-desc">For the skeptic. CAD-blueprint aesthetic, the model diagrammed, proof it isn't a prompt wrapper.</div>
+        <div class="card-foot"><div class="tags"><span class="tag">technical</span><span class="tag">diagram</span></div><span class="go">Open →</span></div>
+      </div>
+    </a>
+
+    <a class="card" href="09-federation.html">
+      <div class="swatch s09"><div class="crest"></div></div>
+      <div class="card-body">
+        <div class="card-num mono">09 · FEDERATION</div>
+        <div class="card-title">Owned by the League</div>
+        <div class="card-desc">The institutional buyer. Deep blue & gold, competition-integrity framing, a wall of league partners.</div>
+        <div class="card-foot"><div class="tags"><span class="tag">enterprise</span><span class="tag">trust</span></div><span class="go">Open →</span></div>
+      </div>
+    </a>
+
+    <a class="card" href="10-brutalist.html">
+      <div class="swatch s10"><span class="blk b1"></span><span class="blk b2"></span><span class="num">22+1</span></div>
+      <div class="card-body">
+        <div class="card-num mono">10 · NEO-BRUTALIST</div>
+        <div class="card-title">Stop Arguing. Press Play.</div>
+        <div class="card-desc">A confident challenger brand. Ink-on-paper, thick borders, oversized numerals, zero fluff.</div>
+        <div class="card-foot"><div class="tags"><span class="tag">bold</span><span class="tag">brutalist</span></div><span class="go">Open →</span></div>
+      </div>
+    </a>
+  </div>
+
+  <footer>
+    <span>© 2026 B START UP — GenTac tactical what-if engine</span>
+    <span class="mono">11 directions · built to be hard to choose between</span>
+  </footer>
+</div>
+</body>
+</html>
