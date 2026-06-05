@@ -1,0 +1,42 @@
+name: standards
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install standards tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install \
+            --index-url https://download.pytorch.org/whl/cpu \
+            --extra-index-url https://pypi.org/simple \
+            -r requirements-dev.txt
+
+      - name: Ruff
+        run: ruff check .
+
+      - name: Bandit
+        run: bandit -r src scripts -c pyproject.toml
+
+      - name: Dependency audit
+        run: pip-audit -r requirements.txt --progress-spinner off

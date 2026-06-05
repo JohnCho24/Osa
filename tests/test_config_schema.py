@@ -2,8 +2,6 @@
 
 This is the test we wish we'd had before the schema_version field existed.
 """
-import json
-import tempfile
 from dataclasses import asdict
 from pathlib import Path
 

@@ -143,7 +143,6 @@ class TrajectoryDataset(Dataset):
 
 if __name__ == "__main__":
     # smoke test
-    from .config import GenTacConfig
     root = Path(__file__).resolve().parents[2]
     cfg = GenTacConfig(smoke=True)
     paths = sorted((root / "data" / "processed").glob("Sample_Game_*.json"))

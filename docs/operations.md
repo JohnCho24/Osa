@@ -119,9 +119,9 @@ check fail: 5 min. (These are aspirations; nothing enforces them.)
 - [x] API key authentication code path (must be enabled by setting `GENTAC_API_KEY`)
 - [x] Schema-versioned checkpoint loading (no silent misload)
 - [x] Constant-time API key comparison (`secrets.compare_digest`)
+- [x] Request body size guard via `GENTAC_MAX_BODY_BYTES`
 - [ ] **HTTPS / TLS termination** (Caddy or Cloudflare) — required for any non-localhost deployment
 - [ ] **Per-customer API key rotation procedure** — currently no rotation flow
-- [ ] **Request body size limit** (FastAPI default is generous; cap at 1 MB)
 - [ ] **Audit log retention policy** — currently logs to stdout, no retention
 - [ ] **Data residency posture** (EU customer = EU region; not handled)
 - [ ] **Pen test** before any contract over $50K ARR

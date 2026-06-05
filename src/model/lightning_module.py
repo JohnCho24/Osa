@@ -80,7 +80,7 @@ class GenTacTrajectoryModule(pl.LightningModule):
         the current code path (e.g. trained before the learned-waypoint extension
         landed) and must be retrained rather than silently misloaded.
         """
-        data = torch.load(str(ckpt_path), map_location="cpu", weights_only=False)
+        data = torch.load(str(ckpt_path), map_location="cpu", weights_only=True)
         cfg_dict = data.get("hyper_parameters", {}).get("cfg_dict")
         if cfg_dict is None:
             raise ValueError(f"checkpoint {ckpt_path} has no cfg_dict; retrain after the config-persistence fix")

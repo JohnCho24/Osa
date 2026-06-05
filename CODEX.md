@@ -63,13 +63,21 @@ Set up local Python dependencies:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
 
 Run tests:
 
 ```bash
 pytest -q
+```
+
+Run coding/security standards checks:
+
+```bash
+ruff check .
+bandit -r src scripts -c pyproject.toml
+pip-audit -r requirements.txt
 ```
 
 Start the local inference server after a checkpoint exists:
@@ -94,3 +102,5 @@ python3 -m http.server 8000
   and add/update config-schema tests.
 - For renderer changes, keep the static-file workflow intact unless a build
   system is deliberately introduced.
+- Follow `CONTRIBUTING.md` and `SECURITY.md` for review, dependency, and
+  deployment security requirements.

@@ -100,7 +100,7 @@ python3 src/data/extract_clip.py
 
 # 3. Python deps
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
 # 4. Smoke-train the model (3 epochs on Mac MPS, ~80s)
 python scripts/smoke_train.py
@@ -116,6 +116,9 @@ python3 -m http.server 8000
 open http://localhost:8000              # default clip view
 open "http://localhost:8000/?samples=1" # actual vs model alternative (uses samples.json)
 ```
+
+Project contribution and security requirements live in
+[`CONTRIBUTING.md`](CONTRIBUTING.md) and [`SECURITY.md`](SECURITY.md).
 
 ### The arrow-driven flow (the actual product UX)
 
