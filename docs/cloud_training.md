@@ -63,7 +63,7 @@ modal run scripts/modal_train.py
 2. SSH in. `git clone` your project, then:
 
 ```bash
-pip install torch pytorch-lightning einops numpy
+pip install -r requirements.txt
 # upload data: scp -r data/processed lambda:~/gentac/data/
 python scripts/train_full.py   # paper config (see below)
 ```
@@ -169,4 +169,3 @@ If it passes, the cloud run is overwhelmingly likely to make it past epoch 0.
 4. **`python scripts/modal_train.py --validate-local` exits 0** — proves the Modal entrypoint can launch the training subprocess. (No Modal account needed.)
 
 If all four pass, the only thing the cloud run can fail on is something genuinely cloud-specific: dep version mismatch in the Modal image, volume mount, or actual training pathology that needs more data. The first two surface in the first 60 s of the cloud run; the third surfaces in the loss curve.
-
