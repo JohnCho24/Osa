@@ -168,7 +168,7 @@ def _safe_match_path(rel_path: str) -> Path:
     try:
         p.relative_to(MATCH_DIR.resolve())
     except ValueError:
-        raise HTTPException(400, f"match path must be inside data/processed/")
+        raise HTTPException(400, "match path must be inside data/processed/")
     if p.suffix != ".json":
         raise HTTPException(400, "match path must be a .json file")
     if not p.is_file():

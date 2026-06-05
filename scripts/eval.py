@@ -40,7 +40,6 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.model.config import GenTacConfig
 from src.model.dataset import _load_match_arrays
 from src.model.lightning_module import GenTacTrajectoryModule
 from src.model.physics import PhysicsConfig, apply_physics
@@ -342,7 +341,11 @@ def evaluate(ckpt_path: Path, args: argparse.Namespace) -> tuple[EvalResult, dic
         role_ades = _per_role_ade(samples_m, actual, valid, roles)
         for r, v in role_ades.items():
             per_role_acc.setdefault(r, []).append(v)
-        ades.append(ade); fdes.append(fde); divs.append(div); vmaxes.append(vmax); off_fracs.append(off)
+        ades.append(ade)
+        fdes.append(fde)
+        divs.append(div)
+        vmaxes.append(vmax)
+        off_fracs.append(off)
         real_windows_list.append(actual.unsqueeze(0))                       # (1, T, n_ent, 2)
         fake_windows_list.append(samples_m)                                 # (K, T, n_ent, 2)
         print(f"  frame {di:>6}  ADE={ade:.2f}m  FDE={fde:.2f}m  div={div:.3f}m  vmax={vmax:.1f}m/s  off={off:.3f}")
