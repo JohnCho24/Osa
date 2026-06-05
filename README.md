@@ -2,34 +2,49 @@
 
 > **For league readers (60-second pitch):** Every match has fifty decisions you
 > wish you could replay. Today, you can only argue about them. **B** turns the
-> coach's "what if this player had run there instead?" into a real video — every
-> player and the ball move plausibly, the alternative play unfolds in
-> broadcast-quality 3D, and the underlying data stays inside your league's
-> existing tracking partnership. We sell to leagues, not clubs: see
-> [site/](site/) for the public landing page and [docs/handoff_api.md](docs/handoff_api.md)
-> for the integration contract. Pricing is bespoke per deployment — book a
+> coach's "what if this player had run there instead?" into a simulated
+> alternative: every player and the ball react plausibly, first on a 2D
+> bird's-eye pitch and later through any 3D/video layer that consumes the same
+> trajectory output. The underlying data stays inside your league's existing
+> tracking partnership. See [docs/product_vision.md](docs/product_vision.md) for
+> the product goal and [docs/handoff_api.md](docs/handoff_api.md) for the video
+> handoff contract. Pricing is bespoke per deployment — book a
 > 15-minute demo via the landing page or email `leagues@bstartup.dev`.
 >
 > The rest of this file is for engineers.
 
 ---
 
-A tactical simulation platform for major football leagues. A coach or analyst opens
-a moment from a match, **draws arrows on players** to dictate what they should have
-done, hits Play, and gets back a realistic 3D video of the alternative outcome.
+A tactical simulation platform for football. A coach, analyst, broadcast team, or
+player opens a moment from a match, **draws arrows on players or the ball** to show
+what could have happened, hits Generate, and gets back a simulated alternative
+future where the full game state reacts.
+
+The big picture is not "move one dot where the user drew an arrow." The goal is
+to resimulate the situation from trained game data: all players react, move, and
+interact realistically based on the new tactical intent. The viewer should be
+able to understand how to move or react because they can visually see the
+alternative play unfold.
+
+Our first checkpoint is a **2D bird's-eye soccer simulation**, not a hyper-realistic
+video. The 2D model must prove the core behavior: review previous footage, draw
+potential movements or situations, simulate all players and the ball reacting, and
+compare actual vs. alternative on a pitch. Hyper-realistic 3D video is a later
+visualization layer once the 2D tactical simulation is credible.
 
 We own the brain: the **diffusion model** that turns "frozen moment + arrows" into
 a physically plausible alternative trajectory for all 23 entities (22 players + ball).
-We do **not** own the 3D photorealistic video generation — that ships to a downstream
-AI video service we integrate with.
+If and when the product needs photorealistic 3D, that can ship to a downstream AI
+video service through the handoff contract.
 
 Built on a reimplementation of **GenTac** (Rao et al.,
 [arXiv:2604.11786](https://arxiv.org/abs/2604.11786)), with a custom waypoint-
 conditioning extension for the arrow-input UX.
 
-**Target customer:** big leagues (Bundesliga, Premier League, La Liga, MLS, UEFA) —
-delivered as a broadcast augmentation, official fan-facing product, internal
-competition research tool, or standardized analytics layer for member clubs.
+**Long-term users:** coaches, analysts, broadcasters, and players who need to
+understand tactical alternatives visually. **Initial buyer/channel:** leagues or
+clubs with access to tracking data, because they can provide the match data needed
+to train and validate the model.
 
 **Status:** Full end-to-end pipeline works on Mac (renderer → arrow UI → inference
 server → physics → response → side-by-side compare). Remaining gaps are external:
@@ -41,9 +56,10 @@ conversations with league staff (M0).
 ## How it works
 
 ```
-Tracking JSON           Arrow JSON              Trajectory JSON         3D Video
+Tracking JSON           Arrow JSON              Trajectory JSON         Visual Simulation
 (frozen moment)  ──►   (user constraints)  ──► (alternative outcome) ──►  (downstream
-                                                                          AI video gen)
+                                                                          2D now,
+                                                                          3D later)
                             │
                             ▼
                   ┌──────────────────────┐
@@ -64,10 +80,11 @@ Tracking JSON           Arrow JSON              Trajectory JSON         3D Video
 3. **Waypoint-conditioned diffusion** — model samples a trajectory where the
    arrow destinations are honored, every other entity moves plausibly, and
    physical constraints (max-speed, collision repulsion, on-pitch) are enforced.
-4. **Trajectory handoff** — output JSON (one keypoint per player per frame,
-   25 fps, meters, center-origin) is shipped to the downstream AI video service.
-5. **3D video** — coach sees a photorealistic replay of the alternative
-   outcome they sketched.
+4. **2D simulation checkpoint** — output JSON (one keypoint per player per frame,
+   25 fps, meters, center-origin) is rendered on a bird's-eye soccer field so the
+   user can compare actual vs. alternative immediately.
+5. **Later visualization handoff** — the same trajectory output can be shipped to
+   a downstream 3D/video service after the 2D tactical behavior is validated.
 
 ---
 
@@ -129,8 +146,9 @@ URL params:
 Vanilla JS + Canvas tactics board. FIFA-spec pitch markings, color-coded teams,
 jersey numbers, ball, fading trails. Per-panel architecture (factory pattern)
 ready for grid layouts. Compare mode shows two clips side-by-side at half-scale
-on a synced scrubber. Repositioned as the **analyst UI and developer QA view** —
-not broadcast-pretty, doesn't need to be.
+on a synced scrubber. This is the **first checkpoint product surface**: the
+bird's-eye simulation where users can see whether arrow-driven counterfactuals
+produce realistic movement before any hyper-realistic video layer exists.
 
 ### M2 — GenTac model (smoke complete)
 Paper-faithful PyTorch + Lightning reimplementation:
@@ -185,10 +203,11 @@ the renderer's samples mode already consumes. CORS open for browser fetch.
 Holds the smoke checkpoint in memory at startup.
 
 ### M11 — Handoff API spec (done)
-`docs/handoff_api.md` defines the contract for whatever downstream 3D video
-generator we plug into. Coordinate system, validity rules, time alignment,
-physical guarantees, error codes, versioning, and the deliberate
-non-responsibilities (we don't own video, audio, graphics, or refereeing).
+`docs/handoff_api.md` defines the contract for a later downstream 3D/video layer
+that consumes the same trajectory output as the 2D renderer. Coordinate system,
+validity rules, time alignment, physical guarantees, error codes, versioning, and
+the deliberate non-responsibilities (we don't own video, audio, graphics, or
+refereeing).
 
 ---
 
@@ -240,6 +259,9 @@ B START UP/
 │   ├── smoke_train.py               ← 3-epoch smoke training on MPS
 │   └── sample.py                    ← K-sample inference + physics + JSON dump
 ├── docs/
+│   ├── product_vision.md            ← big picture + 2D first checkpoint
+│   ├── mvp.md                       ← first-checkpoint scope discipline
+│   ├── operations.md                ← deployment/runbook gaps
 │   ├── cloud_training.md            ← Modal / Lambda / RunPod instructions
 │   └── handoff_api.md               ← contract for downstream 3D video generator
 ├── data/
@@ -290,8 +312,9 @@ y ∈ [-34, 34].
 }
 ```
 
-The handoff to the downstream 3D video generator (M11) will use this same per-frame
-structure as its source of truth.
+The 2D renderer uses this per-frame structure as the first checkpoint output. A
+downstream 3D video generator can use the same structure later through the M11
+handoff contract.
 
 ---
 
@@ -300,8 +323,8 @@ structure as its source of truth.
 - **Which league(s) first?** Bundesliga is the most technically convenient
   (paper uses DFL data). Premier League is the biggest brand. MLS is the most
   accessible first conversation.
-- **Which video generation service** are we plugging into? That dictates the
-  handoff schema in M11.
+- **Which video generation service** might we plug into later? This only matters
+  after the 2D counterfactual behavior is good enough to validate.
 - **Data licensing.** Production needs a real tracking-data partnership
   (Hawk-Eye / Sportec / Stats Perform / SkillCorner). Hours-of-conversation
   with their data ops team are required before we can ship a paid product.

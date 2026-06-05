@@ -7,6 +7,13 @@
 
 ## The one persona
 
+The long-term product can serve coaches, analysts, broadcasters, and players.
+They all need the same primitive: review previous footage, draw potential
+movements or situations, and watch the whole game state react realistically so the
+right movement is visually obvious.
+
+The first checkpoint is narrower:
+
 **The mid-week analyst at a tier-2 European or tier-1 American football club.**
 
 - 28–40 years old, sports-science background, dashboard-comfortable, R/Python-curious.
@@ -16,7 +23,10 @@
 - They have authority to evaluate new tools but NOT to sign a six-figure contract.
 - They are the **person who would champion us internally** if the product solves their problem.
 
-We are NOT building for: head coaches (use software during matches at most ~3% of the time), broadcasters (different sales motion, deferred to M5+), fans (B2C, deferred to M8+), academic researchers (don't pay).
+This does not mean coaches, broadcasters, or players are outside the vision. It
+means the first checkpoint needs one reachable evaluator with data access and a
+real workflow. The analyst is the fastest path to proving whether the 2D
+simulation is tactically useful.
 
 ---
 
@@ -28,9 +38,14 @@ They want to answer: *"if our left back had pressed instead of dropping, would w
 
 Today they: pause the video, drag pieces on a static tactics board, describe the alternative in prose, attach a screenshot to a Slack message for the head coach.
 
-With us they: draw an arrow on the left back, hit Generate, watch the alternative play out for 4 seconds, screenshot the 2D side-by-side, paste it into the same Slack message.
+With us they: draw an arrow on the left back, hit Generate, watch the full 2D
+bird's-eye alternative play out for 4 seconds, see the other players and ball
+react, screenshot the side-by-side, paste it into the same Slack message.
 
-**That's the entire MVP.** Everything else is feature creep until the first ten analysts have done this and either kept using us or churned.
+**That's the entire first checkpoint.** It does not need hyper-realistic video.
+It needs to make the tactical counterfactual visually clear in 2D. Everything
+else is feature creep until the first ten analysts have done this and either kept
+using us or churned.
 
 ---
 
@@ -52,7 +67,7 @@ With us they: draw an arrow on the left back, hit Generate, watch the alternativ
 
 | Feature | Status | Why deferred |
 |---|---|---|
-| Photorealistic 3D video generation | Out | Downstream vendor concern; not our brain. Demo with 2D until M0 conversations confirm 3D is the actual unblock. |
+| Photorealistic 3D video generation | Out for checkpoint 1 | The first proof is 2D bird's-eye simulation. 3D is a later visualization layer after the movement model is credible. |
 | Multi-arrow joint plausibility | Out | The single-arrow case isn't validated yet. Don't optimize a workflow we haven't seen anyone use. |
 | Team / league / objective style conditioning | Out | Paper does this; we don't. Adds 6+ weeks of training work for unverified user value. Revisit post-M0. |
 | Event head / tactical event labels | Out | Code exists, parked. Labels aren't aligned to our training data. Adds complexity for unclear payoff. |
@@ -82,8 +97,8 @@ If we get 4/4 yeses across 5 analysts, we know we have a product. If we get 0/4 
 ## Anti-scope: things explicitly not the product
 
 - **A general-purpose ML platform.** We solve one tactical-counterfactual question; we don't sell "the model" as an API for arbitrary downstream use.
-- **A broadcaster tool** until M5 (data partnership) is signed.
-- **A consumer fan-app** ever, at this stage of the company.
+- **A broadcaster-first tool** until the 2D model proves the counterfactual is useful and a data partnership exists.
+- **A consumer fan-app** at this stage of the company.
 - **An open-source project.** The repo is internal-facing; we don't accept external PRs and we don't market the code.
 
 ---

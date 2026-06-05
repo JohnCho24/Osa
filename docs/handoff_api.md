@@ -8,6 +8,11 @@ We produce **trajectory keypoints**. We do not produce video, 3D models, broadca
 graphics, or audio. The video generator is responsible for everything the human eye
 sees in the final clip.
 
+Current checkpoint: the same trajectory keypoints first drive a **2D bird's-eye
+soccer simulation**. The product must prove that a user can review footage, draw
+arrows, and see all players and the ball react realistically in 2D before this
+handoff becomes the primary output path.
+
 ---
 
 ## 1. Transport
