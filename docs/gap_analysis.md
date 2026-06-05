@@ -46,18 +46,18 @@ not need to own photorealistic video generation for checkpoint 1.
 
 ## Missing or Inconsistent Points
 
-- **Data conversion code is missing from checkout.** README and CI reference
-  `src/data/metrica_to_gentac.py` and README also references
-  `src/data/extract_clip.py`, but `src/data/` is absent. Without this, a fresh
-  clone cannot regenerate `data/processed/*.json`.
-- **No dependency manifest.** There is no `requirements.txt`, `pyproject.toml`,
-  or environment file. README and CI duplicate install commands, which increases
-  drift risk.
+- **Data conversion code is missing from checkout.** README references
+  `src/data/metrica_to_gentac.py` and `src/data/extract_clip.py`, but
+  `src/data/` is absent. Without this, a fresh clone cannot regenerate
+  `data/processed/*.json`.
 - **No committed sample data or checkpoint.** This is correct for large artifacts,
-  but the quick start and several tests depend on regenerated `data/processed/`
-  and `checkpoints/` files. The missing converter makes this a larger blocker.
-- **CI is likely broken in this checkout.** `.github/workflows/tests.yml` tries to
-  run `python src/data/metrica_to_gentac.py`, which is not present.
+  but the quick start and end-to-end local flows depend on regenerated
+  `data/processed/` and `checkpoints/` files. The missing converter makes this a
+  larger blocker.
+- **CI covers pytest but not full local artifact regeneration.**
+  `.github/workflows/tests.yml` now installs from `requirements.txt` and uses
+  deterministic test fixtures, so it does not validate data conversion,
+  checkpoint creation, or renderer/server artifact bootstrapping.
 - **README project tree is stale.** It lists `src/data/`, `data/`, `checkpoints/`,
   and `.claude/`; those are not present in the current tracked checkout.
 - **Handoff schema versions are inconsistent.** `docs/handoff_api.md` is titled
@@ -90,8 +90,6 @@ not need to own photorealistic video generation for checkpoint 1.
 - **`docs/local_bootstrap.md`** - still recommended. Should define a clean-clone
   path for dependencies, data conversion, smoke checkpoint creation, sample
   generation, server startup, renderer startup, and expected health checks.
-- **`docs/dependency_manifest.md`** - optional if a real dependency file is not
-  added immediately. Prefer adding `requirements.txt` or `pyproject.toml` instead.
 - **`docs/decision_log.md`** - recommended once M0/M7 choices start changing
   direction. Keep dated decisions around target customer, data provider, model
   mode, schema changes, and deployment posture.
@@ -100,8 +98,7 @@ not need to own photorealistic video generation for checkpoint 1.
 
 1. Restore or recreate `src/data/metrica_to_gentac.py` and
    `src/data/extract_clip.py`.
-2. Add a single dependency manifest and update CI/README to consume it.
-3. Add `docs/local_bootstrap.md` after the data converter path is restored.
-4. Reconcile `docs/handoff_api.md` to one schema version and one arrow format.
-5. Run the CI setup locally from a clean clone path and update docs to match
+2. Add `docs/local_bootstrap.md` after the data converter path is restored.
+3. Reconcile `docs/handoff_api.md` to one schema version and one arrow format.
+4. Run the CI setup locally from a clean clone path and update docs to match
    what actually works.

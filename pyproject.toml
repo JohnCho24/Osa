@@ -1,0 +1,37 @@
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+extend-exclude = [
+  "docs",
+]
+
+[tool.ruff.lint]
+select = [
+  "E4",
+  "E7",
+  "E9",
+  "F",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = [
+  # Scripts add the repo root to sys.path before importing local modules.
+  "E402",
+]
+
+[tool.bandit]
+exclude_dirs = [
+  "tests",
+  ".venv",
+  "venv",
+]
+skips = [
+  # Assert statements are acceptable in smoke/debug code and tests are excluded.
+  "B101",
+  # Randomness here is for stochastic training/evaluation, not secrets.
+  "B311",
+  # Importing subprocess is acceptable in the Modal orchestration helper.
+  "B404",
+  # Modal helper scripts run fixed local commands with shell=False.
+  "B603",
+]

@@ -51,8 +51,8 @@ if _HAS_MODAL:
     image = (
         modal.Image.debian_slim(python_version="3.11")
         .pip_install(
-            "torch==2.4.0",
-            "pytorch-lightning==2.4.0",
+            "torch==2.12.0",
+            "pytorch-lightning==2.6.1",
             "einops==0.8.0",
             "numpy==1.26.4",
         )

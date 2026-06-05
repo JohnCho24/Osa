@@ -17,7 +17,6 @@ import math
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from .backbone import SpatioTemporalBackbone
 from .config import GenTacConfig
@@ -186,7 +185,6 @@ def compute_diffusion_loss(
     classifier-free guidance has a well-defined uncond branch at sample time.
     """
     B, H, n_ent, _ = history.shape
-    w = future.size(1)
     device = history.device
 
     step = torch.randint(0, schedule.n_steps, (B,), device=device)

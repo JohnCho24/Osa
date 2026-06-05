@@ -98,9 +98,9 @@ git clone https://github.com/metrica-sports/sample-data.git data/metrica
 python3 src/data/metrica_to_gentac.py
 python3 src/data/extract_clip.py
 
-# 3. ML deps
+# 3. Python deps
 python3 -m venv .venv && source .venv/bin/activate
-pip install torch torchvision pytorch-lightning einops numpy
+pip install -r requirements-dev.txt
 
 # 4. Smoke-train the model (3 epochs on Mac MPS, ~80s)
 python scripts/smoke_train.py
@@ -109,7 +109,6 @@ python scripts/smoke_train.py
 python scripts/sample.py
 
 # 6. Start the inference server (for arrow-driven generation)
-pip install fastapi 'uvicorn[standard]'
 uvicorn src.server.main:app --host 127.0.0.1 --port 8001 &
 
 # 7. Start the renderer
@@ -117,6 +116,9 @@ python3 -m http.server 8000
 open http://localhost:8000              # default clip view
 open "http://localhost:8000/?samples=1" # actual vs model alternative (uses samples.json)
 ```
+
+Project contribution and security requirements live in
+[`CONTRIBUTING.md`](CONTRIBUTING.md) and [`SECURITY.md`](SECURITY.md).
 
 ### The arrow-driven flow (the actual product UX)
 

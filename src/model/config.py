@@ -2,7 +2,7 @@
 
 Paper-faithful defaults (§ 6.3.3). Use cfg.smoke=True to shrink for Mac MPS sanity checks.
 """
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass

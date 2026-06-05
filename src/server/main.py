@@ -98,6 +98,10 @@ _generate_sema: asyncio.Semaphore | None = None       # initialized in lifespan
 GENTAC_MAX_QUEUE = int(os.environ.get("GENTAC_MAX_QUEUE", "8"))
 _waiting_count = 0
 
+# Reject oversized JSON bodies before FastAPI/Pydantic parse them. A reverse
+# proxy should enforce the same or a lower limit before production traffic.
+GENTAC_MAX_BODY_BYTES = int(os.environ.get("GENTAC_MAX_BODY_BYTES", str(1024 * 1024)))
+
 
 # Request bounds. These cap server resource use under any single request so a
 # malicious or buggy client can't OOM the GPU. Sized generously for legitimate
@@ -164,7 +168,7 @@ def _safe_match_path(rel_path: str) -> Path:
     try:
         p.relative_to(MATCH_DIR.resolve())
     except ValueError:
-        raise HTTPException(400, f"match path must be inside data/processed/")
+        raise HTTPException(400, "match path must be inside data/processed/")
     if p.suffix != ".json":
         raise HTTPException(400, "match path must be a .json file")
     if not p.is_file():
@@ -214,6 +218,23 @@ app.add_middleware(
     allow_headers=["Content-Type", "X-API-Key", "X-Request-Id"],
     expose_headers=["X-Request-Id"],
 )
+
+
+def _content_length_exceeds_limit(content_length: str | None, limit: int = GENTAC_MAX_BODY_BYTES) -> bool:
+    if content_length is None:
+        return False
+    try:
+        n_bytes = int(content_length)
+    except ValueError:
+        return True
+    return n_bytes < 0 or n_bytes > limit
+
+
+@app.middleware("http")
+async def request_size_guard(request: Request, call_next):
+    if _content_length_exceeds_limit(request.headers.get("content-length")):
+        return JSONResponse({"detail": "request body too large"}, status_code=413)
+    return await call_next(request)
 
 
 @app.middleware("http")

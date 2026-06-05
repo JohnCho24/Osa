@@ -107,7 +107,6 @@ class TrajectoryTokenizer(nn.Module):
 
 
 if __name__ == "__main__":
-    from .config import GenTacConfig
     cfg = GenTacConfig(smoke=True)
     tok = TrajectoryTokenizer(cfg)
     x = torch.randn(2, cfg.history_frames + cfg.window_frames, cfg.n_entities, 2)

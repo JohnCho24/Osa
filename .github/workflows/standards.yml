@@ -1,11 +1,14 @@
-name: tests
+name: standards
 
 on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  pytest:
+  lint-security:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -17,16 +20,23 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: requirements.txt
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
 
-      - name: Install test deps
+      - name: Install standards tooling
         run: |
           python -m pip install --upgrade pip
-          # CPU-only torch keeps the runner fast and avoids pulling CUDA wheels.
           python -m pip install \
             --index-url https://download.pytorch.org/whl/cpu \
             --extra-index-url https://pypi.org/simple \
-            -r requirements.txt
+            -r requirements-dev.txt
 
-      - name: Run pytest
-        run: pytest -v
+      - name: Ruff
+        run: ruff check .
+
+      - name: Bandit
+        run: bandit -r src scripts -c pyproject.toml
+
+      - name: Dependency audit
+        run: pip-audit -r requirements.txt --progress-spinner off
