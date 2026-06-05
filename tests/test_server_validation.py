@@ -4,6 +4,7 @@ the Pydantic schemas + the path-traversal guard, which is fast and deterministic
 import pytest
 from pydantic import ValidationError
 
+from src.server import main as server_main
 from src.server.main import (
     GenerateRequest,
     PlayerArrow,
@@ -123,7 +124,15 @@ def test_non_json_extension_rejected():
         _safe_match_path("data/processed/Sample_Game_1.csv")
 
 
-def test_valid_match_path_resolves():
+def test_valid_match_path_resolves(tmp_path, monkeypatch):
+    match_dir = tmp_path / "data" / "processed"
+    match_dir.mkdir(parents=True)
+    match_file = match_dir / "Sample_Game_1.json"
+    match_file.write_text("{}", encoding="utf-8")
+
+    monkeypatch.setattr(server_main, "ROOT", tmp_path)
+    monkeypatch.setattr(server_main, "MATCH_DIR", match_dir)
+
     p = _safe_match_path("data/processed/Sample_Game_1.json")
     assert p.suffix == ".json"
     assert p.is_file()

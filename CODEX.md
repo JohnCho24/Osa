@@ -51,11 +51,8 @@ coaching or player-review workflow?
 
 - No committed `data/` or `checkpoints/` artifacts. They are intentionally
   gitignored, but most end-to-end flows require regenerated local files.
-- `src/data/` converters are referenced by README and CI, but are not present in
-  this checkout. Restore or recreate them before relying on CI or quick-start
-  setup.
-- No dependency manifest exists. Use the install commands in README/CI until a
-  `requirements.txt` or `pyproject.toml` is added.
+- `src/data/` converters are referenced by README, but are not present in this
+  checkout. Restore or recreate them before relying on quick-start data setup.
 - No Dockerfile or deploy artifact exists.
 - No real trained model or real league data partnership exists.
 
@@ -66,7 +63,7 @@ Set up local Python dependencies:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install torch pytorch-lightning einops numpy fastapi 'uvicorn[standard]' pytest
+pip install -r requirements.txt
 ```
 
 Run tests:
