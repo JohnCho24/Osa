@@ -261,6 +261,7 @@ B START UP/
 │   ├── smoke_train.py               ← 3-epoch smoke training on MPS
 │   └── sample.py                    ← K-sample inference + physics + JSON dump
 ├── docs/
+│   ├── architecture/c4_workflow.md ← C4 context/container/component/workflow diagrams
 │   ├── product_vision.md            ← big picture + 2D first checkpoint
 │   ├── mvp.md                       ← first-checkpoint scope discipline
 │   ├── operations.md                ← deployment/runbook gaps
