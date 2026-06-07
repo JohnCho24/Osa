@@ -1,0 +1,84 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, ui-sans-serif, system-ui", "primaryTextColor": "#0f172a", "lineColor": "#475569"}}}%%
+flowchart TB
+  user["Coach / Analyst Browser"]
+  buyer["League Buyer Browser"]
+  rawTracking["Raw Tracking Data<br/>Provider files or feed"]
+  cloudGpu["Cloud GPU Runner<br/>Modal / Lambda / RunPod / vast.ai"]
+  videoGen["Downstream 3D / Video Generator"]
+
+  subgraph bBoundary["B Tactical What-If Engine"]
+    direction TB
+
+    subgraph browserBoundary["Browser-Facing Containers"]
+      direction LR
+      landing["Landing Website<br/>site/index.html, site/app.js, site/style.css<br/>Static product site and mailto contact flow"]
+      renderer["2D Tactics Board<br/>index.html, src/render/pitch.js, src/render/style.css<br/>Vanilla JS + Canvas, draw mode, compare mode, samples mode"]
+    end
+
+    subgraph apiBoundary["Inference Runtime"]
+      direction LR
+      fastapi["FastAPI Inference Server<br/>src/server/main.py<br/>/api/health, /api/generate, /api/generate/stream"]
+      modelPkg["GenTac Model Package<br/>src/model/*<br/>Config, dataset, tokenizer, backbone, diffusion, sampler, physics, Lightning wrapper"]
+    end
+
+    subgraph offlineBoundary["Offline ML And QA"]
+      direction LR
+      trainingScripts["Training Scripts<br/>scripts/smoke_train.py, scripts/train_full.py, scripts/modal_train.py<br/>Smoke, dry-run, full paper-config training"]
+      evalScripts["Sampling And Evaluation Scripts<br/>scripts/sample.py, scripts/eval.py<br/>Generate samples.json, ADE/FDE/diversity/speed/off-pitch/arrow-honor metrics"]
+      tests["Automated Tests<br/>tests/*<br/>Request validation, physics invariants, checkpoint schema"]
+    end
+
+    subgraph dataBoundary["Artifact Stores"]
+      direction LR
+      processedData[("Processed Match JSON<br/>data/processed/*.json<br/>Runtime match frames, masks, metadata")]
+      samplesData[("Sample Output JSON<br/>data/processed/samples.json<br/>history + actual_future + generated samples")]
+      checkpoints[("Model Checkpoints<br/>checkpoints/smoke/*.ckpt, checkpoints/full/*.ckpt<br/>Schema-versioned Lightning checkpoints")]
+      handoffDoc[("Handoff Contract<br/>docs/handoff_api.md<br/>Trajectory API for future 3D/video layer")]
+    end
+  end
+
+  buyer -->|"Reads product story and sends inquiry"| landing
+  landing -->|"Opens mailto inquiry"| buyer
+
+  user -->|"GET static page over local http.server"| renderer
+  renderer -->|"GET Sample_Game_1_clip.json or samples.json"| processedData
+  renderer -->|"POST /api/generate<br/>decision_frame, match, horizon, k, arrows, mode, guidance_scale"| fastapi
+  fastapi -->|"samples.json-shaped response"| renderer
+
+  fastapi -->|"Loads checkpoint at startup; calls model + sampler + physics"| modelPkg
+  fastapi -->|"Safe path resolution + match-array cache"| processedData
+  fastapi -->|"Reads smoke/full checkpoint through GenTacTrajectoryModule"| checkpoints
+
+  rawTracking -->|"Expected offline conversion to GenTac JSON"| processedData
+  trainingScripts -->|"Reads processed matches through GenTacDataModule"| processedData
+  trainingScripts -->|"Writes checkpoints and schema metadata"| checkpoints
+  cloudGpu <-->|"Runs full paper-config training path"| trainingScripts
+
+  evalScripts -->|"Reads match data and checkpoint"| processedData
+  evalScripts -->|"Loads model checkpoint"| checkpoints
+  evalScripts -->|"Writes sample alternatives for renderer samples mode"| samplesData
+  renderer -->|"GET samples.json in ?samples=1 mode"| samplesData
+  tests -->|"Validate bounds, paths, physics, schema contracts"| fastapi
+  tests -->|"Validate post-processor and config roundtrip"| modelPkg
+  handoffDoc -->|"Defines contract consumed later"| videoGen
+  fastapi -->|"Production shape: HTTPS trajectory response"| videoGen
+
+  classDef person fill:#fff7ed,stroke:#ea580c,color:#111827,stroke-width:2px;
+  classDef container fill:#dcfce7,stroke:#15803d,color:#052e16,stroke-width:2px;
+  classDef api fill:#e0f2fe,stroke:#0369a1,color:#0f172a,stroke-width:2px;
+  classDef script fill:#fef9c3,stroke:#a16207,color:#422006,stroke-width:2px;
+  classDef store fill:#fee2e2,stroke:#b91c1c,color:#450a0a,stroke-width:2px;
+  classDef external fill:#f8fafc,stroke:#64748b,color:#0f172a,stroke-width:2px;
+
+  class user,buyer person;
+  class landing,renderer container;
+  class fastapi,modelPkg api;
+  class trainingScripts,evalScripts,tests script;
+  class processedData,samplesData,checkpoints,handoffDoc store;
+  class rawTracking,cloudGpu,videoGen external;
+
+  style bBoundary fill:#ffffff,stroke:#334155,stroke-width:2px,color:#0f172a
+  style browserBoundary fill:#f8fafc,stroke:#94a3b8,color:#0f172a
+  style apiBoundary fill:#f8fafc,stroke:#94a3b8,color:#0f172a
+  style offlineBoundary fill:#f8fafc,stroke:#94a3b8,color:#0f172a
+  style dataBoundary fill:#f8fafc,stroke:#94a3b8,color:#0f172a

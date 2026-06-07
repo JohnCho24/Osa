@@ -1,0 +1,48 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, ui-sans-serif, system-ui", "primaryTextColor": "#0f172a", "lineColor": "#475569"}}}%%
+flowchart LR
+  subgraph current["Current Local Development Deployment"]
+    direction TB
+    localBrowser["Developer Browser<br/>http://localhost:8000"]
+    httpServer["Python http.server<br/>serves index.html and src/render/*"]
+    localApi["uvicorn src.server.main:app<br/>127.0.0.1:8001"]
+    localFs[("Local Filesystem<br/>data/processed, checkpoints, docs")]
+    localModel["Smoke Model In Memory<br/>Mac MPS if available, otherwise CPU"]
+
+    localBrowser --> httpServer
+    localBrowser -->|"POST /api/generate"| localApi
+    httpServer --> localFs
+    localApi --> localFs
+    localApi --> localModel
+  end
+
+  subgraph target["First Paid Customer Target Deployment"]
+    direction TB
+    customerBrowser["Customer Browser / API Client"]
+    cloudflare["Cloudflare<br/>TLS, WAF, rate limiting"]
+    caddy["Caddy On Single GPU VM<br/>TLS termination / reverse proxy"]
+    uvicorn["Uvicorn + FastAPI<br/>systemd process, model loaded in RAM"]
+    gpuModel["A10G/A100 Model Runtime<br/>one active generation by default"]
+    s3[("S3 Bucket<br/>checkpoints, request artifacts, access logs")]
+    vercel["Vercel / Static Host<br/>landing site and renderer assets"]
+    monitoring["Missing/Planned Observability<br/>metrics endpoint, alerts, artifact capture, key rotation"]
+
+    customerBrowser --> vercel
+    customerBrowser -->|"HTTPS generate request"| cloudflare --> caddy --> uvicorn --> gpuModel
+    uvicorn --> s3
+    uvicorn --> monitoring
+  end
+
+  current -.->|"docs/operations.md maps gaps to this target"| target
+
+  classDef currentClass fill:#dcfce7,stroke:#15803d,color:#052e16,stroke-width:2px;
+  classDef targetClass fill:#e0f2fe,stroke:#0369a1,color:#0f172a,stroke-width:2px;
+  classDef store fill:#fee2e2,stroke:#b91c1c,color:#450a0a,stroke-width:2px;
+  classDef risk fill:#fff7ed,stroke:#ea580c,color:#431407,stroke-width:2px;
+
+  class localBrowser,httpServer,localApi,localModel currentClass;
+  class customerBrowser,cloudflare,caddy,uvicorn,gpuModel,vercel targetClass;
+  class localFs,s3 store;
+  class monitoring risk;
+
+  style current fill:#f7fff9,stroke:#22c55e,stroke-width:2px,color:#0f172a
+  style target fill:#f8fbff,stroke:#0ea5e9,stroke-width:2px,color:#0f172a

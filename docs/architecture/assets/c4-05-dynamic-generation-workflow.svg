@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2300" height="760" viewBox="0 0 2300 760" role="img" aria-label="C4 Dynamic View - Arrow-Driven Generation Workflow">
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+<path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+</marker>
+<filter id="shadow" x="-15%" y="-20%" width="130%" height="150%">
+<feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.12"/>
+</filter>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="40" y="50" font-size="30" font-weight="800" fill="#0f172a">C4 Dynamic View - Arrow-Driven Generation Workflow</text>
+<text x="40" y="82" font-size="17" fill="#475569">The end-to-end request path, arranged as a two-row sequence to keep labels readable.</text>
+<g filter="url(#shadow)">
+<rect x="70" y="150" width="250" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="70" y="150" width="250" height="8" rx="4" fill="#15803d"/>
+<circle cx="94" cy="184" r="15" fill="#15803d"/>
+<text x="94" y="190" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">1</text>
+<text x="118" y="182" font-size="18" font-weight="800" fill="#052e16">Load Board</text>
+<text x="88" y="208" font-size="14.5" fill="#052e16">Clip or samples mode</text>
+<text x="88" y="226" font-size="14.5" fill="#052e16">initializes panels.</text>
+</g>
+<path d="M 320 212 L 390 212" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<g filter="url(#shadow)">
+<rect x="390" y="150" width="250" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="390" y="150" width="250" height="8" rx="4" fill="#15803d"/>
+<circle cx="414" cy="184" r="15" fill="#15803d"/>
+<text x="414" y="190" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">2</text>
+<text x="438" y="182" font-size="18" font-weight="800" fill="#052e16">Select Frame</text>
+<text x="408" y="208" font-size="14.5" fill="#052e16">Scrubber or URL frame</text>
+<text x="408" y="226" font-size="14.5" fill="#052e16">parameter sets</text>
+<text x="408" y="244" font-size="14.5" fill="#052e16">decision point.</text>
+</g>
+<path d="M 640 212 L 710 212" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<g filter="url(#shadow)">
+<rect x="710" y="150" width="250" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="710" y="150" width="250" height="8" rx="4" fill="#15803d"/>
+<circle cx="734" cy="184" r="15" fill="#15803d"/>
+<text x="734" y="190" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">3</text>
+<text x="758" y="182" font-size="18" font-weight="800" fill="#052e16">Draw Intent</text>
+<text x="728" y="208" font-size="14.5" fill="#052e16">Player run or</text>
+<text x="728" y="226" font-size="14.5" fill="#052e16">ball-pass recipient</text>
+<text x="728" y="244" font-size="14.5" fill="#052e16">captured.</text>
+</g>
+<path d="M 960 212 L 1030 212" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<g filter="url(#shadow)">
+<rect x="1030" y="150" width="250" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="1030" y="150" width="250" height="8" rx="4" fill="#15803d"/>
+<circle cx="1054" cy="184" r="15" fill="#15803d"/>
+<text x="1054" y="190" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">4</text>
+<text x="1078" y="182" font-size="18" font-weight="800" fill="#052e16">Build Payload</text>
+<text x="1048" y="208" font-size="14.5" fill="#052e16">Dynamic feasible</text>
+<text x="1048" y="226" font-size="14.5" fill="#052e16">horizon and arrow</text>
+<text x="1048" y="244" font-size="14.5" fill="#052e16">JSON.</text>
+</g>
+<path d="M 1280 212 L 1350 212" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<g filter="url(#shadow)">
+<rect x="1350" y="150" width="250" height="125" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+<rect x="1350" y="150" width="250" height="8" rx="4" fill="#0369a1"/>
+<circle cx="1374" cy="184" r="15" fill="#0369a1"/>
+<text x="1374" y="190" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">5</text>
+<text x="1398" y="182" font-size="18" font-weight="800" fill="#0f172a">API Ingress</text>
+<text x="1368" y="208" font-size="14.5" fill="#0f172a">CORS, size guard,</text>
+<text x="1368" y="226" font-size="14.5" fill="#0f172a">request ID, schema</text>
+<text x="1368" y="244" font-size="14.5" fill="#0f172a">bounds.</text>
+</g>
+<path d="M 1600 212 L 1670 212" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<g filter="url(#shadow)">
+<rect x="1670" y="150" width="250" height="125" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+<rect x="1670" y="150" width="250" height="8" rx="4" fill="#0369a1"/>
+<circle cx="1694" cy="184" r="15" fill="#0369a1"/>
+<text x="1694" y="190" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">6</text>
+<text x="1718" y="182" font-size="18" font-weight="800" fill="#0f172a">Load Match</text>
+<text x="1688" y="208" font-size="14.5" fill="#0f172a">Safe path under</text>
+<text x="1688" y="226" font-size="14.5" fill="#0f172a">data/processed and</text>
+<text x="1688" y="244" font-size="14.5" fill="#0f172a">match cache.</text>
+</g>
+<path d="M 1920 212 L 1990 212" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<g filter="url(#shadow)">
+<rect x="1990" y="150" width="250" height="125" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+<rect x="1990" y="150" width="250" height="8" rx="4" fill="#0369a1"/>
+<circle cx="2014" cy="184" r="15" fill="#0369a1"/>
+<text x="2014" y="190" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">7</text>
+<text x="2038" y="182" font-size="18" font-weight="800" fill="#0f172a">Map Waypoints</text>
+<text x="2008" y="208" font-size="14.5" fill="#0f172a">Player, ball, and</text>
+<text x="2008" y="226" font-size="14.5" fill="#0f172a">recipient pins.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="1990" y="455" width="250" height="125" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+<rect x="1990" y="455" width="250" height="8" rx="4" fill="#0369a1"/>
+<circle cx="2014" cy="489" r="15" fill="#0369a1"/>
+<text x="2014" y="495" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">8</text>
+<text x="2038" y="487" font-size="18" font-weight="800" fill="#0f172a">Plausibility Gate</text>
+<text x="2008" y="513" font-size="14.5" fill="#0f172a">Reject impossible</text>
+<text x="2008" y="531" font-size="14.5" fill="#0f172a">speed or spacing.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="1670" y="455" width="250" height="125" rx="10" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2"/>
+<rect x="1670" y="455" width="250" height="8" rx="4" fill="#7e22ce"/>
+<circle cx="1694" cy="489" r="15" fill="#7e22ce"/>
+<text x="1694" y="495" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">9</text>
+<text x="1718" y="487" font-size="18" font-weight="800" fill="#1f102e">Causal Rollout</text>
+<text x="1688" y="513" font-size="14.5" fill="#1f102e">H=100 history, w=5</text>
+<text x="1688" y="531" font-size="14.5" fill="#1f102e">windows, DDPM reverse</text>
+<text x="1688" y="549" font-size="14.5" fill="#1f102e">steps.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="1350" y="455" width="250" height="125" rx="10" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2"/>
+<rect x="1350" y="455" width="250" height="8" rx="4" fill="#7e22ce"/>
+<circle cx="1374" cy="489" r="15" fill="#7e22ce"/>
+<text x="1374" y="495" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">10</text>
+<text x="1398" y="487" font-size="18" font-weight="800" fill="#1f102e">Learned Waypoints</text>
+<text x="1368" y="513" font-size="14.5" fill="#1f102e">Soft signal plus hard</text>
+<text x="1368" y="531" font-size="14.5" fill="#1f102e">projection pins.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="1030" y="455" width="250" height="125" rx="10" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2"/>
+<rect x="1030" y="455" width="250" height="8" rx="4" fill="#7e22ce"/>
+<circle cx="1054" cy="489" r="15" fill="#7e22ce"/>
+<text x="1054" y="495" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">11</text>
+<text x="1078" y="487" font-size="18" font-weight="800" fill="#1f102e">Physics Post-Pass</text>
+<text x="1048" y="513" font-size="14.5" fill="#1f102e">Seam, speed caps,</text>
+<text x="1048" y="531" font-size="14.5" fill="#1f102e">smoothing, clamp,</text>
+<text x="1048" y="549" font-size="14.5" fill="#1f102e">repulsion.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="710" y="455" width="250" height="125" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+<rect x="710" y="455" width="250" height="8" rx="4" fill="#0369a1"/>
+<circle cx="734" cy="489" r="15" fill="#0369a1"/>
+<text x="734" y="495" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">12</text>
+<text x="758" y="487" font-size="18" font-weight="800" fill="#0f172a">Build Response</text>
+<text x="728" y="513" font-size="14.5" fill="#0f172a">metadata, history,</text>
+<text x="728" y="531" font-size="14.5" fill="#0f172a">actual_future,</text>
+<text x="728" y="549" font-size="14.5" fill="#0f172a">samples.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="390" y="455" width="250" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="390" y="455" width="250" height="8" rx="4" fill="#15803d"/>
+<circle cx="414" cy="489" r="15" fill="#15803d"/>
+<text x="414" y="495" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">13</text>
+<text x="438" y="487" font-size="18" font-weight="800" fill="#052e16">Compare Playback</text>
+<text x="408" y="513" font-size="14.5" fill="#052e16">Actual left,</text>
+<text x="408" y="531" font-size="14.5" fill="#052e16">alternative right,</text>
+<text x="408" y="549" font-size="14.5" fill="#052e16">synced controls.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="70" y="455" width="250" height="125" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+<rect x="70" y="455" width="250" height="8" rx="4" fill="#64748b"/>
+<circle cx="94" cy="489" r="15" fill="#64748b"/>
+<text x="94" y="495" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">14</text>
+<text x="118" y="487" font-size="18" font-weight="800" fill="#0f172a">Future Handoff</text>
+<text x="88" y="513" font-size="14.5" fill="#0f172a">Same trajectory JSON</text>
+<text x="88" y="531" font-size="14.5" fill="#0f172a">can feed 3D/video.</text>
+</g>
+<path d="M 2240 212 L 2240 360 L 2240 455" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<rect x="2180" y="330" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="2240" y="345" text-anchor="middle" font-size="12.5" fill="#334155">continues</text>
+<path d="M 1990 517 L 1920 517" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1670 517 L 1600 517" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1350 517 L 1280 517" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1030 517 L 960 517" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 710 517 L 640 517" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 390 517 L 320 517" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 70 517 L 70 650 L 225 650" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<rect x="-9" y="620" width="158" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="70" y="635" text-anchor="middle" font-size="12.5" fill="#334155">coach sees result</text>
+<text x="70" y="690" font-size="14" fill="#475569">Numbering is the interaction order. Colors follow C4 categories: UI, API, model,</text>
+<text x="70" y="708" font-size="14" fill="#475569">and external consumer.</text>
+</svg>

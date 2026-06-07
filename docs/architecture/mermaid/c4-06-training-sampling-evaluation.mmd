@@ -1,0 +1,66 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, ui-sans-serif, system-ui", "primaryTextColor": "#0f172a", "lineColor": "#475569"}}}%%
+flowchart TB
+  rawTracking["1. Raw Tracking Data<br/>Metrica sample data today; provider data later"]
+  ingest["2. Expected Ingest / Conversion<br/>Tracking feed to GenTac match JSON and dev clips<br/>Documented in README, not present as src/data in this checkout"]
+  processed[("3. Processed JSON Store<br/>data/processed/*.json<br/>frames, ball, team0, team1, pitch metadata")]
+
+  subgraph training["Training Path"]
+    direction TB
+    dm["4. GenTacDataModule<br/>discovers matches, match-level val split"]
+    dataset["5. TrajectoryDataset<br/>H=100 history + w=5 future windows, normalized coords, validity masks"]
+    lightning["6. GenTacTrajectoryModule<br/>random pretrain mode, optimizer, cosine schedule, EMA, schema hparams"]
+    loss["7. DDPM Training Step<br/>synthetic waypoints, CFG dropout, q_sample, epsilon loss"]
+    smoke["8a. Smoke Training<br/>scripts/smoke_train.py<br/>Mac MPS/CPU, tiny config, 3 epochs"]
+    full["8b. Full Training<br/>scripts/train_full.py / scripts/modal_train.py<br/>A100/H100, paper config, dry-run preflight"]
+    ckpt[("9. Checkpoint Store<br/>checkpoints/smoke or checkpoints/full<br/>cfg_dict + schema_version")]
+  end
+
+  subgraph eval["Sampling And Evaluation Path"]
+    direction TB
+    sampleScript["10. scripts/sample.py<br/>loads checkpoint, samples K alternatives, applies physics"]
+    samplesJson[("11. data/processed/samples.json<br/>renderer-ready actual vs alternatives")]
+    evalScript["12. scripts/eval.py<br/>ADE/FDE, diversity, max speed, off-pitch, role ADE, realism discriminator, arrow honor sweep"]
+    evalJson[("13. checkpoints/run/eval.json<br/>machine-readable metrics")]
+  end
+
+  subgraph validation["Automated Guardrails"]
+    direction LR
+    serverTests["tests/test_server_validation.py<br/>Pydantic bounds, path traversal, body size"]
+    physicsTests["tests/test_physics.py<br/>speed caps, seam anchor, pitch clamp, no NaN"]
+    schemaTests["tests/test_config_schema.py<br/>checkpoint cfg roundtrip and schema mismatch"]
+  end
+
+  renderer["2D Renderer<br/>?samples=1 consumes samples.json"]
+  cloudGpu["Cloud GPU Provider<br/>Modal / Lambda / RunPod / vast.ai"]
+
+  rawTracking --> ingest --> processed
+  processed --> dm --> dataset --> lightning --> loss
+  loss --> smoke --> ckpt
+  loss --> full --> ckpt
+  cloudGpu --> full
+  ckpt --> sampleScript
+  processed --> sampleScript --> samplesJson --> renderer
+  ckpt --> evalScript
+  processed --> evalScript --> evalJson
+  serverTests --> validation
+  physicsTests --> validation
+  schemaTests --> validation
+  validation -->|"keeps runtime contracts from drifting"| ckpt
+
+  classDef source fill:#f8fafc,stroke:#64748b,color:#0f172a,stroke-width:2px;
+  classDef process fill:#fef9c3,stroke:#a16207,color:#422006,stroke-width:2px;
+  classDef model fill:#f3e8ff,stroke:#7e22ce,color:#1f102e,stroke-width:2px;
+  classDef store fill:#fee2e2,stroke:#b91c1c,color:#450a0a,stroke-width:2px;
+  classDef ui fill:#dcfce7,stroke:#15803d,color:#052e16,stroke-width:2px;
+  classDef guard fill:#e0f2fe,stroke:#0369a1,color:#0f172a,stroke-width:2px;
+
+  class rawTracking,cloudGpu source;
+  class ingest,dm,dataset,smoke,full,sampleScript,evalScript process;
+  class lightning,loss model;
+  class processed,ckpt,samplesJson,evalJson store;
+  class renderer ui;
+  class serverTests,physicsTests,schemaTests guard;
+
+  style training fill:#fffbeb,stroke:#d97706,stroke-width:2px,color:#0f172a
+  style eval fill:#fff7ed,stroke:#ea580c,stroke-width:2px,color:#0f172a
+  style validation fill:#f0f9ff,stroke:#0284c7,stroke-width:2px,color:#0f172a
