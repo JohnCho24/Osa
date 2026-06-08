@@ -4,7 +4,7 @@ Last reviewed: 2026-06-05.
 
 ## Project Goal
 
-**B** is a tactical counterfactual engine for football. The long-term user can be
+**Osa** is a tactical counterfactual engine for football. The long-term user can be
 a coach, analyst, broadcaster, or player. They review previous footage, draw
 arrows for possible movements or situations, and watch the whole game react from
 trained game data so the right movement is visually obvious.

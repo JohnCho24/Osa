@@ -9,11 +9,11 @@
 </defs>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <text x="40" y="50" font-size="30" font-weight="800" fill="#0f172a">C4 Level 1 - System Context</text>
-<text x="40" y="82" font-size="17" fill="#475569">Who uses B, what B owns, and which systems remain outside the boundary.</text>
+<text x="40" y="82" font-size="17" fill="#475569">Who uses Osa, what Osa owns, and which systems remain outside the boundary.</text>
 <g filter="url(#shadow)">
 <rect x="680" y="330" width="440" height="230" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
 <rect x="680" y="330" width="440" height="8" rx="4" fill="#0369a1"/>
-<text x="698" y="362" font-size="18" font-weight="800" fill="#0f172a">B Tactical What-If Engine</text>
+<text x="698" y="362" font-size="18" font-weight="800" fill="#0f172a">Osa Tactical What-If Engine</text>
 <text x="698" y="388" font-size="14.5" fill="#0f172a">Resimulates football moments from tracking</text>
 <text x="698" y="406" font-size="14.5" fill="#0f172a">history plus tactical arrows. Owns the 2D</text>
 <text x="698" y="424" font-size="14.5" fill="#0f172a">renderer, GenTac diffusion model, physics</text>
@@ -22,19 +22,20 @@
 <g filter="url(#shadow)">
 <rect x="90" y="170" width="350" height="150" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
 <rect x="90" y="170" width="350" height="8" rx="4" fill="#ea580c"/>
-<circle cx="114" cy="204" r="15" fill="#ea580c"/>
-<text x="114" y="210" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">1</text>
-<text x="138" y="202" font-size="18" font-weight="800" fill="#431407">Coach / Analyst / Player</text>
-<text x="108" y="228" font-size="14.5" fill="#431407">Draws tactical intent and compares</text>
-<text x="108" y="246" font-size="14.5" fill="#431407">actual vs alternative movement.</text>
+<rect x="394" y="190" width="32" height="28" rx="14" fill="#ea580c"/>
+<text x="410.0" y="209" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">1</text>
+<text x="108" y="202" font-size="18" font-weight="800" fill="#431407">Coach / Analyst / Player</text>
+<text x="108" y="228" font-size="14.5" fill="#431407">Draws tactical intent and</text>
+<text x="108" y="246" font-size="14.5" fill="#431407">compares actual vs alternative</text>
+<text x="108" y="264" font-size="14.5" fill="#431407">movement.</text>
 </g>
 <path d="M 440 245 L 610 245 L 610 445 L 680 445" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
 <g filter="url(#shadow)">
 <rect x="90" y="390" width="350" height="150" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
 <rect x="90" y="390" width="350" height="8" rx="4" fill="#ea580c"/>
-<circle cx="114" cy="424" r="15" fill="#ea580c"/>
-<text x="114" y="430" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">2</text>
-<text x="138" y="422" font-size="18" font-weight="800" fill="#431407">League / Club Buyer</text>
+<rect x="394" y="410" width="32" height="28" rx="14" fill="#ea580c"/>
+<text x="410.0" y="429" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">2</text>
+<text x="108" y="422" font-size="18" font-weight="800" fill="#431407">League / Club Buyer</text>
 <text x="108" y="448" font-size="14.5" fill="#431407">Provides data access, validates</text>
 <text x="108" y="466" font-size="14.5" fill="#431407">fit, and buys deployment.</text>
 </g>
@@ -42,9 +43,9 @@
 <g filter="url(#shadow)">
 <rect x="90" y="610" width="350" height="150" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
 <rect x="90" y="610" width="350" height="8" rx="4" fill="#ea580c"/>
-<circle cx="114" cy="644" r="15" fill="#ea580c"/>
-<text x="114" y="650" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">3</text>
-<text x="138" y="642" font-size="18" font-weight="800" fill="#431407">Founder / ML Operator</text>
+<rect x="394" y="630" width="32" height="28" rx="14" fill="#ea580c"/>
+<text x="410.0" y="649" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">3</text>
+<text x="108" y="642" font-size="18" font-weight="800" fill="#431407">Founder / ML Operator</text>
 <text x="108" y="668" font-size="14.5" fill="#431407">Runs training, evaluates</text>
 <text x="108" y="686" font-size="14.5" fill="#431407">checkpoints, and operates</text>
 <text x="108" y="704" font-size="14.5" fill="#431407">design-partner deployments.</text>
@@ -53,51 +54,44 @@
 <g filter="url(#shadow)">
 <rect x="1320" y="130" width="390" height="150" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
 <rect x="1320" y="130" width="390" height="8" rx="4" fill="#64748b"/>
-<circle cx="1344" cy="164" r="15" fill="#64748b"/>
-<text x="1344" y="170" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">1</text>
-<text x="1368" y="162" font-size="18" font-weight="800" fill="#0f172a">Tracking Data Providers</text>
+<rect x="1664" y="150" width="32" height="28" rx="14" fill="#64748b"/>
+<text x="1680.0" y="169" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">1</text>
+<text x="1338" y="162" font-size="18" font-weight="800" fill="#0f172a">Tracking Data Providers</text>
 <text x="1338" y="188" font-size="14.5" fill="#0f172a">Metrica today; Hawk-Eye, Sportec DFL,</text>
 <text x="1338" y="206" font-size="14.5" fill="#0f172a">Stats Perform, SkillCorner later.</text>
 </g>
 <path d="M 1120 445 L 1210 445 L 1210 205 L 1320 205" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1147" y="175" width="126" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1210" y="190" text-anchor="middle" font-size="12.5" fill="#334155">Tracking feed</text>
 <g filter="url(#shadow)">
 <rect x="1320" y="340" width="390" height="150" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
 <rect x="1320" y="340" width="390" height="8" rx="4" fill="#64748b"/>
-<circle cx="1344" cy="374" r="15" fill="#64748b"/>
-<text x="1344" y="380" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">2</text>
-<text x="1368" y="372" font-size="18" font-weight="800" fill="#0f172a">GPU Training Providers</text>
-<text x="1338" y="398" font-size="14.5" fill="#0f172a">Mac MPS for smoke tests; Modal, Lambda,</text>
-<text x="1338" y="416" font-size="14.5" fill="#0f172a">RunPod, or vast.ai for full runs.</text>
+<rect x="1664" y="360" width="32" height="28" rx="14" fill="#64748b"/>
+<text x="1680.0" y="379" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">2</text>
+<text x="1338" y="372" font-size="18" font-weight="800" fill="#0f172a">GPU Training Providers</text>
+<text x="1338" y="398" font-size="14.5" fill="#0f172a">Mac MPS for smoke tests; Modal,</text>
+<text x="1338" y="416" font-size="14.5" fill="#0f172a">Lambda, RunPod, or vast.ai for full</text>
+<text x="1338" y="434" font-size="14.5" fill="#0f172a">runs.</text>
 </g>
 <path d="M 1120 445 L 1210 445 L 1210 415 L 1320 415" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1147" y="385" width="126" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1210" y="400" text-anchor="middle" font-size="12.5" fill="#334155">Training jobs</text>
 <g filter="url(#shadow)">
 <rect x="1320" y="550" width="390" height="150" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
 <rect x="1320" y="550" width="390" height="8" rx="4" fill="#64748b"/>
-<circle cx="1344" cy="584" r="15" fill="#64748b"/>
-<text x="1344" y="590" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">3</text>
-<text x="1368" y="582" font-size="18" font-weight="800" fill="#0f172a">Downstream 3D / Video Generator</text>
-<text x="1338" y="608" font-size="14.5" fill="#0f172a">Future consumer of trajectory keypoints</text>
-<text x="1338" y="626" font-size="14.5" fill="#0f172a">through the handoff API.</text>
+<rect x="1664" y="570" width="32" height="28" rx="14" fill="#64748b"/>
+<text x="1680.0" y="589" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">3</text>
+<text x="1338" y="582" font-size="18" font-weight="800" fill="#0f172a">Downstream 3D / Video Generator</text>
+<text x="1338" y="608" font-size="14.5" fill="#0f172a">Future consumer of trajectory</text>
+<text x="1338" y="626" font-size="14.5" fill="#0f172a">keypoints through the handoff API.</text>
 </g>
 <path d="M 1120 445 L 1210 445 L 1210 625 L 1320 625" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1139" y="595" width="142" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1210" y="610" text-anchor="middle" font-size="12.5" fill="#334155">Trajectory JSON</text>
 <g filter="url(#shadow)">
 <rect x="1320" y="760" width="390" height="150" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
 <rect x="1320" y="760" width="390" height="8" rx="4" fill="#64748b"/>
-<circle cx="1344" cy="794" r="15" fill="#64748b"/>
-<text x="1344" y="800" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">4</text>
-<text x="1368" y="792" font-size="18" font-weight="800" fill="#0f172a">Mail Client</text>
+<rect x="1664" y="780" width="32" height="28" rx="14" fill="#64748b"/>
+<text x="1680.0" y="799" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">4</text>
+<text x="1338" y="792" font-size="18" font-weight="800" fill="#0f172a">Mail Client</text>
 <text x="1338" y="818" font-size="14.5" fill="#0f172a">Landing-page inquiry via mailto to</text>
-<text x="1338" y="836" font-size="14.5" fill="#0f172a">leagues@bstartup.dev.</text>
+<text x="1338" y="836" font-size="14.5" fill="#0f172a">leagues@osa.dev.</text>
 </g>
 <path d="M 1120 445 L 1210 445 L 1210 835 L 1320 835" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1150" y="805" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1210" y="820" text-anchor="middle" font-size="12.5" fill="#334155">Demo inquiry</text>
-<text x="680" y="610" font-size="14" fill="#0369a1">Boundary rule: B owns trajectory generation and 2D tactical validation.</text>
+<text x="680" y="610" font-size="14" fill="#0369a1">Boundary rule: Osa owns trajectory generation and 2D tactical validation.</text>
 <text x="680" y="628" font-size="14" fill="#0369a1">Photorealistic video is a downstream consumer, not this repo.</text>
 </svg>

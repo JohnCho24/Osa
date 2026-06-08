@@ -83,13 +83,15 @@ class Svg:
         self.parts.append(f'<g filter="url(#shadow)">')
         self.parts.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="10" fill="{fill}" stroke="{stroke}" stroke-width="2"/>')
         self.parts.append(f'<rect x="{x}" y="{y}" width="{w}" height="8" rx="4" fill="{stroke}"/>')
+        title_right_padding = 18
         if number:
-            self.parts.append(f'<circle cx="{x + 24}" cy="{y + 34}" r="15" fill="{stroke}"/>')
-            self.parts.append(f'<text x="{x + 24}" y="{y + 40}" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">{escape(number)}</text>')
-            tx = x + 48
-        else:
-            tx = x + 18
-        max_chars = max(18, int((w - (tx - x) - 18) / 8.1))
+            badge_w = max(32, 20 + len(number) * 10)
+            bx = x + w - badge_w - 14
+            self.parts.append(f'<rect x="{bx}" y="{y + 20}" width="{badge_w}" height="28" rx="14" fill="{stroke}"/>')
+            self.parts.append(f'<text x="{bx + badge_w / 2:.1f}" y="{y + 39}" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">{escape(number)}</text>')
+            title_right_padding = badge_w + 28
+        tx = x + 18
+        max_chars = max(16, int((w - (tx - x) - title_right_padding) / 8.1))
         ty = y + 32
         for i, line in enumerate(lines(title, max_chars)):
             self.parts.append(f'<text x="{tx}" y="{ty + i * 20}" font-size="18" font-weight="800" fill="{ink}">{escape(line)}</text>')
@@ -99,6 +101,10 @@ class Svg:
         self.parts.append("</g>")
 
     def edge(self, points: list[tuple[int, int]], label: str | None = None, *, dashed: bool = False) -> None:
+        # Keep connector lanes clean. The diagrams use numbered nodes and card
+        # labels for semantics; floating edge captions caused text overlaps in
+        # dense C4 views.
+        label = None
         d = f"M {points[0][0]} {points[0][1]} " + " ".join(f"L {x} {y}" for x, y in points[1:])
         dash = ' stroke-dasharray="8 7"' if dashed else ""
         self.parts.append(f'<path d="{d}" fill="none" stroke="#475569" stroke-width="2.4"{dash} marker-end="url(#arrow)"/>')
@@ -125,8 +131,8 @@ class Svg:
 
 def system_context() -> None:
     s = Svg(1800, 980, "C4 Level 1 - System Context")
-    s.title("C4 Level 1 - System Context", "Who uses B, what B owns, and which systems remain outside the boundary.")
-    s.card(680, 330, 440, 230, "B Tactical What-If Engine", "Resimulates football moments from tracking history plus tactical arrows. Owns the 2D renderer, GenTac diffusion model, physics post-processing, and trajectory API.", "system")
+    s.title("C4 Level 1 - System Context", "Who uses Osa, what Osa owns, and which systems remain outside the boundary.")
+    s.card(680, 330, 440, 230, "Osa Tactical What-If Engine", "Resimulates football moments from tracking history plus tactical arrows. Owns the 2D renderer, GenTac diffusion model, physics post-processing, and trajectory API.", "system")
     left = [
         (90, 170, "Coach / Analyst / Player", "Draws tactical intent and compares actual vs alternative movement."),
         (90, 390, "League / Club Buyer", "Provides data access, validates fit, and buys deployment."),
@@ -136,7 +142,7 @@ def system_context() -> None:
         (1320, 130, "Tracking Data Providers", "Metrica today; Hawk-Eye, Sportec DFL, Stats Perform, SkillCorner later."),
         (1320, 340, "GPU Training Providers", "Mac MPS for smoke tests; Modal, Lambda, RunPod, or vast.ai for full runs."),
         (1320, 550, "Downstream 3D / Video Generator", "Future consumer of trajectory keypoints through the handoff API."),
-        (1320, 760, "Mail Client", "Landing-page inquiry via mailto to leagues@bstartup.dev."),
+        (1320, 760, "Mail Client", "Landing-page inquiry via mailto to leagues@osa.dev."),
     ]
     for i, (x, y, t, b) in enumerate(left, 1):
         s.card(x, y, 350, 150, t, b, "person", number=str(i))
@@ -144,26 +150,26 @@ def system_context() -> None:
     for i, (x, y, t, b) in enumerate(right, 1):
         s.card(x, y, 390, 150, t, b, "external", number=str(i))
         s.edge([(1120, 445), (1210, 445), (1210, y + 75), (1320, y + 75)], ["Tracking feed", "Training jobs", "Trajectory JSON", "Demo inquiry"][i - 1])
-    s.note(680, 610, "Boundary rule: B owns trajectory generation and 2D tactical validation. Photorealistic video is a downstream consumer, not this repo.", "#0369a1")
+    s.note(680, 610, "Boundary rule: Osa owns trajectory generation and 2D tactical validation. Photorealistic video is a downstream consumer, not this repo.", "#0369a1")
     s.save("c4-01-system-context.svg")
 
 
 def containers() -> None:
     s = Svg(2200, 1240, "C4 Level 2 - Container View")
     s.title("C4 Level 2 - Container View", "Runnable containers, artifact stores, and the major workflows between them.")
-    s.card(70, 130, 300, 130, "Coach / Analyst Browser", "Uses the static tactics board and reviews generated alternatives.", "person", number="A")
-    s.card(70, 310, 300, 130, "League Buyer Browser", "Reads the landing site and starts the demo inquiry.", "person", number="B")
-    s.card(70, 500, 300, 130, "Raw Tracking Data", "Provider files or feeds before conversion to GenTac JSON.", "external", number="C")
-    s.card(70, 690, 300, 130, "Cloud GPU Runner", "Modal, Lambda Labs, RunPod, or vast.ai training execution.", "external", number="D")
-    s.group(430, 115, 1650, 960, "B Tactical What-If Engine")
+    s.card(70, 130, 300, 130, "Coach / Analyst Browser", "Uses the static tactics board and reviews generated alternatives.", "person", number="1")
+    s.card(70, 310, 300, 130, "League Buyer Browser", "Reads the landing site and starts the demo inquiry.", "person", number="2")
+    s.card(70, 500, 300, 130, "Raw Tracking Data", "Provider files or feeds before conversion to GenTac JSON.", "external", number="3")
+    s.card(70, 690, 300, 130, "Cloud GPU Runner", "Modal, Lambda Labs, RunPod, or vast.ai training execution.", "external", number="4")
+    s.group(430, 115, 1650, 960, "Osa Tactical What-If Engine")
     s.group(470, 175, 430, 250, "Browser-facing")
     s.group(940, 175, 430, 250, "Inference runtime")
     s.group(1410, 175, 610, 250, "Offline ML and QA")
     s.group(470, 515, 1550, 500, "Artifact stores")
     s.card(500, 245, 330, 120, "Landing Website", "site/index.html, site/app.js, site/style.css. Static product story and mailto handoff.", "ui")
-    s.card(980, 245, 330, 120, "FastAPI Inference Server", "src/server/main.py. /api/health, /api/generate, /api/generate/stream.", "api")
+    s.card(980, 245, 330, 120, "GenTac Model Package", "src/model/*. Config, dataset, tokenizer, backbone, diffusion, sampler, physics.", "model")
     s.card(500, 385, 330, 120, "2D Tactics Board", "index.html and src/render/*. Canvas, draw mode, compare mode, samples mode.", "ui")
-    s.card(980, 385, 330, 120, "GenTac Model Package", "src/model/*. Config, dataset, tokenizer, backbone, diffusion, sampler, physics.", "model")
+    s.card(980, 385, 330, 120, "FastAPI Inference Server", "src/server/main.py. /api/health, /api/generate, /api/generate/stream.", "api")
     s.card(1450, 245, 250, 120, "Training Scripts", "Smoke, dry-run, full, and Modal training paths.", "process")
     s.card(1725, 245, 250, 120, "Sampling / Eval Scripts", "samples.json generation plus ADE/FDE/diversity checks.", "process")
     stores = [
@@ -175,17 +181,17 @@ def containers() -> None:
     for i, (x, y, t, b) in enumerate(stores, 1):
         s.card(x, y, 300, 150, t, b, "store", number=str(i))
     s.card(1740, 850, 280, 120, "Downstream Video Generator", "Future 3D or photorealistic renderer that consumes trajectory JSON.", "external")
-    s.edge([(370, 195), (500, 195), (500, 385)], "opens board")
-    s.edge([(370, 375), (500, 375), (500, 305)], "reads product site")
+    s.edge([(370, 195), (410, 195), (410, 445), (500, 445)], "opens board")
+    s.edge([(370, 375), (450, 375), (450, 305), (500, 305)], "reads product site")
     s.edge([(370, 565), (470, 565), (470, 685), (500, 685)], "offline conversion")
-    s.edge([(370, 755), (1380, 755), (1380, 305), (1450, 305)], "runs full training")
-    s.edge([(830, 445), (905, 445), (905, 305), (980, 305)], "POST generate")
-    s.edge([(1310, 305), (1380, 305), (1380, 445), (1310, 445)], "loads model")
-    s.edge([(1145, 365), (1145, 610)], "reads matches")
-    s.edge([(1145, 385), (1390, 385), (1390, 610)], "reads checkpoint")
-    s.edge([(1575, 365), (1575, 610)], "writes checkpoint")
-    s.edge([(1850, 365), (1850, 610), (1020, 610)], "writes samples")
-    s.edge([(830, 445), (1020, 445), (1020, 610)], "GET samples")
+    s.edge([(370, 755), (395, 755), (395, 1115), (1575, 1115), (1575, 365)], "runs full training")
+    s.edge([(830, 445), (980, 445)], "POST generate")
+    s.edge([(1145, 385), (1145, 365)], "loads model")
+    s.edge([(1145, 505), (1145, 545), (650, 545), (650, 610)], "reads matches")
+    s.edge([(1310, 305), (1365, 305), (1365, 585), (1310, 585), (1310, 610)], "reads checkpoint")
+    s.edge([(1555, 365), (1555, 785), (1465, 785), (1465, 760)], "writes checkpoint")
+    s.edge([(1940, 365), (1940, 805), (1020, 805), (1020, 760)], "writes samples")
+    s.edge([(830, 475), (880, 475), (880, 575), (1020, 575), (1020, 610)], "GET samples")
     s.edge([(1910, 760), (1910, 850)], "handoff")
     s.save("c4-02-container-view.svg")
 
@@ -193,8 +199,8 @@ def containers() -> None:
 def inference_components() -> None:
     s = Svg(2200, 1320, "C4 Level 3 - Inference And Model Components")
     s.title("C4 Level 3 - Inference And Model Components", "Request path through FastAPI and into GenTac sampling internals.")
-    s.group(70, 120, 950, 1120, "FastAPI container: src/server/main.py")
-    s.group(1090, 120, 1040, 1120, "GenTac model package: src/model/*")
+    s.group(70, 120, 950, 1180, "FastAPI container: src/server/main.py")
+    s.group(1090, 120, 1040, 1180, "GenTac model package: src/model/*")
     pipeline = [
         ("HTTP Middleware", "CORS allowlist, body-size guard, JSON logs, X-Request-Id.", "api"),
         ("Auth + Pydantic Schemas", "Optional API key plus GenerateRequest, PlayerArrow, BallPassArrow bounds.", "api"),
@@ -215,7 +221,7 @@ def inference_components() -> None:
     s.card(560, 370, 360, 115, "SSE Stream Wrapper", "/api/generate/stream emits metadata, window chunks, done.", "api")
     s.card(560, 550, 360, 115, "Processed Match JSON", "data/processed/*.json cached as positions, masks, periods, frame IDs.", "store")
     s.card(560, 730, 360, 115, "Model Checkpoint", "checkpoints/*/*.ckpt loaded through GenTacTrajectoryModule.", "store")
-    s.edge([(490, 595), (560, 595)], "safe read")
+    s.edge([(490, 662), (525, 662), (525, 607), (560, 607)], "safe read")
     s.edge([(920, 248), (1000, 248), (1000, 788), (920, 788)], "loads")
     model_nodes = [
         (1150, 190, "GenTacConfig", "Pitch, 23 entities, 25 FPS, H=100, w=5, diffusion steps, waypoint CFG.", "model"),
@@ -231,12 +237,12 @@ def inference_components() -> None:
     ]
     for x, y, t, b, kind in model_nodes:
         s.card(x, y, 330, 125, t, b, kind)
-    s.edge([(490, 1082), (1045, 1082), (1045, 792), (1540, 792)], "calls sampler")
+    s.edge([(490, 1082), (1045, 1082), (1045, 885), (1705, 885), (1705, 855)], "calls sampler")
     s.edge([(1315, 315), (1315, 370)])
     s.edge([(1705, 495), (1705, 550)])
     s.edge([(1315, 675), (1315, 730)])
     s.edge([(1705, 675), (1705, 730)])
-    s.edge([(1540, 792), (1480, 792), (1480, 972), (1150, 972)], "raw samples")
+    s.edge([(1705, 855), (1705, 885), (1315, 885), (1315, 910)], "raw samples")
     s.edge([(1480, 972), (1540, 972)], "clean samples")
     s.edge([(1870, 972), (2050, 972), (2050, 1240), (490, 1240), (490, 1222)], "response")
     s.save("c4-03-inference-model-components.svg")
@@ -271,10 +277,10 @@ def browser_components() -> None:
     s.edge([(1010, 515), (650, 590)], "arrows")
     s.edge([(800, 652), (860, 652)], "payload")
     s.edge([(1160, 652), (1220, 652)], "response")
-    s.edge([(1010, 715), (1010, 800)], "samples mode")
-    s.edge([(650, 315), (650, 800)], "normal mode")
-    s.edge([(1370, 715), (1370, 800)], "POST")
-    s.edge([(1370, 800), (1370, 715)], "JSON", dashed=True)
+    s.edge([(1010, 315), (1010, 350), (460, 350), (460, 848), (500, 848)], "normal mode")
+    s.edge([(1010, 315), (1010, 350), (1580, 350), (1580, 848), (1160, 848)], "samples mode")
+    s.edge([(1010, 715), (1010, 760), (1370, 760), (1370, 800)], "POST")
+    s.edge([(1370, 800), (1370, 780), (1010, 780), (1010, 715)], "JSON", dashed=True)
     s.save("c4-04-browser-renderer-components.svg")
 
 
@@ -310,18 +316,17 @@ def generation_workflow() -> None:
     reversed_xs = list(reversed(xs))
     for idx in range(6):
         s.edge([(reversed_xs[idx], 517), (reversed_xs[idx + 1] + 250, 517)])
-    s.edge([(70, 517), (70, 650), (225, 650)], "coach sees result")
     s.note(70, 690, "Numbering is the interaction order. Colors follow C4 categories: UI, API, model, and external consumer.", "#475569")
     s.save("c4-05-dynamic-generation-workflow.svg")
 
 
 def training_workflow() -> None:
-    s = Svg(2200, 1180, "C4 Dynamic View - Training, Sampling, And Evaluation Workflow")
+    s = Svg(2400, 1260, "C4 Dynamic View - Training, Sampling, And Evaluation Workflow")
     s.title("C4 Dynamic View - Training, Sampling, And Evaluation Workflow", "Separate lanes for data preparation, training, evaluation, and guardrails.")
-    s.group(60, 120, 2080, 210, "Data preparation")
-    s.group(60, 390, 2080, 300, "Training")
-    s.group(60, 750, 2080, 250, "Sampling and evaluation")
-    s.group(60, 1030, 2080, 100, "Automated guardrails")
+    s.group(60, 120, 2280, 210, "Data preparation")
+    s.group(60, 390, 2280, 300, "Training")
+    s.group(60, 750, 2280, 250, "Sampling and evaluation")
+    s.group(60, 1030, 2280, 170, "Automated guardrails")
     data = [
         (120, 185, "Raw Tracking Data", "Metrica sample data today; provider data later.", "external"),
         (520, 185, "Expected Conversion", "Tracking feed to GenTac JSON and dev clips. README documents this stage.", "process"),
@@ -339,7 +344,7 @@ def training_workflow() -> None:
     ]
     for x, y, t, b, kind in train:
         s.card(x, y, 320, 105, t, b, kind)
-    s.card(1980, 500, 130, 120, "Checkpoint Store", "schema-versioned ckpt files", "store")
+    s.card(2020, 500, 280, 120, "Checkpoint Store", "schema-versioned ckpt files", "store")
     evals = [
         (120, 815, "scripts/sample.py", "Loads checkpoint, samples K alternatives, applies physics.", "process"),
         (520, 815, "samples.json", "Renderer-ready actual vs generated alternatives.", "store"),
@@ -350,28 +355,27 @@ def training_workflow() -> None:
     for x, y, t, b, kind in evals:
         s.card(x, y, 320, 105, t, b, kind)
     tests = [
-        (120, 1065, "Server validation tests: schema bounds, path traversal, body size.", "api"),
-        (800, 1065, "Physics tests: speed caps, seam anchor, pitch clamp, no NaN.", "model"),
-        (1480, 1065, "Schema tests: cfg roundtrip and checkpoint mismatch refusal.", "process"),
+        (120, 1095, "Server validation tests: schema bounds, path traversal, body size.", "api"),
+        (820, 1095, "Physics tests: speed caps, seam anchor, pitch clamp, no NaN.", "model"),
+        (1520, 1095, "Schema tests: cfg roundtrip and checkpoint mismatch refusal.", "process"),
     ]
     for x, y, t, kind in tests:
-        s.card(x, y, 520, 50, t, "", kind)
+        s.card(x, y, 620, 80, t, "", kind)
     s.edge([(440, 237), (520, 237)])
     s.edge([(840, 237), (920, 237)])
-    s.edge([(1080, 290), (1080, 470)], "feeds training")
+    s.edge([(1080, 290), (1080, 360), (280, 360), (280, 470)], "feeds training")
     s.edge([(440, 522), (500, 522)])
     s.edge([(820, 522), (880, 522)])
     s.edge([(1200, 522), (1260, 522)])
     s.edge([(1580, 522), (1640, 487)], "smoke")
     s.edge([(1580, 522), (1640, 612)], "full")
-    s.edge([(1960, 487), (1980, 535)])
-    s.edge([(1960, 612), (1980, 585)])
-    s.edge([(1980, 560), (280, 560), (280, 815)], "load")
+    s.edge([(1960, 487), (2020, 535)])
+    s.edge([(1960, 612), (2020, 585)])
+    s.edge([(2160, 620), (2160, 725), (280, 725), (280, 815)], "load")
     s.edge([(440, 867), (520, 867)])
     s.edge([(840, 867), (920, 867)])
-    s.edge([(2110, 560), (1480, 560), (1480, 815)], "load")
+    s.edge([(2160, 620), (2160, 725), (1480, 725), (1480, 815)], "load")
     s.edge([(1640, 867), (1720, 867)])
-    s.edge([(380, 1090), (1980, 1090), (1980, 620)], "protects contracts", dashed=True)
     s.save("c4-06-training-sampling-evaluation.svg")
 
 
@@ -404,14 +408,14 @@ def deployment_view() -> None:
     s.edge([(440, 290), (470, 290)], "static files")
     s.edge([(290, 350), (290, 470), (470, 470)], "POST generate")
     s.edge([(620, 530), (620, 590)], "loads")
-    s.edge([(470, 650), (440, 650)])
+    s.edge([(440, 650), (470, 650)])
     s.edge([(1380, 290), (1410, 290)], "static UI")
     s.edge([(1230, 350), (1230, 410)], "HTTPS API")
     s.edge([(1380, 470), (1410, 470)])
-    s.edge([(1560, 530), (1230, 590)])
+    s.edge([(1560, 530), (1560, 560), (1230, 560), (1230, 590)])
     s.edge([(1380, 650), (1410, 650)])
     s.edge([(1230, 710), (1230, 760)])
-    s.edge([(1230, 650), (1560, 760)], "missing ops", dashed=True)
+    s.edge([(1230, 710), (1230, 830), (1410, 830)], "missing ops", dashed=True)
     s.edge([(890, 500), (1010, 500)], "production gap")
     s.note(70, 910, "The target keeps deployment intentionally simple: a single GPU VM plus static hosting until design-partner demand proves otherwise.", "#475569")
     s.save("c4-07-deployment-view.svg")

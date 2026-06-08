@@ -1,4 +1,4 @@
-// ─── B / landing-page interactions ─────────────────────────────────────────
+// ─── Osa / landing-page interactions ───────────────────────────────────────
 // Vanilla JS, no build step, no framework. Drop the directory into Vercel/Netlify
 // and it ships.
 
@@ -54,11 +54,11 @@
         note.textContent = "Please fill every field.";
         return;
       }
-      const subject = encodeURIComponent(`B — League inquiry from ${org}`);
+      const subject = encodeURIComponent(`Osa — League inquiry from ${org}`);
       const body = encodeURIComponent(
-        `Name: ${name}\nEmail: ${email}\nOrganization: ${org}\n\n${message}\n\n—\nSent from bstartup.dev`
+        `Name: ${name}\nEmail: ${email}\nOrganization: ${org}\n\n${message}\n\n—\nSent from osa.dev`
       );
-      window.location.href = `mailto:leagues@bstartup.dev?subject=${subject}&body=${body}`;
+      window.location.href = `mailto:leagues@osa.dev?subject=${subject}&body=${body}`;
       note.textContent = "Opening your mail client…";
     });
   }

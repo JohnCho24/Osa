@@ -104,31 +104,15 @@
 <text x="1238" y="858" font-size="14.5" fill="#0f172a">http://127.0.0.1:8001/api/generate</text>
 </g>
 <path d="M 370 217 L 500 217" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="440" y="187" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="500" y="202" text-anchor="middle" font-size="12.5" fill="#334155">opens page</text>
 <path d="M 800 252 L 860 252" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
 <path d="M 1160 252 L 1220 252" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
 <path d="M 1370 315 L 1370 390" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
 <path d="M 650 315 L 650 390" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
 <path d="M 1010 515 L 650 590" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="590" y="560" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="650" y="575" text-anchor="middle" font-size="12.5" fill="#334155">arrows</text>
 <path d="M 800 652 L 860 652" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="800" y="622" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="860" y="637" text-anchor="middle" font-size="12.5" fill="#334155">payload</text>
 <path d="M 1160 652 L 1220 652" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1160" y="622" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1220" y="637" text-anchor="middle" font-size="12.5" fill="#334155">response</text>
-<path d="M 1010 715 L 1010 800" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="950" y="770" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1010" y="785" text-anchor="middle" font-size="12.5" fill="#334155">samples mode</text>
-<path d="M 650 315 L 650 800" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="590" y="770" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="650" y="785" text-anchor="middle" font-size="12.5" fill="#334155">normal mode</text>
-<path d="M 1370 715 L 1370 800" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1310" y="770" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1370" y="785" text-anchor="middle" font-size="12.5" fill="#334155">POST</text>
-<path d="M 1370 800 L 1370 715" fill="none" stroke="#475569" stroke-width="2.4" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
-<rect x="1310" y="685" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1370" y="700" text-anchor="middle" font-size="12.5" fill="#334155">JSON</text>
+<path d="M 1010 315 L 1010 350 L 460 350 L 460 848 L 500 848" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1010 315 L 1010 350 L 1580 350 L 1580 848 L 1160 848" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1010 715 L 1010 760 L 1370 760 L 1370 800" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1370 800 L 1370 780 L 1010 780 L 1010 715" fill="none" stroke="#475569" stroke-width="2.4" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
 </svg>

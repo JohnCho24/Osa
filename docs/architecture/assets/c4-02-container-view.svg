@@ -13,9 +13,9 @@
 <g filter="url(#shadow)">
 <rect x="70" y="130" width="300" height="130" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
 <rect x="70" y="130" width="300" height="8" rx="4" fill="#ea580c"/>
-<circle cx="94" cy="164" r="15" fill="#ea580c"/>
-<text x="94" y="170" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">A</text>
-<text x="118" y="162" font-size="18" font-weight="800" fill="#431407">Coach / Analyst Browser</text>
+<rect x="324" y="150" width="32" height="28" rx="14" fill="#ea580c"/>
+<text x="340.0" y="169" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">1</text>
+<text x="88" y="162" font-size="18" font-weight="800" fill="#431407">Coach / Analyst Browser</text>
 <text x="88" y="188" font-size="14.5" fill="#431407">Uses the static tactics</text>
 <text x="88" y="206" font-size="14.5" fill="#431407">board and reviews generated</text>
 <text x="88" y="224" font-size="14.5" fill="#431407">alternatives.</text>
@@ -23,18 +23,18 @@
 <g filter="url(#shadow)">
 <rect x="70" y="310" width="300" height="130" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
 <rect x="70" y="310" width="300" height="8" rx="4" fill="#ea580c"/>
-<circle cx="94" cy="344" r="15" fill="#ea580c"/>
-<text x="94" y="350" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">B</text>
-<text x="118" y="342" font-size="18" font-weight="800" fill="#431407">League Buyer Browser</text>
+<rect x="324" y="330" width="32" height="28" rx="14" fill="#ea580c"/>
+<text x="340.0" y="349" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">2</text>
+<text x="88" y="342" font-size="18" font-weight="800" fill="#431407">League Buyer Browser</text>
 <text x="88" y="368" font-size="14.5" fill="#431407">Reads the landing site and</text>
 <text x="88" y="386" font-size="14.5" fill="#431407">starts the demo inquiry.</text>
 </g>
 <g filter="url(#shadow)">
 <rect x="70" y="500" width="300" height="130" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
 <rect x="70" y="500" width="300" height="8" rx="4" fill="#64748b"/>
-<circle cx="94" cy="534" r="15" fill="#64748b"/>
-<text x="94" y="540" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">C</text>
-<text x="118" y="532" font-size="18" font-weight="800" fill="#0f172a">Raw Tracking Data</text>
+<rect x="324" y="520" width="32" height="28" rx="14" fill="#64748b"/>
+<text x="340.0" y="539" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">3</text>
+<text x="88" y="532" font-size="18" font-weight="800" fill="#0f172a">Raw Tracking Data</text>
 <text x="88" y="558" font-size="14.5" fill="#0f172a">Provider files or feeds</text>
 <text x="88" y="576" font-size="14.5" fill="#0f172a">before conversion to GenTac</text>
 <text x="88" y="594" font-size="14.5" fill="#0f172a">JSON.</text>
@@ -42,15 +42,15 @@
 <g filter="url(#shadow)">
 <rect x="70" y="690" width="300" height="130" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
 <rect x="70" y="690" width="300" height="8" rx="4" fill="#64748b"/>
-<circle cx="94" cy="724" r="15" fill="#64748b"/>
-<text x="94" y="730" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">D</text>
-<text x="118" y="722" font-size="18" font-weight="800" fill="#0f172a">Cloud GPU Runner</text>
+<rect x="324" y="710" width="32" height="28" rx="14" fill="#64748b"/>
+<text x="340.0" y="729" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">4</text>
+<text x="88" y="722" font-size="18" font-weight="800" fill="#0f172a">Cloud GPU Runner</text>
 <text x="88" y="748" font-size="14.5" fill="#0f172a">Modal, Lambda Labs, RunPod,</text>
 <text x="88" y="766" font-size="14.5" fill="#0f172a">or vast.ai training</text>
 <text x="88" y="784" font-size="14.5" fill="#0f172a">execution.</text>
 </g>
 <rect x="430" y="115" width="1650" height="960" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
-<text x="450" y="149" font-size="18" font-weight="800" fill="#334155">B Tactical What-If Engine</text>
+<text x="450" y="149" font-size="18" font-weight="800" fill="#334155">Osa Tactical What-If Engine</text>
 <rect x="470" y="175" width="430" height="250" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
 <text x="490" y="209" font-size="18" font-weight="800" fill="#334155">Browser-facing</text>
 <rect x="940" y="175" width="430" height="250" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
@@ -68,11 +68,12 @@
 <text x="518" y="339" font-size="14.5" fill="#052e16">and mailto handoff.</text>
 </g>
 <g filter="url(#shadow)">
-<rect x="980" y="245" width="330" height="120" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
-<rect x="980" y="245" width="330" height="8" rx="4" fill="#0369a1"/>
-<text x="998" y="277" font-size="18" font-weight="800" fill="#0f172a">FastAPI Inference Server</text>
-<text x="998" y="303" font-size="14.5" fill="#0f172a">src/server/main.py. /api/health,</text>
-<text x="998" y="321" font-size="14.5" fill="#0f172a">/api/generate, /api/generate/stream.</text>
+<rect x="980" y="245" width="330" height="120" rx="10" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2"/>
+<rect x="980" y="245" width="330" height="8" rx="4" fill="#7e22ce"/>
+<text x="998" y="277" font-size="18" font-weight="800" fill="#1f102e">GenTac Model Package</text>
+<text x="998" y="303" font-size="14.5" fill="#1f102e">src/model/*. Config, dataset,</text>
+<text x="998" y="321" font-size="14.5" fill="#1f102e">tokenizer, backbone, diffusion,</text>
+<text x="998" y="339" font-size="14.5" fill="#1f102e">sampler, physics.</text>
 </g>
 <g filter="url(#shadow)">
 <rect x="500" y="385" width="330" height="120" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
@@ -83,12 +84,11 @@
 <text x="518" y="479" font-size="14.5" fill="#052e16">mode.</text>
 </g>
 <g filter="url(#shadow)">
-<rect x="980" y="385" width="330" height="120" rx="10" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2"/>
-<rect x="980" y="385" width="330" height="8" rx="4" fill="#7e22ce"/>
-<text x="998" y="417" font-size="18" font-weight="800" fill="#1f102e">GenTac Model Package</text>
-<text x="998" y="443" font-size="14.5" fill="#1f102e">src/model/*. Config, dataset,</text>
-<text x="998" y="461" font-size="14.5" fill="#1f102e">tokenizer, backbone, diffusion,</text>
-<text x="998" y="479" font-size="14.5" fill="#1f102e">sampler, physics.</text>
+<rect x="980" y="385" width="330" height="120" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+<rect x="980" y="385" width="330" height="8" rx="4" fill="#0369a1"/>
+<text x="998" y="417" font-size="18" font-weight="800" fill="#0f172a">FastAPI Inference Server</text>
+<text x="998" y="443" font-size="14.5" fill="#0f172a">src/server/main.py. /api/health,</text>
+<text x="998" y="461" font-size="14.5" fill="#0f172a">/api/generate, /api/generate/stream.</text>
 </g>
 <g filter="url(#shadow)">
 <rect x="1450" y="245" width="250" height="120" rx="10" fill="#fef9c3" stroke="#a16207" stroke-width="2"/>
@@ -108,9 +108,9 @@
 <g filter="url(#shadow)">
 <rect x="500" y="610" width="300" height="150" rx="10" fill="#fee2e2" stroke="#b91c1c" stroke-width="2"/>
 <rect x="500" y="610" width="300" height="8" rx="4" fill="#b91c1c"/>
-<circle cx="524" cy="644" r="15" fill="#b91c1c"/>
-<text x="524" y="650" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">1</text>
-<text x="548" y="642" font-size="18" font-weight="800" fill="#450a0a">Processed Match JSON</text>
+<rect x="754" y="630" width="32" height="28" rx="14" fill="#b91c1c"/>
+<text x="770.0" y="649" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">1</text>
+<text x="518" y="642" font-size="18" font-weight="800" fill="#450a0a">Processed Match JSON</text>
 <text x="518" y="668" font-size="14.5" fill="#450a0a">data/processed/*.json.</text>
 <text x="518" y="686" font-size="14.5" fill="#450a0a">Runtime frames, masks,</text>
 <text x="518" y="704" font-size="14.5" fill="#450a0a">metadata.</text>
@@ -118,9 +118,9 @@
 <g filter="url(#shadow)">
 <rect x="870" y="610" width="300" height="150" rx="10" fill="#fee2e2" stroke="#b91c1c" stroke-width="2"/>
 <rect x="870" y="610" width="300" height="8" rx="4" fill="#b91c1c"/>
-<circle cx="894" cy="644" r="15" fill="#b91c1c"/>
-<text x="894" y="650" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">2</text>
-<text x="918" y="642" font-size="18" font-weight="800" fill="#450a0a">Sample Output JSON</text>
+<rect x="1124" y="630" width="32" height="28" rx="14" fill="#b91c1c"/>
+<text x="1140.0" y="649" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">2</text>
+<text x="888" y="642" font-size="18" font-weight="800" fill="#450a0a">Sample Output JSON</text>
 <text x="888" y="668" font-size="14.5" fill="#450a0a">data/processed/samples.json.</text>
 <text x="888" y="686" font-size="14.5" fill="#450a0a">Offline alternatives for</text>
 <text x="888" y="704" font-size="14.5" fill="#450a0a">samples mode.</text>
@@ -128,9 +128,9 @@
 <g filter="url(#shadow)">
 <rect x="1240" y="610" width="300" height="150" rx="10" fill="#fee2e2" stroke="#b91c1c" stroke-width="2"/>
 <rect x="1240" y="610" width="300" height="8" rx="4" fill="#b91c1c"/>
-<circle cx="1264" cy="644" r="15" fill="#b91c1c"/>
-<text x="1264" y="650" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">3</text>
-<text x="1288" y="642" font-size="18" font-weight="800" fill="#450a0a">Model Checkpoints</text>
+<rect x="1494" y="630" width="32" height="28" rx="14" fill="#b91c1c"/>
+<text x="1510.0" y="649" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">3</text>
+<text x="1258" y="642" font-size="18" font-weight="800" fill="#450a0a">Model Checkpoints</text>
 <text x="1258" y="668" font-size="14.5" fill="#450a0a">checkpoints/smoke and</text>
 <text x="1258" y="686" font-size="14.5" fill="#450a0a">checkpoints/full.</text>
 <text x="1258" y="704" font-size="14.5" fill="#450a0a">Schema-versioned Lightning</text>
@@ -139,9 +139,9 @@
 <g filter="url(#shadow)">
 <rect x="1610" y="610" width="300" height="150" rx="10" fill="#fee2e2" stroke="#b91c1c" stroke-width="2"/>
 <rect x="1610" y="610" width="300" height="8" rx="4" fill="#b91c1c"/>
-<circle cx="1634" cy="644" r="15" fill="#b91c1c"/>
-<text x="1634" y="650" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">4</text>
-<text x="1658" y="642" font-size="18" font-weight="800" fill="#450a0a">Handoff Contract</text>
+<rect x="1864" y="630" width="32" height="28" rx="14" fill="#b91c1c"/>
+<text x="1880.0" y="649" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">4</text>
+<text x="1628" y="642" font-size="18" font-weight="800" fill="#450a0a">Handoff Contract</text>
 <text x="1628" y="668" font-size="14.5" fill="#450a0a">docs/handoff_api.md.</text>
 <text x="1628" y="686" font-size="14.5" fill="#450a0a">Trajectory contract for</text>
 <text x="1628" y="704" font-size="14.5" fill="#450a0a">future video.</text>
@@ -154,40 +154,16 @@
 <text x="1758" y="926" font-size="14.5" fill="#0f172a">renderer that consumes</text>
 <text x="1758" y="944" font-size="14.5" fill="#0f172a">trajectory JSON.</text>
 </g>
-<path d="M 370 195 L 500 195 L 500 385" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="440" y="165" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="500" y="180" text-anchor="middle" font-size="12.5" fill="#334155">opens board</text>
-<path d="M 370 375 L 500 375 L 500 305" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="417" y="345" width="166" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="500" y="360" text-anchor="middle" font-size="12.5" fill="#334155">reads product site</text>
+<path d="M 370 195 L 410 195 L 410 445 L 500 445" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 370 375 L 450 375 L 450 305 L 500 305" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
 <path d="M 370 565 L 470 565 L 470 685 L 500 685" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="387" y="655" width="166" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="470" y="670" text-anchor="middle" font-size="12.5" fill="#334155">offline conversion</text>
-<path d="M 370 755 L 1380 755 L 1380 305 L 1450 305" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1297" y="275" width="166" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1380" y="290" text-anchor="middle" font-size="12.5" fill="#334155">runs full training</text>
-<path d="M 830 445 L 905 445 L 905 305 L 980 305" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="842" y="275" width="126" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="905" y="290" text-anchor="middle" font-size="12.5" fill="#334155">POST generate</text>
-<path d="M 1310 305 L 1380 305 L 1380 445 L 1310 445" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1320" y="415" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1380" y="430" text-anchor="middle" font-size="12.5" fill="#334155">loads model</text>
-<path d="M 1145 365 L 1145 610" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1082" y="580" width="126" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1145" y="595" text-anchor="middle" font-size="12.5" fill="#334155">reads matches</text>
-<path d="M 1145 385 L 1390 385 L 1390 610" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1315" y="355" width="150" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1390" y="370" text-anchor="middle" font-size="12.5" fill="#334155">reads checkpoint</text>
-<path d="M 1575 365 L 1575 610" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1496" y="580" width="158" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1575" y="595" text-anchor="middle" font-size="12.5" fill="#334155">writes checkpoint</text>
-<path d="M 1850 365 L 1850 610 L 1020 610" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1783" y="580" width="134" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1850" y="595" text-anchor="middle" font-size="12.5" fill="#334155">writes samples</text>
-<path d="M 830 445 L 1020 445 L 1020 610" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="960" y="415" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1020" y="430" text-anchor="middle" font-size="12.5" fill="#334155">GET samples</text>
+<path d="M 370 755 L 395 755 L 395 1115 L 1575 1115 L 1575 365" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 830 445 L 980 445" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1145 385 L 1145 365" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1145 505 L 1145 545 L 650 545 L 650 610" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1310 305 L 1365 305 L 1365 585 L 1310 585 L 1310 610" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1555 365 L 1555 785 L 1465 785 L 1465 760" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1940 365 L 1940 805 L 1020 805 L 1020 760" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 830 475 L 880 475 L 880 575 L 1020 575 L 1020 610" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
 <path d="M 1910 760 L 1910 850" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
-<rect x="1850" y="820" width="120" height="22" rx="7" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="1910" y="835" text-anchor="middle" font-size="12.5" fill="#334155">handoff</text>
 </svg>

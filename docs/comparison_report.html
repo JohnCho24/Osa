@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>B START UP vs. GenTac — comparison</title>
+<title>Osa vs. GenTac — comparison</title>
 <style>
   @page { size: Letter; margin: 0.55in 0.55in; }
   @media print {
@@ -105,7 +105,7 @@
 <div class="doc">
 
 <header>
-  <h1>B START UP vs. GenTac<br/><span style="font-weight:500;color:var(--muted);font-size:11pt">A one-page comparison, with verified citations.</span></h1>
+  <h1>Osa vs. GenTac<br/><span style="font-weight:500;color:var(--muted);font-size:11pt">A one-page comparison, with verified citations.</span></h1>
   <div class="meta">
     REPORT 2026&#x2011;05&#x2011;28<br/>
     PAPER: Rao et al., arXiv 2604.11786v1<br/>
@@ -132,7 +132,7 @@
       <th style="width:1.6em">#</th>
       <th style="width:24%">Aspect</th>
       <th style="width:34%">Paper (Rao et al. 2026)</th>
-      <th style="width:30%">B START UP (us)</th>
+      <th style="width:30%">Osa (us)</th>
       <th style="width:11%">Winner</th>
     </tr>
   </thead>
@@ -184,15 +184,15 @@
     <tr><td class="row-num">12</td><td>Physics post-processor</td>
       <td>Not in paper (raw model output).</td>
       <td>5-stage: anchor / speed-clip / smooth / clamp / repulse + re-clip. 0.0% off-pitch; vmax exactly 10.5 m/s.</td>
-      <td class="win-us">B START UP</td></tr>
+      <td class="win-us">Osa</td></tr>
     <tr><td class="row-num">13</td><td>Inference server</td>
       <td>None published.</td>
       <td>FastAPI: async semaphore + X-API-Key + JSON logs + X-Request-Id + path-traversal-safe + Pydantic-bounded schema.</td>
-      <td class="win-us">B START UP</td></tr>
+      <td class="win-us">Osa</td></tr>
     <tr><td class="row-num">14</td><td>Coach UX (the killer mechanic)</td>
       <td>None — research code only.</td>
       <td>Click-drag player arrows + ball arrows with recipient flow + touch (iPad) + overlay-diff compare.</td>
-      <td class="win-us">B START UP</td></tr>
+      <td class="win-us">Osa</td></tr>
     <tr><td class="row-num">15</td><td>Eval methodology</td>
       <td>Min &amp; mean over K=20, multiple horizons, ablation tables. <span class="cite">§3.1</span></td>
       <td>95% bootstrap CIs + paired bootstrap p-values + <code>--compare A B</code>.</td>
@@ -200,11 +200,11 @@
     <tr><td class="row-num">16</td><td>Cloud-training automation</td>
       <td>N/A.</td>
       <td><code>train_full.py --dry-run</code> + <code>modal_train.py --validate-local</code> + troubleshooting matrix.</td>
-      <td class="win-us">B START UP</td></tr>
+      <td class="win-us">Osa</td></tr>
     <tr><td class="row-num">17</td><td>Handoff to downstream video gen</td>
       <td>Not in scope.</td>
       <td>Schema v0.2 + Python SDK example + vendor compat notes.</td>
-      <td class="win-us">B START UP</td></tr>
+      <td class="win-us">Osa</td></tr>
     <tr><td class="row-num">18</td><td>Peer review / citability</td>
       <td>Published, arXiv, formal references.</td>
       <td>Engineering prototype; no peer review.</td>
@@ -225,9 +225,9 @@
 <table>
   <tbody>
     <tr><td style="width:60%"><strong>Research substance</strong> — architecture, trained-model quality, breadth of conditioning, event head, peer review</td><td class="win-paper" style="text-align:right">Paper, decisively</td></tr>
-    <tr><td><strong>Product surface</strong> — UX, server, physics, handoff, deploy automation, eval reproducibility</td><td class="win-us" style="text-align:right">B START UP, decisively</td></tr>
+    <tr><td><strong>Product surface</strong> — UX, server, physics, handoff, deploy automation, eval reproducibility</td><td class="win-us" style="text-align:right">Osa, decisively</td></tr>
     <tr><td><strong>Stylistic / contextual conditioning</strong> (team, league, objective)</td><td class="win-paper" style="text-align:right">Paper (we don't have it)</td></tr>
-    <tr><td><strong>Coach-input conditioning</strong> (arrows, ball passes, CFG knob)</td><td class="win-us" style="text-align:right">B START UP (paper doesn't have it)</td></tr>
+    <tr><td><strong>Coach-input conditioning</strong> (arrows, ball passes, CFG knob)</td><td class="win-us" style="text-align:right">Osa (paper doesn't have it)</td></tr>
     <tr><td><strong>Commercial validation</strong></td><td class="win-tie" style="text-align:right">Neither (paper doesn't need it; we need it badly)</td></tr>
   </tbody>
 </table>
@@ -241,7 +241,7 @@
 </p>
 
 <footer>
-  <span>B START UP // tactical what-if engine</span>
+  <span>Osa // tactical what-if engine</span>
   <span>Generated 2026&#x2011;05&#x2011;28 // checkpoint schema v3</span>
 </footer>
 

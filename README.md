@@ -1,15 +1,15 @@
-# B START UP — Tactical "What-If" Engine
+# Osa (One step ahead) — Tactical "What-If" Engine
 
 > **For league readers (60-second pitch):** Every match has fifty decisions you
-> wish you could replay. Today, you can only argue about them. **B** turns the
-> coach's "what if this player had run there instead?" into a simulated
+> wish you could replay. Today, you can only argue about them. **Osa** (One step
+> ahead) turns the coach's "what if this player had run there instead?" into a simulated
 > alternative: every player and the ball react plausibly, first on a 2D
 > bird's-eye pitch and later through any 3D/video layer that consumes the same
 > trajectory output. The underlying data stays inside your league's existing
 > tracking partnership. See [docs/product_vision.md](docs/product_vision.md) for
 > the product goal and [docs/handoff_api.md](docs/handoff_api.md) for the video
 > handoff contract. Pricing is bespoke per deployment — book a
-> 15-minute demo via the landing page or email `leagues@bstartup.dev`.
+> 15-minute demo via the landing page or email `leagues@osa.dev`.
 >
 > The rest of this file is for engineers.
 
@@ -235,7 +235,7 @@ refereeing).
 ## Project layout
 
 ```
-B START UP/
+Osa/
 ├── index.html                       ← renderer entry
 ├── src/
 │   ├── data/

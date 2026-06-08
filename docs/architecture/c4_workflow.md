@@ -1,4 +1,4 @@
-# B Tactical What-If Engine - C4 Workflow Diagrams
+# Osa Tactical What-If Engine - C4 Workflow Diagrams
 
 This document maps the project using C4-style architecture views. It is grounded
 in the current repository structure, especially `README.md`, `index.html`,
@@ -39,43 +39,29 @@ Browser view: [c4_workflow.html](c4_workflow.html).
 
 ![C4 Level 1 - System Context](assets/c4-01-system-context.svg)
 
-Rendered source: [render_c4_svgs.py](render_c4_svgs.py)
-
 ## C4 Level 2 - Container View
 
 ![C4 Level 2 - Container View](assets/c4-02-container-view.svg)
-
-Rendered source: [render_c4_svgs.py](render_c4_svgs.py)
 
 ## C4 Level 3 - Inference And Model Components
 
 ![C4 Level 3 - Inference And Model Components](assets/c4-03-inference-model-components.svg)
 
-Rendered source: [render_c4_svgs.py](render_c4_svgs.py)
-
 ## C4 Level 3 - Browser Renderer Components
 
 ![C4 Level 3 - Browser Renderer Components](assets/c4-04-browser-renderer-components.svg)
-
-Rendered source: [render_c4_svgs.py](render_c4_svgs.py)
 
 ## C4 Dynamic View - Arrow-Driven Generation Workflow
 
 ![C4 Dynamic View - Arrow-Driven Generation Workflow](assets/c4-05-dynamic-generation-workflow.svg)
 
-Rendered source: [render_c4_svgs.py](render_c4_svgs.py)
-
 ## C4 Dynamic View - Training, Sampling, And Evaluation Workflow
 
 ![C4 Dynamic View - Training, Sampling, And Evaluation Workflow](assets/c4-06-training-sampling-evaluation.svg)
 
-Rendered source: [render_c4_svgs.py](render_c4_svgs.py)
-
 ## C4 Deployment View - Current Local State And First-Customer Target
 
 ![C4 Deployment View - Current Local State And First-Customer Target](assets/c4-07-deployment-view.svg)
-
-Rendered source: [render_c4_svgs.py](render_c4_svgs.py)
 
 ## Architectural Notes
 
