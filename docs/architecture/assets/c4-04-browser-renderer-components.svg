@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1040" viewBox="0 0 1900 1040" role="img" aria-label="C4 Level 3 - Browser Renderer Components">
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+<path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+</marker>
+<filter id="shadow" x="-15%" y="-20%" width="130%" height="150%">
+<feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.12"/>
+</filter>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="40" y="50" font-size="30" font-weight="800" fill="#0f172a">C4 Level 3 - Browser Renderer Components</text>
+<text x="40" y="82" font-size="17" fill="#475569">How the static Canvas app loads data, captures arrows, calls inference, and compares samples.</text>
+<g filter="url(#shadow)">
+<rect x="70" y="155" width="300" height="125" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+<rect x="70" y="155" width="300" height="8" rx="4" fill="#ea580c"/>
+<text x="88" y="187" font-size="18" font-weight="800" fill="#431407">Coach / Analyst</text>
+<text x="88" y="213" font-size="14.5" fill="#431407">Chooses a frame, draws tactical</text>
+<text x="88" y="231" font-size="14.5" fill="#431407">intent, and reviews playback.</text>
+</g>
+<rect x="430" y="120" width="1340" height="800" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+<text x="450" y="154" font-size="18" font-weight="800" fill="#334155">2D tactics board: index.html + src/render/pitch.js</text>
+<g filter="url(#shadow)">
+<rect x="500" y="190" width="300" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="500" y="190" width="300" height="8" rx="4" fill="#15803d"/>
+<text x="518" y="222" font-size="18" font-weight="800" fill="#052e16">main Bootstrapping</text>
+<text x="518" y="248" font-size="14.5" fill="#052e16">Binds DOM controls, URL params,</text>
+<text x="518" y="266" font-size="14.5" fill="#052e16">panel labels, status text.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="860" y="190" width="300" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="860" y="190" width="300" height="8" rx="4" fill="#15803d"/>
+<text x="878" y="222" font-size="18" font-weight="800" fill="#052e16">JSON Loader</text>
+<text x="878" y="248" font-size="14.5" fill="#052e16">Loads clip JSON or samples.json;</text>
+<text x="878" y="266" font-size="14.5" fill="#052e16">reports missing-data status.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="1220" y="190" width="300" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="1220" y="190" width="300" height="8" rx="4" fill="#15803d"/>
+<text x="1238" y="222" font-size="18" font-weight="800" fill="#052e16">Panel Factory</text>
+<text x="1238" y="248" font-size="14.5" fill="#052e16">createPanel, drawPitch,</text>
+<text x="1238" y="266" font-size="14.5" fill="#052e16">drawFrame, trails, frame</text>
+<text x="1238" y="284" font-size="14.5" fill="#052e16">helpers.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="500" y="390" width="300" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="500" y="390" width="300" height="8" rx="4" fill="#15803d"/>
+<text x="518" y="422" font-size="18" font-weight="800" fill="#052e16">Playback Controls</text>
+<text x="518" y="448" font-size="14.5" fill="#052e16">Play/pause, scrubber, speed,</text>
+<text x="518" y="466" font-size="14.5" fill="#052e16">trails, compare mode.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="860" y="390" width="300" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="860" y="390" width="300" height="8" rx="4" fill="#15803d"/>
+<text x="878" y="422" font-size="18" font-weight="800" fill="#052e16">Draw Mode State</text>
+<text x="878" y="448" font-size="14.5" fill="#052e16">Hover, drag, right-click clear,</text>
+<text x="878" y="466" font-size="14.5" fill="#052e16">Esc cancel, touch-to-mouse.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="1220" y="390" width="300" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="1220" y="390" width="300" height="8" rx="4" fill="#15803d"/>
+<text x="1238" y="422" font-size="18" font-weight="800" fill="#052e16">Arrow Overlay</text>
+<text x="1238" y="448" font-size="14.5" fill="#052e16">Player arrows, ball-pass shaft,</text>
+<text x="1238" y="466" font-size="14.5" fill="#052e16">recipient ring, hover pulse.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="500" y="590" width="300" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="500" y="590" width="300" height="8" rx="4" fill="#15803d"/>
+<text x="518" y="622" font-size="18" font-weight="800" fill="#052e16">Payload Builder</text>
+<text x="518" y="648" font-size="14.5" fill="#052e16">decision_frame, match, dynamic</text>
+<text x="518" y="666" font-size="14.5" fill="#052e16">horizon, fade, mode, arrows.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="860" y="590" width="300" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="860" y="590" width="300" height="8" rx="4" fill="#15803d"/>
+<text x="878" y="622" font-size="18" font-weight="800" fill="#052e16">Generate API Client</text>
+<text x="878" y="648" font-size="14.5" fill="#052e16">fetch POST /api/generate and</text>
+<text x="878" y="666" font-size="14.5" fill="#052e16">swaps panels to actual vs</text>
+<text x="878" y="684" font-size="14.5" fill="#052e16">alternative.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="1220" y="590" width="300" height="125" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<rect x="1220" y="590" width="300" height="8" rx="4" fill="#15803d"/>
+<text x="1238" y="622" font-size="18" font-weight="800" fill="#052e16">Sample / Diff View</text>
+<text x="1238" y="648" font-size="14.5" fill="#052e16">buildVirtualClip, sample picker,</text>
+<text x="1238" y="666" font-size="14.5" fill="#052e16">overlay ghost actual future.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="500" y="800" width="300" height="95" rx="10" fill="#fee2e2" stroke="#b91c1c" stroke-width="2"/>
+<rect x="500" y="800" width="300" height="8" rx="4" fill="#b91c1c"/>
+<text x="518" y="832" font-size="18" font-weight="800" fill="#450a0a">Clip JSON</text>
+<text x="518" y="858" font-size="14.5" fill="#450a0a">data/processed/Sample_Game_1_clip.json</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="860" y="800" width="300" height="95" rx="10" fill="#fee2e2" stroke="#b91c1c" stroke-width="2"/>
+<rect x="860" y="800" width="300" height="8" rx="4" fill="#b91c1c"/>
+<text x="878" y="832" font-size="18" font-weight="800" fill="#450a0a">samples.json</text>
+<text x="878" y="858" font-size="14.5" fill="#450a0a">Offline alternatives for</text>
+<text x="878" y="876" font-size="14.5" fill="#450a0a">?samples=1.</text>
+</g>
+<g filter="url(#shadow)">
+<rect x="1220" y="800" width="300" height="95" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+<rect x="1220" y="800" width="300" height="8" rx="4" fill="#0369a1"/>
+<text x="1238" y="832" font-size="18" font-weight="800" fill="#0f172a">FastAPI Server</text>
+<text x="1238" y="858" font-size="14.5" fill="#0f172a">http://127.0.0.1:8001/api/generate</text>
+</g>
+<path d="M 370 217 L 500 217" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 800 252 L 860 252" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1160 252 L 1220 252" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1370 315 L 1370 390" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 650 315 L 650 390" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1010 515 L 650 590" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 800 652 L 860 652" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1160 652 L 1220 652" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1010 315 L 1010 350 L 460 350 L 460 848 L 500 848" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1010 315 L 1010 350 L 1580 350 L 1580 848 L 1160 848" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1010 715 L 1010 760 L 1370 760 L 1370 800" fill="none" stroke="#475569" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M 1370 800 L 1370 780 L 1010 780 L 1010 715" fill="none" stroke="#475569" stroke-width="2.4" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+</svg>

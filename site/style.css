@@ -108,15 +108,15 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 .brand-mark {
   display: inline-grid;
   place-items: center;
-  width: 32px;
+  width: 42px;
   height: 32px;
   background: var(--accent);
   color: var(--bg);
   border-radius: var(--radius);
   font-family: var(--display-font);
   font-weight: 900;
-  font-size: 18px;
-  letter-spacing: -0.04em;
+  font-size: 14px;
+  letter-spacing: 0;
 }
 
 .brand-divider {

@@ -2,7 +2,7 @@
 
 ## Big Picture
 
-**B** lets a coach, analyst, broadcaster, or player review previous football
+**Osa** lets a coach, analyst, broadcaster, or player review previous football
 footage and ask: "What if this movement had happened instead?"
 
 The user draws arrows for potential player runs, passes, presses, drops, or other
@@ -40,4 +40,3 @@ The user controls intent, not animation.
 An arrow is a tactical constraint. The model is responsible for the rest of the
 game: spacing, reactions, movement timing, pressure, ball behavior, and realistic
 interactions learned from game data.
-

@@ -1,6 +1,6 @@
 # Codex Working Guide
 
-This repo is an internal prototype for **B**, a tactical football "what-if"
+This repo is an internal prototype for **Osa**, a tactical football "what-if"
 engine. The big picture is:
 
 - A coach, analyst, broadcast team, or player reviews previous match footage.
