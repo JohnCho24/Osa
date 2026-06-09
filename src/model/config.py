@@ -5,6 +5,16 @@ Paper-faithful defaults (§ 6.3.3). Use cfg.smoke=True to shrink for Mac MPS san
 from dataclasses import dataclass, field
 
 
+# ── entity role vocabulary ──────────────────────────────────────────────────
+# Collapsed playing-position groups used by the tokenizer's role embedding (our
+# permutation-invariant replacement for the old per-slot entity embedding). Role
+# is a property of the *player*, fed as token content so it travels with them
+# under any within-team reordering. The ball gets its own BALL role; UNK is the
+# fallback when a roster position is missing or unmapped.
+ROLE_NAMES: tuple[str, ...] = ("GK", "DEF", "MID", "FWD", "BALL", "UNK")
+ROLE_TO_IDX: dict[str, int] = {name: i for i, name in enumerate(ROLE_NAMES)}
+
+
 @dataclass
 class GenTacConfig:
     # ── geometry ───────────────────────────────────────────────────────────
@@ -12,6 +22,7 @@ class GenTacConfig:
     pitch_y: float = 68.0
     n_players_per_team: int = 11
     n_entities: int = 23                  # 2 * 11 + 1 (ball)
+    n_roles: int = 6                      # len(ROLE_NAMES): GK/DEF/MID/FWD/BALL/UNK
     fps: int = 25
 
     # ── trajectory task ───────────────────────────────────────────────────
@@ -28,8 +39,13 @@ class GenTacConfig:
 
     # ── diffusion ──────────────────────────────────────────────────────────
     n_diffusion_steps: int = 100          # paper §6.3.1
-    beta_start: float = 1e-4
-    beta_end: float = 0.02
+    # Noise schedule. "cosine" (Nichol & Dhariwal) drives ᾱ_T → 0 so the terminal
+    # state is (near-)pure noise, matching the N(0,I) the sampler starts from. The
+    # short linear schedule below only reaches ᾱ_T≈0.36 (60% signal retained at the
+    # top step) → a train/inference mismatch, so cosine is the default.
+    schedule_type: str = "cosine"         # "cosine" | "linear"
+    beta_start: float = 1e-4              # linear schedule only
+    beta_end: float = 0.02               # linear schedule only
 
     # ── event head ─────────────────────────────────────────────────────────
     n_event_types: int = 5
@@ -68,8 +84,12 @@ class GenTacConfig:
     ema_decay: float = 0.999
 
     # ── checkpoint schema (bump on incompatible cfg changes) ───────────────
-    # 1 = no learned-waypoint; 2 = + learned-waypoint+CFG; 3 = + EMA buffers
-    schema_version: int = 3
+    # 1 = no learned-waypoint; 2 = + learned-waypoint+CFG; 3 = + EMA buffers;
+    # 4 = entity_emb (per-slot) replaced by role_emb (per-position) → permutation
+    #     invariant within a team. Architecture change, so old ckpts are incompatible.
+    # 5 = cosine noise schedule (full noising). Changes the diffusion process, so a
+    #     model trained on the old linear schedule would sample wrong → incompatible.
+    schema_version: int = 5
 
     # ── smoke-test overrides (for Mac MPS dev) ─────────────────────────────
     smoke: bool = False

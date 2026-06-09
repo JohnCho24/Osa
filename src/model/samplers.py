@@ -13,7 +13,7 @@ from __future__ import annotations
 import torch
 
 from .config import GenTacConfig
-from .diffusion import GenTacDiffusion, LinearBetaSchedule
+from .diffusion import GenTacDiffusion, LinearBetaSchedule, build_schedule
 
 
 @torch.no_grad()
@@ -27,6 +27,7 @@ def sample_window(
     waypoint_target: torch.Tensor | None = None,    # (B, w, n_ent, 2)
     waypoint_present: torch.Tensor | None = None,   # (B, w, n_ent) bool
     guidance_scale: float = 1.0,                    # 1.0 = pure cond; >1 = CFG-amplified
+    role_idx: torch.Tensor | None = None,           # (B, n_ent) long — per-player role
 ) -> torch.Tensor:
     """Sample one causal window of w future frames via S reverse-diffusion steps.
 
@@ -58,24 +59,34 @@ def sample_window(
         if has_waypoints:
             eps_cond = model(coords, valid, step_t, future_start=H,
                              waypoint_target=waypoint_target,
-                             waypoint_present=waypoint_present)
+                             waypoint_present=waypoint_present,
+                             role_idx=role_idx)
         else:
-            eps_cond = model(coords, valid, step_t, future_start=H)
+            eps_cond = model(coords, valid, step_t, future_start=H, role_idx=role_idx)
 
         if do_cfg:
-            eps_uncond = model(coords, valid, step_t, future_start=H)
+            eps_uncond = model(coords, valid, step_t, future_start=H, role_idx=role_idx)
             eps = eps_uncond + guidance_scale * (eps_cond - eps_uncond)
         else:
             eps = eps_cond
 
         alpha = schedule.alphas[s]
         alpha_bar = schedule.alpha_bar[s]
+        alpha_bar_prev = schedule.alpha_bar[s - 1] if s > 0 else torch.ones_like(alpha_bar)
         beta = schedule.betas[s]
-        mu = (1.0 / alpha.sqrt()) * (x - (beta / (1.0 - alpha_bar).sqrt()) * eps)
+
+        # Predict x0 from eps and clip to the normalized data range [-1, 1].
+        # Essential with a cosine schedule: the terminal β→0.999 makes 1/√α huge,
+        # so unclipped reverse steps amplify ε errors and blow up. Clipping x0 to
+        # the known pitch bounds keeps every step on the data manifold.
+        x0 = (x - (1.0 - alpha_bar).sqrt() * eps) / alpha_bar.sqrt()
+        x0 = x0.clamp(-1.0, 1.0)
+        # DDPM posterior mean q(x_{t-1} | x_t, x0)
+        mu = (beta * alpha_bar_prev.sqrt() / (1.0 - alpha_bar)) * x0 \
+             + ((1.0 - alpha_bar_prev) * alpha.sqrt() / (1.0 - alpha_bar)) * x
         if s > 0:
-            sigma = beta.sqrt()
-            z = torch.randn_like(x)
-            x_next = mu + sigma * z
+            post_var = beta * (1.0 - alpha_bar_prev) / (1.0 - alpha_bar)
+            x_next = mu + post_var.sqrt() * torch.randn_like(x)
         else:
             x_next = mu
         # keep non-target positions clamped to their clean values
@@ -96,6 +107,7 @@ def causal_rollout(
     waypoints: list[tuple[int, int, list[float]]] | None = None,    # per-arrow pins
     waypoint_fade_frames: int = 0,               # hard-pin fade frames before the target (kept as a safety net for under-trained models)
     guidance_scale: float = 1.0,                 # CFG scale on the learned waypoint signal
+    role_idx: torch.Tensor | None = None,        # (B, n_ent) long — per-player role
 ) -> torch.Tensor:
     """Predict `horizon_frames` ahead by autoregressively sliding w-step windows.
 
@@ -196,6 +208,7 @@ def causal_rollout(
             waypoint_target=win_learn_xy if win_learn_present.any() else None,
             waypoint_present=win_learn_present if win_learn_present.any() else None,
             guidance_scale=guidance_scale,
+            role_idx=role_idx,
         )                                                                              # (B, w, n_ent, 2)
         accumulated.append(sample)
         current_history = torch.cat([current_history[:, w:], sample], dim=1)
@@ -222,7 +235,7 @@ if __name__ == "__main__":
     cfg = GenTacConfig(smoke=True)
     device = "mps" if torch.backends.mps.is_available() else "cpu"
     model = GenTacDiffusion(cfg).to(device)
-    sched = LinearBetaSchedule(cfg.n_diffusion_steps, cfg.beta_start, cfg.beta_end).to(device)
+    sched = build_schedule(cfg).to(device)
 
     B = 2
     H, w, n_ent = cfg.history_frames, cfg.window_frames, cfg.n_entities

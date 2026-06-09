@@ -25,12 +25,34 @@ from .tokenizer import TrajectoryTokenizer
 
 
 # ── noise schedule ──────────────────────────────────────────────────────────
-class LinearBetaSchedule:
-    """Precompute β, α, ᾱ tables for a linear DDPM schedule."""
+def cosine_betas(n_steps: int, s: float = 0.008, max_beta: float = 0.999,
+                 device: str | torch.device = "cpu") -> torch.Tensor:
+    """Nichol & Dhariwal cosine schedule.
 
-    def __init__(self, n_steps: int, beta_start: float, beta_end: float, device: str | torch.device = "cpu"):
-        self.n_steps = n_steps
-        betas = torch.linspace(beta_start, beta_end, n_steps, device=device)        # (S,)
+    ᾱ_t = cos²(((t/T)+s)/(1+s) · π/2) (normalized so ᾱ_0 = 1), which drives
+    ᾱ_T → 0 — i.e. the terminal state is (near-)pure noise, matching the N(0,I)
+    the sampler starts from. Returns the per-step betas derived from that ᾱ.
+    """
+    t = torch.linspace(0, n_steps, n_steps + 1, device=device) / n_steps
+    abar = torch.cos((t + s) / (1.0 + s) * math.pi / 2.0) ** 2
+    abar = abar / abar[0]
+    betas = 1.0 - abar[1:] / abar[:-1]
+    return betas.clamp(max=max_beta)
+
+
+class LinearBetaSchedule:
+    """Precompute β, α, ᾱ tables for a DDPM schedule.
+
+    Despite the name (kept for back-compat), this holds any schedule: pass
+    `betas` directly (e.g. cosine) or leave it None to build a linear schedule
+    from (beta_start, beta_end). Use `build_schedule(cfg)` to pick by config.
+    """
+
+    def __init__(self, n_steps: int, beta_start: float = 1e-4, beta_end: float = 0.02,
+                 device: str | torch.device = "cpu", betas: torch.Tensor | None = None):
+        if betas is None:
+            betas = torch.linspace(beta_start, beta_end, n_steps, device=device)    # (S,)
+        self.n_steps = len(betas)
         alphas = 1.0 - betas
         alpha_bar = torch.cumprod(alphas, dim=0)
         self.betas = betas
@@ -52,6 +74,18 @@ class LinearBetaSchedule:
             sa = sa.unsqueeze(-1)
             soma = soma.unsqueeze(-1)
         return sa * x0 + soma * noise
+
+
+def build_schedule(cfg: GenTacConfig, device: str | torch.device = "cpu") -> LinearBetaSchedule:
+    """Construct the noise schedule chosen by cfg.schedule_type ("cosine" | "linear").
+
+    Single source of truth — training (lightning_module) and inference (samplers)
+    must use the same schedule the weights were trained on.
+    """
+    if getattr(cfg, "schedule_type", "linear") == "cosine":
+        return LinearBetaSchedule(cfg.n_diffusion_steps,
+                                  betas=cosine_betas(cfg.n_diffusion_steps, device=device))
+    return LinearBetaSchedule(cfg.n_diffusion_steps, cfg.beta_start, cfg.beta_end, device=device)
 
 
 # ── diffusion-step embedding (sinusoidal, transformer-style) ────────────────
@@ -97,6 +131,7 @@ class GenTacDiffusion(nn.Module):
         future_start: int,
         waypoint_target: torch.Tensor | None = None,      # (B, w, n_ent, 2) — future only
         waypoint_present: torch.Tensor | None = None,     # (B, w, n_ent) bool
+        role_idx: torch.Tensor | None = None,             # (B, n_ent) long — per-player role
     ) -> torch.Tensor:
         """
         coords: (B, L, n_ent, 2)  — history clean + future possibly corrupted
@@ -106,6 +141,8 @@ class GenTacDiffusion(nn.Module):
         waypoint_target / waypoint_present: optional learned-waypoint signal,
             scoped to the FUTURE window. History rows are always treated as
             no-waypoint inside the tokenizer.
+        role_idx: optional per-entity playing-position role (constant over time);
+            None → tokenizer's UNK/BALL fallback.
 
         Returns predicted noise on the future window only: (B, w, n_ent, 2).
         """
@@ -126,7 +163,7 @@ class GenTacDiffusion(nn.Module):
             wp_target_full[:, future_start:] = waypoint_target
             wp_present_full[:, future_start:] = waypoint_present
 
-        h = self.tokenizer(coords, wp_target_full, wp_present_full)         # (B, L, n_ent, d)
+        h = self.tokenizer(coords, wp_target_full, wp_present_full, role_idx=role_idx)   # (B, L, n_ent, d)
         # Inject diffusion-step embedding into the future-window tokens only.
         step_h = self.step_embed(step)                             # (B, d)
         future_token_emb = step_h.view(coords.size(0), 1, 1, -1)   # (B, 1, 1, d)
@@ -177,6 +214,7 @@ def compute_diffusion_loss(
     future: torch.Tensor,        # (B, w, n_ent, 2)
     valid: torch.Tensor,         # (B, H+w, n_ent)
     target_mask: torch.Tensor,   # (B, w, n_ent) — True = noise this entity's future
+    role_idx: torch.Tensor | None = None,   # (B, n_ent) long — per-player role
 ) -> tuple[torch.Tensor, dict]:
     """One training step: corrupt the target positions, predict noise, return MSE.
 
@@ -198,7 +236,8 @@ def compute_diffusion_loss(
 
     wp_target, wp_present = generate_synthetic_waypoints(future, target_mask, model.cfg)
     pred = model(coords, valid, step, future_start=H,
-                 waypoint_target=wp_target, waypoint_present=wp_present)   # (B, w, n_ent, 2)
+                 waypoint_target=wp_target, waypoint_present=wp_present,
+                 role_idx=role_idx)                                        # (B, w, n_ent, 2)
 
     # only score positions that are both targeted AND have a valid entity
     score_mask = target_mask & valid[:, H:, :]                          # (B, w, n_ent)
@@ -243,7 +282,7 @@ if __name__ == "__main__":
     device = "mps" if torch.backends.mps.is_available() else "cpu"
 
     model = GenTacDiffusion(cfg).to(device)
-    sched = LinearBetaSchedule(cfg.n_diffusion_steps, cfg.beta_start, cfg.beta_end).to(device)
+    sched = build_schedule(cfg).to(device)
 
     B = 2
     history = torch.randn(B, cfg.history_frames, cfg.n_entities, 2, device=device).clamp(-1, 1)

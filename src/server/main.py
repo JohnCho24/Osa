@@ -386,6 +386,7 @@ def _generate_sync(req: GenerateRequest):
     K = req.k
     history = pos_all[di - H : di].unsqueeze(0).expand(K, -1, -1, -1).contiguous()
     valid_static = mask_all[di - 1].unsqueeze(0).expand(K, -1).contiguous()
+    role_idx = torch.from_numpy(m["role_idx"]).to(device).unsqueeze(0).expand(K, -1)
     target_mask = build_static_target_mask(cfg, cfg.n_entities, req.mode, device).expand(K, cfg.n_entities)
 
     opp_future = None
@@ -480,6 +481,7 @@ def _generate_sync(req: GenerateRequest):
         waypoints=waypoints,
         waypoint_fade_frames=req.fade_frames,
         guidance_scale=req.guidance_scale,
+        role_idx=role_idx,
     )                                                                            # (K, T, n_ent, 2)
 
     if req.mode != "unconditioned":

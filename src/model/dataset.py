@@ -20,7 +20,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-from .config import GenTacConfig
+from .config import GenTacConfig, ROLE_TO_IDX
 
 
 def _player_num(pid: str) -> int:
@@ -53,6 +53,19 @@ def _load_match_arrays(json_path: Path, cfg: GenTacConfig):
 
     team0_slots = _build_slot_map(frames_dict, "team0", N)
     team1_slots = _build_slot_map(frames_dict, "team1", N)
+
+    # per-entity role index (constant over time): looked up from the metadata
+    # `roles` map by player id, falling back to UNK; the ball is always BALL.
+    # Roles are content carried with the player, so the model stays permutation
+    # invariant within a team regardless of slot order (schema_version 4).
+    roles0 = (data["metadata"].get("team0") or {}).get("roles", {})
+    roles1 = (data["metadata"].get("team1") or {}).get("roles", {})
+    role_idx = np.full(n_ent, ROLE_TO_IDX["UNK"], dtype=np.int64)
+    for slot, pid in enumerate(team0_slots):
+        role_idx[slot] = ROLE_TO_IDX.get(roles0.get(pid, "UNK"), ROLE_TO_IDX["UNK"])
+    for slot, pid in enumerate(team1_slots):
+        role_idx[N + slot] = ROLE_TO_IDX.get(roles1.get(pid, "UNK"), ROLE_TO_IDX["UNK"])
+    role_idx[2 * N] = ROLE_TO_IDX["BALL"]
 
     sorted_keys = sorted(frames_dict.keys(), key=int)
     F = len(sorted_keys)
@@ -93,6 +106,7 @@ def _load_match_arrays(json_path: Path, cfg: GenTacConfig):
         "frame_ids": frame_ids,
         "team0_slots": team0_slots,
         "team1_slots": team1_slots,
+        "role_idx": role_idx,
         "game_id": data["metadata"]["game_id"],
     }
 
@@ -138,6 +152,7 @@ class TrajectoryDataset(Dataset):
             "history": torch.from_numpy(pos[: self.H].copy()),
             "future":  torch.from_numpy(pos[self.H :].copy()),
             "mask":    torch.from_numpy(mask.copy()),
+            "role_idx": torch.from_numpy(m["role_idx"].copy()),     # (n_ent,) long, per-player role
         }
 
 

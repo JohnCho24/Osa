@@ -94,6 +94,7 @@ def main():
     periods = arrs["period"]
     team0_slots = arrs["team0_slots"]
     team1_slots = arrs["team1_slots"]
+    role_idx = torch.from_numpy(arrs["role_idx"]).to(device).unsqueeze(0).expand(args.k, -1)   # (K, 23)
 
     # find the array index whose frame_id == decision_frame
     matches = (frame_ids == args.decision_frame).nonzero()[0]
@@ -119,7 +120,7 @@ def main():
     # ── sample ────────────────────────────────────────────────────────────
     samples = causal_rollout(
         model, schedule, history, valid_static, args.horizon, target_mask,
-        opponent_future_full=opp_future,
+        opponent_future_full=opp_future, role_idx=role_idx,
     )                                                                                      # (K, horizon, 23, 2)
 
     # for opp-cond modes, overlay the GT opponent future so JSON shows the real values for them

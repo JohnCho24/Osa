@@ -6,7 +6,13 @@ Output: token embeddings (B, L, n_ent, d)
 Adds four learnable embeddings to the projected coords:
   1. temporal — one vector per time step, shared across entities at that step
   2. group    — one vector per group {team0, team1, ball}
-  3. entity   — one vector per slot index (each player slot + the ball)
+  3. role     — one vector per playing position {GK, DEF, MID, FWD, BALL, UNK},
+                indexed by the *player's* role rather than their slot. Because role
+                is content that travels with the player, the spatial attention is
+                permutation-invariant within a team: any slot can hold any player
+                and the prediction is unchanged (the old per-slot `entity_emb`
+                broke this — see schema_version 4). Identity across time is carried
+                by the backbone's per-slot temporal attention, not this embedding.
   4. waypoint — for each (t, entity) optionally project a target xy and add it,
                 or fall back to a learned "no waypoint" null embedding. This is
                 our extension on top of the paper; together with CFG dropout in
@@ -16,7 +22,7 @@ Adds four learnable embeddings to the projected coords:
 import torch
 import torch.nn as nn
 
-from .config import GenTacConfig
+from .config import GenTacConfig, ROLE_TO_IDX
 
 
 class TrajectoryTokenizer(nn.Module):
@@ -38,8 +44,8 @@ class TrajectoryTokenizer(nn.Module):
         # 3. group embedding (3, d) — team0=0, team1=1, ball=2
         self.group_emb = nn.Embedding(3, cfg.d_model)
 
-        # 4. entity (slot) embedding (n_entities, d)
-        self.entity_emb = nn.Embedding(self.n_entities, cfg.d_model)
+        # 4. role (playing-position) embedding (n_roles, d) — indexed by role, not slot
+        self.role_emb = nn.Embedding(cfg.n_roles, cfg.d_model)
 
         # 5. waypoint embedding (our extension)
         self.waypoint_proj = nn.Linear(cfg.waypoint_dim, cfg.d_model)
@@ -53,14 +59,18 @@ class TrajectoryTokenizer(nn.Module):
         group_idx[2 * N] = 2       # ball
         self.register_buffer("group_idx", group_idx, persistent=False)
 
-        entity_idx = torch.arange(self.n_entities, dtype=torch.long)
-        self.register_buffer("entity_idx", entity_idx, persistent=False)
+        # fallback role per slot when callers don't supply roles (e.g. the event
+        # head, or synthetic inputs): players → UNK, ball → BALL. Keeps every
+        # forward in-distribution without forcing every caller to pass roles.
+        default_role_idx = torch.full((self.n_entities,), ROLE_TO_IDX["UNK"], dtype=torch.long)
+        default_role_idx[2 * N] = ROLE_TO_IDX["BALL"]
+        self.register_buffer("default_role_idx", default_role_idx, persistent=False)
 
         self._init_weights()
 
     def _init_weights(self):
         nn.init.trunc_normal_(self.group_emb.weight, std=0.02)
-        nn.init.trunc_normal_(self.entity_emb.weight, std=0.02)
+        nn.init.trunc_normal_(self.role_emb.weight, std=0.02)
         nn.init.trunc_normal_(self.waypoint_null_emb, std=0.02)
         nn.init.xavier_uniform_(self.coord_proj.weight)
         nn.init.zeros_(self.coord_proj.bias)
@@ -72,12 +82,16 @@ class TrajectoryTokenizer(nn.Module):
         coords: torch.Tensor,
         waypoint_target: torch.Tensor | None = None,        # (B, L, n_ent, 2)
         waypoint_present: torch.Tensor | None = None,       # (B, L, n_ent) bool
+        role_idx: torch.Tensor | None = None,               # (B, n_ent) long — per-player role
     ) -> torch.Tensor:
         """coords: (B, L, n_ent, 2)  →  tokens: (B, L, n_ent, d)
 
         If waypoint_target is None the unconditional (no-arrow) branch is used —
         the same null embedding the model sees during CFG dropout in training,
         so calling forward without waypoints stays in-distribution.
+
+        role_idx gives each entity its playing-position role (constant over time);
+        if None, the per-slot UNK/BALL fallback is used.
         """
         B, L, n_ent, _ = coords.shape
         if L > self.L_max:
@@ -88,7 +102,11 @@ class TrajectoryTokenizer(nn.Module):
         h = self.coord_proj(coords)                            # (B, L, n_ent, d)
         h = h + self.temporal_emb[:L].view(1, L, 1, -1)        # broadcast over entity
         h = h + self.group_emb(self.group_idx).view(1, 1, n_ent, -1)
-        h = h + self.entity_emb(self.entity_idx).view(1, 1, n_ent, -1)
+        if role_idx is None:
+            role_h = self.role_emb(self.default_role_idx).view(1, 1, n_ent, -1)
+        else:
+            role_h = self.role_emb(role_idx).view(B, 1, n_ent, -1)   # broadcast over time
+        h = h + role_h
 
         if waypoint_target is None:
             # Unconditional branch: every (t, entity) gets the null waypoint embedding.

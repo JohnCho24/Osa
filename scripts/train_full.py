@@ -38,6 +38,9 @@ def parse_args() -> argparse.Namespace:
                    help="where to write checkpoints (defaults to repo checkpoints/full)")
     p.add_argument("--epochs", type=int, default=None, help="override cfg.epochs")
     p.add_argument("--batch-size", type=int, default=None, help="override cfg.batch_size")
+    p.add_argument("--lr", type=float, default=None,
+                   help="override cfg.lr_traj. Paper uses 1e-3 at batch 200; scale down for "
+                        "smaller batches (linear rule: ~3e-4 at batch 64) or training diverges.")
     p.add_argument("--num-workers", type=int, default=4)
     p.add_argument("--precision", default="16-mixed",
                    choices=["32-true", "16-mixed", "bf16-mixed"])
@@ -66,6 +69,8 @@ def main():
         cfg.epochs = args.epochs
     if args.batch_size is not None:
         cfg.batch_size = args.batch_size
+    if args.lr is not None:
+        cfg.lr_traj = args.lr
     if args.ema_decay is not None:
         cfg.ema_decay = args.ema_decay
 

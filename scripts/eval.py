@@ -141,8 +141,9 @@ def _sample_no_arrows(model, schedule, cfg, m, di, K, horizon, device):
     H = cfg.history_frames
     history = pos_all[di - H : di].unsqueeze(0).expand(K, -1, -1, -1).contiguous()
     valid_static = mask_all[di - 1].unsqueeze(0).expand(K, -1).contiguous()
+    role_idx = torch.from_numpy(m["role_idx"]).to(device).unsqueeze(0).expand(K, -1)
     target_mask = build_static_target_mask(cfg, cfg.n_entities, "unconditioned", device).expand(K, cfg.n_entities)
-    samples_norm = causal_rollout(model, schedule, history, valid_static, horizon, target_mask)
+    samples_norm = causal_rollout(model, schedule, history, valid_static, horizon, target_mask, role_idx=role_idx)
     samples_m = _denorm(samples_norm).cpu()
     history_m = _denorm(history[0]).cpu()
     valid_static_cpu = valid_static[0].cpu()
@@ -156,6 +157,7 @@ def _sample_with_arrow(model, schedule, cfg, m, di, K, horizon, device, ent, tar
     H = cfg.history_frames
     history = pos_all[di - H : di].unsqueeze(0).expand(K, -1, -1, -1).contiguous()
     valid_static = mask_all[di - 1].unsqueeze(0).expand(K, -1).contiguous()
+    role_idx = torch.from_numpy(m["role_idx"]).to(device).unsqueeze(0).expand(K, -1)
     target_mask = build_static_target_mask(cfg, cfg.n_entities, "unconditioned", device).expand(K, cfg.n_entities)
     waypoint = (ent, horizon - 1, [target_xy_m[0] / PITCH_HALF_X, target_xy_m[1] / PITCH_HALF_Y])
     samples_norm = causal_rollout(
@@ -163,6 +165,7 @@ def _sample_with_arrow(model, schedule, cfg, m, di, K, horizon, device, ent, tar
         waypoints=[waypoint],
         waypoint_fade_frames=0,             # measure the LEARNED signal cleanly, no hard-pin fade
         guidance_scale=scale,
+        role_idx=role_idx,
     )
     samples_m = _denorm(samples_norm).cpu()
     history_m = _denorm(history[0]).cpu()
@@ -299,7 +302,8 @@ def evaluate(ckpt_path: Path, args: argparse.Namespace) -> tuple[EvalResult, dic
     raw values for ADE/FDE/diversity/off-pitch (needed for paired comparison).
     """
     root = Path(__file__).resolve().parents[1]
-    device = "mps" if torch.backends.mps.is_available() else "cpu"
+    device = ("cuda" if torch.cuda.is_available()
+              else "mps" if torch.backends.mps.is_available() else "cpu")
     torch.manual_seed(args.seed)
     random.seed(args.seed)
     rng = random.Random(args.seed)

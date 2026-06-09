@@ -22,7 +22,7 @@ from torch.utils.data import DataLoader
 
 from .config import GenTacConfig
 from .dataset import TrajectoryDataset
-from .diffusion import GenTacDiffusion, LinearBetaSchedule, build_target_mask, compute_diffusion_loss
+from .diffusion import GenTacDiffusion, build_schedule, build_target_mask, compute_diffusion_loss
 
 
 PRETRAIN_MODES = ("unconditioned", "opp_conditioned_team0", "opp_conditioned_team1")
@@ -33,7 +33,7 @@ class GenTacTrajectoryModule(pl.LightningModule):
         super().__init__()
         self.cfg = cfg
         self.model = GenTacDiffusion(cfg)
-        self.schedule = LinearBetaSchedule(cfg.n_diffusion_steps, cfg.beta_start, cfg.beta_end)
+        self.schedule = build_schedule(cfg)
         # Persist the post-init config dict so any checkpoint can be reloaded standalone
         # (server, sample.py, etc.) without the caller having to know smoke vs paper config.
         self.save_hyperparameters({"cfg_dict": asdict(cfg)})
@@ -98,10 +98,12 @@ class GenTacTrajectoryModule(pl.LightningModule):
 
     def _step(self, batch: dict, stage: str) -> torch.Tensor:
         history, future, valid = batch["history"], batch["future"], batch["mask"]
+        role_idx = batch.get("role_idx")
         # randomly pick a mode for this batch (paper pretrains on both)
         mode = random.choice(PRETRAIN_MODES)
         target_mask = build_target_mask(valid, mode, self.cfg)
-        loss, info = compute_diffusion_loss(self.model, self.schedule, history, future, valid, target_mask)
+        loss, info = compute_diffusion_loss(self.model, self.schedule, history, future, valid,
+                                            target_mask, role_idx=role_idx)
         self.log(f"{stage}/loss", loss, prog_bar=(stage == "train"), on_step=(stage == "train"), on_epoch=True)
         self.log(f"{stage}/n_targets", float(info["n_targets"]), on_step=False, on_epoch=True)
         return loss
