@@ -163,14 +163,17 @@ class GenTacDiffusion(nn.Module):
             wp_target_full[:, future_start:] = waypoint_target
             wp_present_full[:, future_start:] = waypoint_present
 
-        h = self.tokenizer(coords, wp_target_full, wp_present_full, role_idx=role_idx)   # (B, L, n_ent, d)
+        # tokens + (optional) separate condition tokens. In "additive" mode the
+        # waypoint is folded into `h` and cond is None; in "cross_attn" mode `h`
+        # is waypoint-free and the backbone cross-attends it to `cond`.
+        h, cond = self.tokenizer(coords, wp_target_full, wp_present_full, role_idx=role_idx)   # (B, L, n_ent, d)
         # Inject diffusion-step embedding into the future-window tokens only.
         step_h = self.step_embed(step)                             # (B, d)
         future_token_emb = step_h.view(coords.size(0), 1, 1, -1)   # (B, 1, 1, d)
         h_future = h[:, future_start:].clone()
         h_future = h_future + future_token_emb
         h = torch.cat([h[:, :future_start], h_future], dim=1)
-        h = self.backbone(h, valid)                                # (B, L, n_ent, d)
+        h = self.backbone(h, valid, cond)                          # (B, L, n_ent, d)
         eps = self.noise_head(h[:, future_start:])                 # (B, w, n_ent, 2)
         return eps
 

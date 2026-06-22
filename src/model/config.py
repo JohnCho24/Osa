@@ -27,8 +27,21 @@ class GenTacConfig:
 
     # ── trajectory task ───────────────────────────────────────────────────
     history_frames: int = 100             # 4 s @ 25 fps
-    window_frames: int = 5                # 0.2 s causal window
+    # Frames predicted per diffusion pass. The original paper uses 5 (0.2 s) and
+    # reaches longer horizons by autoregressive rollout (which accumulates error).
+    # Set to 25 (1 s) to predict a full second in ONE coherent pass — no intra-second
+    # drift, ~5x fewer rollout steps for longer horizons. Per-run via --window.
+    window_frames: int = 5                # 0.2 s causal window (paper default)
     # Total tokens per training sample: history_frames + window_frames
+
+    # How the waypoint/arrow signal reaches the model:
+    #   "additive"  — project the target xy and ADD it onto each future token
+    #                 (paper-faithful original; the additive-bias scheme).
+    #   "cross_attn" — feed the target as SEPARATE condition tokens that the future
+    #                 tokens cross-attend to (more expressive; future always denoises
+    #                 from pure noise, no x-seeding). Our v2 extension.
+    # Persisted in the checkpoint cfg, so both variants load and run side by side.
+    conditioning: str = "additive"
 
     # ── model ──────────────────────────────────────────────────────────────
     d_model: int = 256                    # paper §6.3.3

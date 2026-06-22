@@ -182,7 +182,12 @@ async def lifespan(_app: FastAPI):
     ckpt = Path(os.environ.get("GENTAC_CKPT", str(DEFAULT_CKPT)))
     if not ckpt.exists():
         raise RuntimeError(f"checkpoint not found at {ckpt}; run scripts/smoke_train.py first")
-    device = "mps" if torch.backends.mps.is_available() else "cpu"
+    # GENTAC_DEVICE overrides (e.g. force "cpu" while a training run owns the GPU).
+    device = os.environ.get("GENTAC_DEVICE") or (
+        "cuda" if torch.cuda.is_available()
+        else "mps" if torch.backends.mps.is_available()
+        else "cpu"
+    )
     log.info("loading checkpoint", extra={"event": "ckpt_loading", "path": str(ckpt), "device": device})
     cfg = GenTacTrajectoryModule.cfg_from_checkpoint(ckpt)
     mod = GenTacTrajectoryModule.load_from_checkpoint(str(ckpt), cfg=cfg)

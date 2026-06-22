@@ -101,7 +101,7 @@ class GenTacEventRecognizer(nn.Module):
         self.head = EventHead(cfg)
 
     def forward(self, coords: torch.Tensor, valid: torch.Tensor):
-        h = self.tokenizer(coords)
+        h, _ = self.tokenizer(coords)          # event head doesn't use waypoint conditioning
         h = self.backbone(h, valid)
         return self.head(h, valid)
 

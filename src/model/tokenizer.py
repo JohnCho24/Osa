@@ -83,8 +83,14 @@ class TrajectoryTokenizer(nn.Module):
         waypoint_target: torch.Tensor | None = None,        # (B, L, n_ent, 2)
         waypoint_present: torch.Tensor | None = None,       # (B, L, n_ent) bool
         role_idx: torch.Tensor | None = None,               # (B, n_ent) long — per-player role
-    ) -> torch.Tensor:
-        """coords: (B, L, n_ent, 2)  →  tokens: (B, L, n_ent, d)
+    ) -> tuple[torch.Tensor, torch.Tensor | None]:
+        """coords: (B, L, n_ent, 2)  →  (tokens, condition)
+
+        Returns (tokens, condition):
+          • additive mode   — the waypoint is added onto `tokens`; condition is None.
+          • cross_attn mode — `tokens` carry NO waypoint; the waypoint embedding is
+            returned as a separate `condition` (B, L, n_ent, d) for the backbone to
+            cross-attend to. (Either way the waypoint embedding itself is identical.)
 
         If waypoint_target is None the unconditional (no-arrow) branch is used —
         the same null embedding the model sees during CFG dropout in training,
@@ -108,20 +114,20 @@ class TrajectoryTokenizer(nn.Module):
             role_h = self.role_emb(role_idx).view(B, 1, n_ent, -1)   # broadcast over time
         h = h + role_h
 
+        # Waypoint/condition embedding: projected target where present, else the
+        # learned null vector. Same computation regardless of how it's consumed.
+        null = self.waypoint_null_emb.view(1, 1, 1, -1)
         if waypoint_target is None:
-            # Unconditional branch: every (t, entity) gets the null waypoint embedding.
-            h = h + self.waypoint_null_emb.view(1, 1, 1, -1)
+            cond = null.expand(B, L, n_ent, -1)
         else:
             if waypoint_present is None:
                 raise ValueError("waypoint_target given without waypoint_present")
             wp_proj = self.waypoint_proj(waypoint_target)                       # (B, L, n_ent, d)
-            wp_emb = torch.where(
-                waypoint_present.unsqueeze(-1),
-                wp_proj,
-                self.waypoint_null_emb.view(1, 1, 1, -1).expand_as(wp_proj),
-            )
-            h = h + wp_emb
-        return h
+            cond = torch.where(waypoint_present.unsqueeze(-1), wp_proj, null.expand_as(wp_proj))
+
+        if self.cfg.conditioning == "cross_attn":
+            return h, cond          # backbone cross-attends `h` to `cond`
+        return h + cond, None       # additive (original): fold the waypoint into the token
 
 
 if __name__ == "__main__":
@@ -129,6 +135,6 @@ if __name__ == "__main__":
     cfg = GenTacConfig(smoke=True)
     tok = TrajectoryTokenizer(cfg)
     x = torch.randn(2, cfg.history_frames + cfg.window_frames, cfg.n_entities, 2)
-    h = tok(x)
-    print(f"input  {tuple(x.shape)}  → tokens {tuple(h.shape)}")
+    h, cond = tok(x)
+    print(f"input  {tuple(x.shape)}  → tokens {tuple(h.shape)}  cond={None if cond is None else tuple(cond.shape)}")
     print(f"params: {sum(p.numel() for p in tok.parameters()):,}")

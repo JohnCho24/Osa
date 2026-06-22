@@ -123,6 +123,36 @@ URL params:
 
 ---
 
+## Pretrained weights
+
+A trained trajectory checkpoint is published as a GitHub Release asset, so you can
+run inference without training locally.
+
+| Asset | Params | Schema | Trained | Val loss | Size |
+|-------|--------|--------|---------|----------|------|
+| [`gentac-trajectory-schema5.ckpt`](https://github.com/LegalTeamLLM/b-start-up/releases/download/weights-v0.1/gentac-trajectory-schema5.ckpt) | 4.81 M | v5 | epoch 9 (60,720 steps) on PFF FC 2022 World Cup tracking (64 train matches, 1 held out) | ≈ 0.0003 | 38.5 MB |
+
+This is an **inference-only** export of `checkpoints/full/best-09-0.0003.ckpt` with the
+optimizer and training-loop state stripped (77 MB → 38.5 MB). The model + EMA weights
+and the persisted `cfg_dict` are byte-identical to the training checkpoint, so it loads
+through the normal server path with no code changes.
+
+```bash
+# download into the directory the server / sample scripts look in
+mkdir -p checkpoints/full
+curl -L -o checkpoints/full/gentac-trajectory-schema5.ckpt \
+  https://github.com/LegalTeamLLM/b-start-up/releases/download/weights-v0.1/gentac-trajectory-schema5.ckpt
+
+# run the inference server against it
+GENTAC_CKPT=checkpoints/full/gentac-trajectory-schema5.ckpt \
+  uvicorn src.server.main:app --host 127.0.0.1 --port 8001
+```
+
+> Requires the schema-v5 model code (current `main`). Older checkpoints are rejected
+> at load time by `cfg_from_checkpoint`'s `schema_version` guard.
+
+---
+
 ## What's built
 
 ### M1 — 2D renderer (done)

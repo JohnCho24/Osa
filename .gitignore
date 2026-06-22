@@ -2,6 +2,8 @@
 # Model weights (regenerable via scripts/smoke_train.py; M7 ckpt belongs in
 # a release artifact or Git LFS, not the source tree)
 checkpoints/
+# local staging dir for inference-only weights uploaded to GitHub Releases
+release/
 
 # Training + processed data (Metrica sample is publicly downloadable;
 # data/processed/ is regenerable via the converters)

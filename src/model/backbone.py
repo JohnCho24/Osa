@@ -26,12 +26,20 @@ def _safe_padding_mask(pad: torch.Tensor) -> torch.Tensor:
 
 
 class FactorizedBlock(nn.Module):
-    def __init__(self, d: int, n_heads: int, mlp_ratio: float, dropout: float):
+    def __init__(self, d: int, n_heads: int, mlp_ratio: float, dropout: float, use_cross_attn: bool = False):
         super().__init__()
         self.norm_s = nn.LayerNorm(d)
         self.spatial_attn = nn.MultiheadAttention(d, n_heads, dropout=dropout, batch_first=True)
         self.norm_t = nn.LayerNorm(d)
         self.temporal_attn = nn.MultiheadAttention(d, n_heads, dropout=dropout, batch_first=True)
+        # Optional cross-attention to condition (waypoint) tokens — only built for
+        # cfg.conditioning == "cross_attn"; otherwise the block is byte-identical to
+        # the original (no extra params).
+        self.use_cross_attn = use_cross_attn
+        if use_cross_attn:
+            self.norm_cq = nn.LayerNorm(d)      # query = main tokens
+            self.norm_ck = nn.LayerNorm(d)      # key/value = condition tokens
+            self.cross_attn = nn.MultiheadAttention(d, n_heads, dropout=dropout, batch_first=True)
         self.norm_m = nn.LayerNorm(d)
         hidden = int(d * mlp_ratio)
         self.mlp = nn.Sequential(
@@ -42,8 +50,8 @@ class FactorizedBlock(nn.Module):
             nn.Dropout(dropout),
         )
 
-    def forward(self, x: torch.Tensor, valid: torch.Tensor) -> torch.Tensor:
-        """x: (B, L, n_ent, d). valid: (B, L, n_ent) bool, True = real entity."""
+    def forward(self, x: torch.Tensor, valid: torch.Tensor, cond: torch.Tensor | None = None) -> torch.Tensor:
+        """x: (B, L, n_ent, d). valid: (B, L, n_ent) bool. cond: (B, L, n_ent, d) | None."""
         B, L, n_ent, d = x.shape
 
         # ── spatial: (B*L, n_ent, d) ─────────────────────────────────────
@@ -60,6 +68,16 @@ class FactorizedBlock(nn.Module):
         attn_out = attn_out.reshape(B, n_ent, L, d).permute(0, 2, 1, 3)
         x = x + attn_out
 
+        # ── cross-attention to condition tokens (per-frame, entity axis) ──
+        # Each token reads the waypoint/arrow conditions of all entities in its
+        # frame, so players react to where others are instructed to go.
+        if self.use_cross_attn and cond is not None:
+            q = self.norm_cq(x).reshape(B * L, n_ent, d)
+            kv = self.norm_ck(cond).reshape(B * L, n_ent, d)
+            pad_c = _safe_padding_mask((~valid).reshape(B * L, n_ent))
+            attn_out, _ = self.cross_attn(q, kv, kv, key_padding_mask=pad_c, need_weights=False)
+            x = x + attn_out.reshape(B, L, n_ent, d)
+
         # ── position-wise MLP ────────────────────────────────────────────
         x = x + self.mlp(self.norm_m(x))
         return x
@@ -69,16 +87,19 @@ class SpatioTemporalBackbone(nn.Module):
     def __init__(self, cfg: GenTacConfig):
         super().__init__()
         self.cfg = cfg
+        use_cross_attn = getattr(cfg, "conditioning", "additive") == "cross_attn"
         self.blocks = nn.ModuleList([
-            FactorizedBlock(cfg.d_model, cfg.n_heads, cfg.mlp_ratio, cfg.dropout)
+            FactorizedBlock(cfg.d_model, cfg.n_heads, cfg.mlp_ratio, cfg.dropout, use_cross_attn=use_cross_attn)
             for _ in range(cfg.n_layers)
         ])
         self.final_norm = nn.LayerNorm(cfg.d_model)
 
-    def forward(self, tokens: torch.Tensor, valid: torch.Tensor) -> torch.Tensor:
-        """tokens: (B, L, n_ent, d). valid: (B, L, n_ent) bool. returns (B, L, n_ent, d)."""
+    def forward(self, tokens: torch.Tensor, valid: torch.Tensor,
+                cond: torch.Tensor | None = None) -> torch.Tensor:
+        """tokens: (B, L, n_ent, d). valid: (B, L, n_ent) bool. cond: (B, L, n_ent, d) | None.
+        returns (B, L, n_ent, d)."""
         for blk in self.blocks:
-            tokens = blk(tokens, valid)
+            tokens = blk(tokens, valid, cond)
         return self.final_norm(tokens)
 
 
@@ -99,8 +120,8 @@ if __name__ == "__main__":
     # also exercise the all-masked-row guard
     valid[1, 30, :] = False
 
-    h = tok(coords)
-    out = bb(h, valid)
+    h, cond = tok(coords)
+    out = bb(h, valid, cond)
     print(f"tokens {tuple(h.shape)} → backbone {tuple(out.shape)}")
     print(f"backbone params: {sum(p.numel() for p in bb.parameters()):,}")
     print(f"total params (tok+bb): {sum(p.numel() for p in tok.parameters()) + sum(p.numel() for p in bb.parameters()):,}")

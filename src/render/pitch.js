@@ -958,10 +958,10 @@ async function main() {
       // arrow path instead of only snapping at the end. The model still runs and
       // predicts every other player's reaction; fade only affects arrowed slots.
       fade_frames: horizon - 1,
-      // Smoke checkpoint is undertrained — CFG > 1 amplifies noise into visible
-      // player/ball "crashes" (overlaps, jittery paths). Keep at 1.0 for now;
-      // bump back up once a full-trained checkpoint (M7) lands.
-      guidance_scale: 1.0,
+      // Full-trained checkpoint (PFF 2022 WC, cosine schedule). Eval found
+      // guidance 2.0 the sweet spot for arrow adherence (77% hit@2m vs 67% at
+      // 1.0); 3.5+ starts to overshoot. See checkpoints/full/eval.json.
+      guidance_scale: 2.0,
       mode: "unconditioned",
       arrows: Array.from(app.arrows.values()).map(a => {
         if (a.kind === "ball_pass") {
